@@ -59,3 +59,13 @@ typings/
 
 # next.js build output
 .next
+
+# Typescript stuff
+typings
+src/*.js
+
+lerna-debug.log
+dist
+es
+umd
+/index.js
