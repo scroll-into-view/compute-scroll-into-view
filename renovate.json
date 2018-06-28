@@ -1,0 +1,15 @@
+{
+  "extends": [
+    "config:js-lib",
+    ":automergeDigest",
+    ":automergeMinor",
+    ":automergeRequireAllStatusChecks",
+    ":prHourlyLimit1",
+    ":semanticCommits",
+    ":pinDigestsDisabled",
+    ":maintainLockFilesWeekly"
+  ],
+  "devDependencies": {
+    "extends": ":automergeMajor"
+  }
+}
