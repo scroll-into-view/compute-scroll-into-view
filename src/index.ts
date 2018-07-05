@@ -218,8 +218,7 @@ export default (target: Element, options: Options): CustomScrollAction[] => {
     typeof boundary === 'function' ? boundary : (node: any) => node !== boundary
 
   if (!isElement(target)) {
-    // @TODO shorter error "Invalid target", and make it TypeError
-    throw new Error('Element is required in scrollIntoView')
+    throw new TypeError('Invalid target')
   }
 
   // Used to handle the top most element that can be scrolled
