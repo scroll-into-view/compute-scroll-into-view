@@ -2,7 +2,7 @@
   "name": "compute-scroll-into-view",
   "description": "The engine that powers scroll-into-view-if-needed",
   "license": "MIT",
-  "author": "Stian Didriksen",
+  "author": "Cody Olsen",
   "homepage": "https://scroll-into-view-if-needed.netlify.com",
   "repository": {
     "type": "git",
@@ -106,15 +106,7 @@
   "prettier": {
     "semi": false,
     "singleQuote": true,
-    "trailingComma": "es5",
-    "overrides": [
-      {
-        "files": ".babelrc",
-        "options": {
-          "parser": "json"
-        }
-      }
-    ]
+    "trailingComma": "es5"
   },
   "release": {
     "prepare": [

@@ -69,3 +69,4 @@ dist
 es
 umd
 /index.js
+/types.js
