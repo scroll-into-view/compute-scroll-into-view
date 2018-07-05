@@ -297,12 +297,10 @@ export default (target: Element, options: Options): CustomScrollAction[] => {
     } = frame.getBoundingClientRect()
 
     // If the element is already visible we can end it here
-    if (scrollMode === 'if-needed') {
+    if (scrollMode === 'if-needed' && targetTop >= 0 && targetRight >= 0) {
       if (
         frame === scrollingElement
-          ? targetBottom <= viewportHeight &&
-            targetTop >= 0 &&
-            (targetLeft <= viewportWidth && targetRight >= 0)
+          ? targetBottom <= viewportHeight && targetLeft <= viewportWidth
           : targetTop >= top && targetBottom <= bottom
       ) {
         // Break the loop and return the computations for things that are not fully visible
