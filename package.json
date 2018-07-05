@@ -79,11 +79,8 @@
   "bundlesize": [
     {
       "path": "./umd/compute-scroll-into-view.min.js",
-      "maxSize": "1 kB"
-    },
-    {
-      "path": "./umd/compute-scroll-into-view.js",
-      "maxSize": "1.5 kB"
+      "maxSize": "3 kB",
+      "compression": "none"
     }
   ],
   "lint-staged": {
