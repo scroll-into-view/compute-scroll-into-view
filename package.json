@@ -8,7 +8,7 @@
     "type": "git",
     "url": "git+https://github.com/stipsan/compute-scroll-into-view.git"
   },
-  "version": "1.0.0",
+  "version": "0.1.0",
   "main": "index.js",
   "module": "es/index.js",
   "files": [
