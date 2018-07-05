@@ -1,0 +1,62 @@
+
+aliases:
+  - &restore-cache
+    keys:
+      - v1-dependencies-{{ .Branch }}-{{ checksum "yarn.lock" }}
+      # Fallback in case checksum fails
+      - v1-dependencies-{{ .Branch }}-
+
+  - &install
+    run: yarn --no-progress
+
+  - &save-cache
+    paths:
+      - node_modules
+    key: v1-dependencies-{{ .Branch }}-{{ checksum "yarn.lock" }}
+
+version: 2
+jobs:
+  Typecheck:
+    docker:
+      - image: circleci/node:8
+    steps:
+      - checkout
+      - restore-cache: *restore-cache
+      - *install
+      - run: yarn typecheck
+
+  Build:
+    docker:
+      - image: circleci/node:8
+    steps:
+      - checkout
+      - restore-cache: *restore-cache
+      - *install
+      - run: yarn build
+      - run: npx bundlesize
+      - save-cache: *save-cache
+
+  Semantic Release:
+    docker:
+      - image: circleci/node:8
+    steps:
+      - checkout
+      - restore-cache: *restore-cache
+      - *install
+      - run: npx semantic-release
+
+# Workflows enables us to run multiple jobs in parallel
+workflows:
+  version: 2
+  Build and Deploy:
+    jobs:
+      - Typecheck
+      - Build
+      - Semantic Release:
+          requires:
+            - Typecheck
+            - Build
+          filters:
+            branches:
+              only:
+                - master
