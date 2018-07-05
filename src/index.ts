@@ -14,6 +14,11 @@ declare global {
       width: number
     }
   }
+  // tslint:disable-next-line
+  type visualViewport = {
+    height: number
+    width: number
+  }
 
   // @TODO better declaration of possible shadowdom hosts
   interface Element {
@@ -41,21 +46,13 @@ export interface Options {
   skipOverflowHiddenElements?: boolean
 }
 
-// memoize for perf
-let viewport: HTMLElement
-
 // return the current viewport depending on wether quirks mode is active or not
 function getViewport() {
-  const doc = document
-
-  if (!viewport) {
-    viewport =
-      (doc.compatMode !== 'CSS1Compat' &&
-        (doc.scrollingElement as HTMLElement)) ||
-      doc.documentElement
-  }
-
-  return viewport
+  return (
+    (document.compatMode !== 'CSS1Compat' &&
+      (document.scrollingElement as HTMLElement)) ||
+    document.documentElement
+  )
 }
 
 // @TODO better shadowdom test, 11 = document fragment
@@ -68,26 +65,23 @@ function isElement(el: any) {
 }
 
 function canOverflow(
-  el: Element,
-  axis: 'overflowY' | 'overflowX',
+  overflow: string | null,
   skipOverflowHiddenElements?: boolean
 ) {
-  const overflowValue = getComputedStyle(el, null)[axis]
-
-  if (skipOverflowHiddenElements && overflowValue === 'hidden') {
+  if (skipOverflowHiddenElements && overflow === 'hidden') {
     return false
   }
 
-  return overflowValue !== 'visible' && overflowValue !== 'clip'
+  return overflow !== 'visible' && overflow !== 'clip'
 }
 
 function isScrollable(el: Element, skipOverflowHiddenElements?: boolean) {
+  const style = getComputedStyle(el)
   return (
-    el === getViewport() ||
     (el.clientHeight < el.scrollHeight &&
-      canOverflow(el, 'overflowY', skipOverflowHiddenElements)) ||
+      canOverflow(style.overflowY, skipOverflowHiddenElements)) ||
     (el.clientWidth < el.scrollWidth &&
-      canOverflow(el, 'overflowX', skipOverflowHiddenElements))
+      canOverflow(style.overflowX, skipOverflowHiddenElements))
   )
 }
 
@@ -266,33 +260,25 @@ export default (target: Element, options: Options): CustomScrollAction[] => {
   // Workaround Chrome's behavior on clientHeight/clientWidth after introducing visualViewport
   // https://www.quirksmode.org/blog/archives/2016/02/chrome_change_b.html
   const viewport = getViewport()
-  const viewportWidth = window.visualViewport
-    ? window.visualViewport.width
-    : Math.min(viewport.clientWidth, window.innerWidth)
-  const viewportHeight = window.visualViewport
-    ? window.visualViewport.height
-    : Math.min(viewport.clientHeight, window.innerHeight)
-  const viewportX = window.scrollX || window.pageXOffset
-  const viewportY = window.scrollY || window.pageYOffset
+  const viewportWidth = innerWidth
+  const viewportHeight = innerHeight
+  const viewportX = scrollX
+  const viewportY = scrollY
 
-  // @TODO remove duplicate results
   // These values mutate as we loop through and generate scroll coordinates
   let targetBlock: number =
-    block === 'start'
-      ? targetRect.top
+    block === 'center'
+      ? targetRect.top + targetRect.height / 2
       : block === 'end'
         ? targetRect.bottom
-        : block === 'nearest'
-          ? targetRect.top
-          : targetRect.top + targetRect.height / 2 // block === 'center
+        : targetRect.top // block === 'start' || block === 'nearest'
+
   let targetInline: number =
-    inline === 'start'
-      ? targetRect.left
-      : inline === 'center'
-        ? targetRect.left + targetRect.width / 2
-        : inline === 'end'
-          ? targetRect.right
-          : targetRect.left // inline === 'nearest && inline === 'start
+    inline === 'center'
+      ? targetRect.left + targetRect.width / 2
+      : inline === 'end'
+        ? targetRect.right
+        : targetRect.left // inline === 'start || inline === 'nearest
 
   // Collect new scroll positions
   const computations = frames.reduce<CustomScrollAction[]>((results, frame) => {
