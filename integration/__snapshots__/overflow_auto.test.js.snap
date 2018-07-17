@@ -21,6 +21,13 @@ Object {
 }
 `;
 
+exports[`scrollMode: always block: center, inline: nearest 2`] = `
+Object {
+  "left": 200,
+  "top": 150,
+}
+`;
+
 exports[`scrollMode: always block: center, inline: start 1`] = `
 Object {
   "left": 200,
@@ -49,6 +56,13 @@ Object {
 }
 `;
 
+exports[`scrollMode: always block: end, inline: nearest 2`] = `
+Object {
+  "left": 200,
+  "top": 100,
+}
+`;
+
 exports[`scrollMode: always block: end, inline: start 1`] = `
 Object {
   "left": 200,
@@ -63,10 +77,24 @@ Object {
 }
 `;
 
+exports[`scrollMode: always block: nearest, inline: center 2`] = `
+Object {
+  "left": 150,
+  "top": 200,
+}
+`;
+
 exports[`scrollMode: always block: nearest, inline: end 1`] = `
 Object {
   "left": 100,
   "top": 100,
+}
+`;
+
+exports[`scrollMode: always block: nearest, inline: end 2`] = `
+Object {
+  "left": 100,
+  "top": 200,
 }
 `;
 
@@ -77,10 +105,24 @@ Object {
 }
 `;
 
+exports[`scrollMode: always block: nearest, inline: nearest 2`] = `
+Object {
+  "left": 200,
+  "top": 200,
+}
+`;
+
 exports[`scrollMode: always block: nearest, inline: start 1`] = `
 Object {
   "left": 200,
   "top": 100,
+}
+`;
+
+exports[`scrollMode: always block: nearest, inline: start 2`] = `
+Object {
+  "left": 200,
+  "top": 200,
 }
 `;
 
@@ -105,9 +147,66 @@ Object {
 }
 `;
 
+exports[`scrollMode: always block: start, inline: nearest 2`] = `
+Object {
+  "left": 200,
+  "top": 200,
+}
+`;
+
 exports[`scrollMode: always block: start, inline: start 1`] = `
 Object {
   "left": 200,
   "top": 200,
 }
+`;
+
+exports[`scrollMode: if-needed horizontal completely overflowing 1`] = `
+Array [
+  Object {
+    "el": Object {},
+    "left": 200,
+    "top": 150,
+  },
+  Object {
+    "el": Object {},
+    "left": 0,
+    "top": -200,
+  },
+]
+`;
+
+exports[`scrollMode: if-needed horizontal partially overflowing 1`] = `
+Array [
+  Object {
+    "el": Object {},
+    "left": 200,
+    "top": 150,
+  },
+  Object {
+    "el": Object {},
+    "left": 0,
+    "top": -200,
+  },
+]
+`;
+
+exports[`scrollMode: if-needed vertical completely below the fold 1`] = `
+Array [
+  Object {
+    "el": Object {},
+    "left": 100,
+    "top": 150,
+  },
+]
+`;
+
+exports[`scrollMode: if-needed vertical partially below the fold 1`] = `
+Array [
+  Object {
+    "el": Object {},
+    "left": 100,
+    "top": 150,
+  },
+]
 `;

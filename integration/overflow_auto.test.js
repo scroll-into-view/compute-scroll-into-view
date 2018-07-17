@@ -20,7 +20,8 @@ describe('scrollMode: always', () => {
         )
         const actual = await page.evaluate(
           options => {
-            window.scrollTo(0, 0)
+            const container = document.querySelector('.container')
+            container.scrollTo(0, 0)
             const [{ left, top }] = window.computeScrollIntoView(
               document.querySelector('.target'),
               options
@@ -36,16 +37,24 @@ describe('scrollMode: always', () => {
         if (block === 'nearest' || inline === 'nearest') {
           const expected = await page.evaluate(
             options => {
-              window.scrollTo(window.innerWidth * 3, window.innerHeight * 3)
+              const container = document.querySelector('.container')
+              container.scrollTo(
+                container.clientWidth * 3,
+                container.clientHeight * 3
+              )
               document.querySelector('.target').scrollIntoView(options)
-              const { scrollLeft, scrollTop } = document.scrollingElement
+              const { scrollLeft, scrollTop } = container
               return { left: scrollLeft, top: scrollTop }
             },
             { block, inline }
           )
           const actual = await page.evaluate(
             options => {
-              window.scrollTo(window.innerWidth * 3, window.innerHeight * 3)
+              const container = document.querySelector('.container')
+              container.scrollTo(
+                container.clientWidth * 3,
+                container.clientHeight * 3
+              )
               const [{ left, top }] = window.computeScrollIntoView(
                 document.querySelector('.target'),
                 options
@@ -66,7 +75,8 @@ describe('scrollMode: if-needed', () => {
   describe('vertical', () => {
     test('completely below the fold', async () => {
       const actual = await page.evaluate(() => {
-        window.scrollTo(window.innerWidth * 1.5, window.innerHeight)
+        const container = document.querySelector('.container')
+        container.scrollTo(100, 0)
         return window.computeScrollIntoView(document.querySelector('.target'), {
           scrollMode: 'if-needed',
         })
@@ -77,7 +87,8 @@ describe('scrollMode: if-needed', () => {
 
     test('partially below the fold', async () => {
       const actual = await page.evaluate(() => {
-        window.scrollTo(window.innerWidth * 1.5, window.innerHeight + 50)
+        const container = document.querySelector('.container')
+        container.scrollTo(100, 50)
         return window.computeScrollIntoView(document.querySelector('.target'), {
           scrollMode: 'if-needed',
         })
@@ -90,7 +101,8 @@ describe('scrollMode: if-needed', () => {
   describe('horizontal', () => {
     test('completely overflowing', async () => {
       const actual = await page.evaluate(() => {
-        window.scrollTo(window.innerWidth, window.innerHeight * 1.5)
+        const container = document.querySelector('.container')
+        container.scrollTo(0, 100)
         return window.computeScrollIntoView(document.querySelector('.target'), {
           scrollMode: 'if-needed',
         })
@@ -101,7 +113,8 @@ describe('scrollMode: if-needed', () => {
 
     test('partially overflowing', async () => {
       const actual = await page.evaluate(() => {
-        window.scrollTo(window.innerWidth + 50, window.innerHeight * 1.5)
+        const container = document.querySelector('.container')
+        container.scrollTo(50, 100)
         return window.computeScrollIntoView(document.querySelector('.target'), {
           scrollMode: 'if-needed',
         })
