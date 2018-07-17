@@ -160,3 +160,43 @@ Object {
   "top": 1200,
 }
 `;
+
+exports[`scrollMode: if-needed horizontal completely overflowing 1`] = `
+Array [
+  Object {
+    "el": Object {},
+    "left": 900,
+    "top": 950,
+  },
+]
+`;
+
+exports[`scrollMode: if-needed horizontal partially overflowing 1`] = `
+Array [
+  Object {
+    "el": Object {},
+    "left": 900,
+    "top": 950,
+  },
+]
+`;
+
+exports[`scrollMode: if-needed vertical completely below the fold 1`] = `
+Array [
+  Object {
+    "el": Object {},
+    "left": 1200,
+    "top": 950,
+  },
+]
+`;
+
+exports[`scrollMode: if-needed vertical partially below the fold 1`] = `
+Array [
+  Object {
+    "el": Object {},
+    "left": 1200,
+    "top": 950,
+  },
+]
+`;
