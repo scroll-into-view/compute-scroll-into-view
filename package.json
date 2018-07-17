@@ -28,6 +28,7 @@
     "precommit": "lint-staged",
     "dev": "concurrently 'tsc --noEmit --watch' 'yarn build:cjs --watch' 'yarn build:es --watch' 'yarn build:umd --watch' 'yarn build:umd.min --watch'",
     "prepublishOnly": "unset npm_config_cafile && yarn build",
+    "test": "jest -c integration/jest.config.js",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
@@ -54,6 +55,7 @@
     "rollup-plugin-replace": "2.0.0",
     "rollup-plugin-terser": "1.0.1",
     "semantic-release": "15.8.0",
+    "serve": "9.2.0",
     "tslint": "5.11.0",
     "tslint-config-prettier": "1.13.0",
     "typescript": "2.9.2"
