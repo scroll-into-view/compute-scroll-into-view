@@ -300,7 +300,7 @@ export default (target: Element, options: Options): CustomScrollAction[] => {
     if (scrollMode === 'if-needed' && targetTop >= 0 && targetRight >= 0) {
       if (
         frame === scrollingElement
-          ? targetBottom <= viewportHeight && targetLeft <= viewportWidth
+          ? targetBottom <= viewportHeight && targetRight <= viewportWidth
           : targetTop >= top && targetBottom <= bottom
       ) {
         // Break the loop and return the computations for things that are not fully visible
