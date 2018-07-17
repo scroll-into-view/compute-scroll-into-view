@@ -29,7 +29,9 @@ describe('scrollMode: always', () => {
           { block, inline }
         )
         expect(expected).toEqual(actual)
+        expect(actual).toMatchSnapshot()
 
+        // The 'nearest' cases can have diff behavior depending on the current scroll position
         if (block === 'nearest' || inline === 'nearest') {
           const expected = await page.evaluate(
             options => {
@@ -52,6 +54,7 @@ describe('scrollMode: always', () => {
             { block, inline }
           )
           expect(expected).toEqual(actual)
+          expect(actual).toMatchSnapshot()
         }
       })
     })
