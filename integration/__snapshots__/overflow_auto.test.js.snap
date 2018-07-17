@@ -165,13 +165,8 @@ exports[`scrollMode: if-needed horizontal completely overflowing 1`] = `
 Array [
   Object {
     "el": Object {},
-    "left": 200,
+    "left": 100,
     "top": 150,
-  },
-  Object {
-    "el": Object {},
-    "left": 0,
-    "top": -200,
   },
 ]
 `;
@@ -180,13 +175,8 @@ exports[`scrollMode: if-needed horizontal partially overflowing 1`] = `
 Array [
   Object {
     "el": Object {},
-    "left": 200,
+    "left": 100,
     "top": 150,
-  },
-  Object {
-    "el": Object {},
-    "left": 0,
-    "top": -200,
   },
 ]
 `;
