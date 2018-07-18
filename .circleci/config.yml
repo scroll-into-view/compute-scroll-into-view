@@ -47,7 +47,11 @@ jobs:
           command: 'sh .circleci/setup_puppeteer.sh'
       - *install
       - run: yarn build:umd
-      - run: yarn test
+      - run: 
+          command: yarn test --ci --runInBand
+      - store_test_results:
+          path: reports
+
 
   Semantic Release:
     docker:

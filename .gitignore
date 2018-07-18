@@ -68,5 +68,6 @@ lerna-debug.log
 dist
 es
 umd
+reports
 /index.js
 /types.js
