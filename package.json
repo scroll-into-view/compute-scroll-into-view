@@ -83,6 +83,12 @@
       "compression": "none"
     }
   ],
+  "jest": {
+    "reporters": [
+      "default",
+      "jest-junit"
+    ]
+  },
   "lint-staged": {
     "*.js": [
       "prettier --write",
