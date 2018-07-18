@@ -297,18 +297,19 @@ export default (target: Element, options: Options): CustomScrollAction[] => {
     } = frame.getBoundingClientRect()
 
     // If the element is already visible we can end it here
-    if (scrollMode === 'if-needed' && targetTop >= 0 && targetLeft >= 0) {
-      if (
-        frame === scrollingElement
-          ? targetBottom <= viewportHeight && targetRight <= viewportWidth
-          : targetTop >= top &&
-            targetBottom <= bottom &&
-            targetLeft >= left &&
-            targetRight <= right
-      ) {
-        // Break the loop and return the computations for things that are not fully visible
-        return computations
-      }
+    if (
+      scrollMode === 'if-needed' &&
+      targetTop >= 0 &&
+      targetLeft >= 0 &&
+      targetBottom <= viewportHeight &&
+      targetRight <= viewportWidth &&
+      targetTop >= top &&
+      targetBottom <= bottom &&
+      targetLeft >= left &&
+      targetRight <= right
+    ) {
+      // Break the loop and return the computations for things that are not fully visible
+      return computations
     }
 
     const frameStyle = getComputedStyle(frame)
