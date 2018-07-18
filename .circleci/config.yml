@@ -36,6 +36,16 @@ jobs:
       - run: npx bundlesize
       - save-cache: *save-cache
 
+  Test:
+    docker:
+      - image: circleci/node:8
+    steps:
+      - checkout
+      - restore-cache: *restore-cache
+      - *install
+      - run: yarn build:umd
+      - run: yarn test
+
   Semantic Release:
     docker:
       - image: circleci/node:8
@@ -52,10 +62,12 @@ workflows:
     jobs:
       - Typecheck
       - Build
+      - Test
       - Semantic Release:
           requires:
             - Typecheck
             - Build
+            - Test
           filters:
             branches:
               only:
