@@ -181,6 +181,16 @@ Array [
 ]
 `;
 
+exports[`scrollMode: if-needed horizontal partially negative overflowing 1`] = `
+Array [
+  Object {
+    "el": Object {},
+    "left": 1600,
+    "top": 950,
+  },
+]
+`;
+
 exports[`scrollMode: if-needed horizontal partially overflowing 1`] = `
 Array [
   Object {
