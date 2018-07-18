@@ -12,7 +12,7 @@ describe('scrollMode: if-needed', () => {
         scrollMode: 'if-needed',
       })
     })
-    expect(actual).toHaveLength(1)
+    expect(actual).toHaveLength(2)
     expect(actual).toMatchSnapshot()
   })
 })
