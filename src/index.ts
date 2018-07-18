@@ -381,9 +381,10 @@ export default (target: Element, options: Options): CustomScrollAction[] => {
         )
       }
 
-      // Apply scroll position offsets
-      blockScroll += viewportY
-      inlineScroll += viewportX
+      // Apply scroll position offsets and ensure they are within bounds
+      // @TODO add more test cases to cover this 100%
+      blockScroll = Math.max(0, blockScroll + viewportY)
+      inlineScroll = Math.max(0, inlineScroll + viewportX)
     } else {
       // Handle each scrolling frame that might exist between the target and the viewport
 
