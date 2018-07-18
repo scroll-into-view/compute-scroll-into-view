@@ -49,8 +49,6 @@ jobs:
       - run: yarn build:umd
       - run: 
           command: yarn test --ci --runInBand
-          environment:
-            JEST_JUNIT_OUTPUT: "reports/jest/results.xml"
       - store_test_results:
           path: reports
 
