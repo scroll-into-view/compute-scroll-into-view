@@ -12,6 +12,7 @@ interface visualViewport {
   width: number
 }
 
+// @TODO report to typescript
 declare var visualViewport: visualViewport
 
 declare global {
@@ -28,7 +29,29 @@ declare global {
   }
 }
 
-import { CustomScrollAction, Options } from './types'
+type ScrollLogicalPosition = 'start' | 'center' | 'end' | 'nearest'
+// This new option is tracked in this PR, which is the most likely candidate at the time: https://github.com/w3c/csswg-drafts/pull/1805
+type ScrollMode = 'always' | 'if-needed'
+// New option that skips auto-scrolling all nodes with overflow: hidden set
+// See FF implementation: https://hg.mozilla.org/integration/fx-team/rev/c48c3ec05012#l7.18
+type SkipOverflowHiddenElements = boolean
+
+interface Options {
+  block?: ScrollLogicalPosition
+  inline?: ScrollLogicalPosition
+  scrollMode?: ScrollMode
+  boundary?: CustomScrollBoundary
+  skipOverflowHiddenElements?: SkipOverflowHiddenElements
+}
+
+// Custom behavior, not in any spec
+type CustomScrollBoundaryCallback = (parent: Element) => boolean
+type CustomScrollBoundary = Element | CustomScrollBoundaryCallback
+interface CustomScrollAction {
+  el: Element
+  top: number
+  left: number
+}
 
 // @TODO better shadowdom test, 11 = document fragment
 function isElement(el: any) {
