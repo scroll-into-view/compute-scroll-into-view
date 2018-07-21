@@ -54,6 +54,70 @@ actions.forEach(({ el, top, left }) => {
 })
 ```
 
+## API
+
+### computeScrollIntoView(target, options)
+
+### options
+
+Type: `Object`
+
+#### [block](https://scroll-into-view-if-needed.netlify.com/#scroll-alignment)
+
+Type: `'start' | 'center' | 'end' | 'nearest'`<br> Default: `'center'`
+
+Control the logical scroll position on the y-axis. The spec states that the `block` direction is related to the [writing-mode](https://developer.mozilla.org/en-US/docs/Web/CSS/writing-mode), but this is not implemented yet in this library.
+This means that `block: 'start'` aligns to the top edge and `block: 'end'` to the bottom.
+
+#### [inline](https://scroll-into-view-if-needed.netlify.com/#scroll-alignment)
+
+Type: `'start' | 'center' | 'end' | 'nearest'`<br> Default: `'nearest'`
+
+Like `block` this is affected by the [writing-mode](https://developer.mozilla.org/en-US/docs/Web/CSS/writing-mode). In left-to-right pages `inline: 'start'` will align to the left edge. In right-to-left it should be flipped. This will be supported in a future release.
+
+#### [scrollMode](https://scroll-into-view-if-needed.netlify.com/#scrolling-if-needed)
+
+Type: `'always' | 'if-needed'`<br> Default: `'always'`
+
+This is a proposed addition to the spec that you can track here: https://github.com/w3c/csswg-drafts/pull/1805
+
+This library will be updated to reflect any changes to the spec and will provide a migration path.
+To be backwards compatible with `Element.scrollIntoViewIfNeeded` if something is not 100% visible it will count as "needs scrolling". If you need a different visibility ratio your best option would be to implement an [Intersection Observer](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API).
+
+#### [boundary](https://scroll-into-view-if-needed.netlify.com/#limit-propagation)
+
+Type: `Element | Function`
+
+By default there is no boundary. All the parent elements of your target is checked until it reaches the viewport ([`document.scrollingElement`](https://developer.mozilla.org/en-US/docs/Web/API/document/scrollingElement)) when calculating layout and what to scroll.
+By passing a boundary you can short-circuit this loop depending on your needs:
+
+- Prevent the browser window from scrolling.
+- Scroll elements into view in a list, without scrolling container elements.
+
+You can also pass a function to do more dynamic checks to override the scroll scoping:
+
+```js
+const actions = computeScrollIntoView(target, {
+  boundary: parent => {
+    // By default `overflow: hidden` elements are allowed, only `overflow: visible | clip` is skipped as
+    // this is required by the CSSOM spec
+    if (getComputedStyle(parent)['overflow'] === 'hidden') {
+      return false
+    }
+
+    return true
+  },
+})
+```
+
+#### skipOverflowHiddenElements
+
+Type: `Boolean`<br> Default: `false`
+
+By default the [spec](https://drafts.csswg.org/cssom-view/#scrolling-box) states that `overflow: hidden` elements should be scrollable because it has [been used to allow programatic scrolling](https://drafts.csswg.org/css-overflow-3/#valdef-overflow-hidden). This behavior can sometimes lead to [scrolling issues](https://github.com/stipsan/scroll-into-view-if-needed/pull/225#issue-186419520) when you have a node that is a child of an `overflow: hidden` node.
+
+This package follows the convention [adopted by Firefox](https://hg.mozilla.org/integration/fx-team/rev/c48c3ec05012#l7.18) of setting a boolean option to _not_ scroll all nodes with `overflow: hidden` set.
+
 [gzip-badge]: http://img.badgesize.io/https://unpkg.com/compute-scroll-into-view/umd/compute-scroll-into-view.min.js?compression=gzip&label=gzip%20size&style=flat-square
 [size-badge]: http://img.badgesize.io/https://unpkg.com/compute-scroll-into-view/umd/compute-scroll-into-view.min.js?label=size&style=flat-square
 [unpkg-dist]: https://unpkg.com/compute-scroll-into-view/umd/
