@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<script src="../umd/compute-scroll-into-view.js"></script>
+<script src="./utils.js"></script>
+<style>
+  *, *:before, *:after {
+      box-sizing: border-box;
+  }
+  body {
+    height: 100vh;
+    overflow-y: scroll;
+    margin: 0;
+  }
+  .container {
+    margin: 200px auto;
+    height: 200px;
+    width: 200px;
+    overflow: auto;
+  }
+  .target {
+    background: crimson;
+    margin-top: 100vh;
+    height: 100px;
+    width: 100px;
+  }
+</style>
+<div class="container"></div>
+<div class="target"></div>
