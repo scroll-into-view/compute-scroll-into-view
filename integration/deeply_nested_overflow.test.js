@@ -18,6 +18,7 @@ describe('scrollMode: if-needed', () => {
     test(`test ${step}, block ${block}, inline ${inline}`, async () => {
       const actual = await page.evaluate(
         (i, block, inline) => {
+          window.scrollTo(0, 0)
           return window
             .computeScrollIntoView(
               document.querySelectorAll('.scroll-tile')[i],
