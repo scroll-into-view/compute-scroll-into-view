@@ -120,6 +120,12 @@ By default the [spec](https://drafts.csswg.org/cssom-view/#scrolling-box) states
 
 This package follows the convention [adopted by Firefox](https://hg.mozilla.org/integration/fx-team/rev/c48c3ec05012#l7.18) of setting a boolean option to _not_ scroll all nodes with `overflow: hidden` set.
 
+# TypeScript support
+
+This library ships with library definitions for TypeScript.
+
+> FlowType definitions is coming soon.
+
 [gzip-badge]: http://img.badgesize.io/https://unpkg.com/compute-scroll-into-view/umd/compute-scroll-into-view.min.js?compression=gzip&label=gzip%20size&style=flat-square
 [size-badge]: http://img.badgesize.io/https://unpkg.com/compute-scroll-into-view/umd/compute-scroll-into-view.min.js?label=size&style=flat-square
 [unpkg-dist]: https://unpkg.com/compute-scroll-into-view/umd/
