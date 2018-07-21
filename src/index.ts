@@ -319,6 +319,9 @@ export default (target: Element, options: Options): CustomScrollAction[] => {
   // In chrome there's no longer a difference between caching the `frames.length` to a var or not, so we don't in this case (size > speed anyways)
   for (let index = 0; index < frames.length; index++) {
     const frame = frames[index]
+
+    // @TODO add a shouldScroll hook here that allows userland code to take control
+
     const {
       height,
       width,
