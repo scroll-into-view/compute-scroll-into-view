@@ -12,6 +12,7 @@ interface visualViewport {
   width: number
 }
 
+// @TODO report to typescript
 declare var visualViewport: visualViewport
 
 declare global {
@@ -28,7 +29,29 @@ declare global {
   }
 }
 
-import { CustomScrollAction, Options } from './types'
+type ScrollLogicalPosition = 'start' | 'center' | 'end' | 'nearest'
+// This new option is tracked in this PR, which is the most likely candidate at the time: https://github.com/w3c/csswg-drafts/pull/1805
+type ScrollMode = 'always' | 'if-needed'
+// New option that skips auto-scrolling all nodes with overflow: hidden set
+// See FF implementation: https://hg.mozilla.org/integration/fx-team/rev/c48c3ec05012#l7.18
+type SkipOverflowHiddenElements = boolean
+
+interface Options {
+  block?: ScrollLogicalPosition
+  inline?: ScrollLogicalPosition
+  scrollMode?: ScrollMode
+  boundary?: CustomScrollBoundary
+  skipOverflowHiddenElements?: SkipOverflowHiddenElements
+}
+
+// Custom behavior, not in any spec
+type CustomScrollBoundaryCallback = (parent: Element) => boolean
+type CustomScrollBoundary = Element | CustomScrollBoundaryCallback
+interface CustomScrollAction {
+  el: Element
+  top: number
+  left: number
+}
 
 // @TODO better shadowdom test, 11 = document fragment
 function isElement(el: any) {
@@ -237,6 +260,15 @@ export default (target: Element, options: Options): CustomScrollAction[] => {
       break
     }
 
+    // Skip document.body if it's not the scrollingElement and documentElement isn't independently scrollable
+    if (
+      cursor === document.body &&
+      isScrollable(cursor) &&
+      !isScrollable(document.documentElement)
+    ) {
+      continue
+    }
+
     // Now we check if the element is scrollable, this code only runs if the loop haven't already hit the viewport or a custom boundary
     if (isScrollable(cursor, skipOverflowHiddenElements)) {
       frames.push(cursor)
@@ -297,6 +329,7 @@ export default (target: Element, options: Options): CustomScrollAction[] => {
     } = frame.getBoundingClientRect()
 
     // If the element is already visible we can end it here
+    // @TODO targetBlock and targetInline should be taken into account to be compliant with https://github.com/w3c/csswg-drafts/pull/1805/files#diff-3c17f0e43c20f8ecf89419d49e7ef5e0R1333
     if (
       scrollMode === 'if-needed' &&
       targetTop >= 0 &&

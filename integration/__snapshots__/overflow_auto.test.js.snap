@@ -164,7 +164,7 @@ Object {
 exports[`scrollMode: if-needed horizontal completely overflowing 1`] = `
 Array [
   Object {
-    "el": Object {},
+    "el": "div.container",
     "left": 200,
     "top": 250,
   },
@@ -174,7 +174,7 @@ Array [
 exports[`scrollMode: if-needed horizontal partially overflowing 1`] = `
 Array [
   Object {
-    "el": Object {},
+    "el": "div.container",
     "left": 200,
     "top": 250,
   },
@@ -194,7 +194,7 @@ Array [
 exports[`scrollMode: if-needed vertical partially below the fold 1`] = `
 Array [
   Object {
-    "el": Object {},
+    "el": "div.container",
     "left": 200,
     "top": 250,
   },

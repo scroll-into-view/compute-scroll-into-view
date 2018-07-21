@@ -4,33 +4,26 @@
 <script src="../umd/compute-scroll-into-view.js"></script>
 <script src="./utils.js"></script>
 <style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    height: 100vh;
-    width: 100vw;
+  *, *:before, *:after {
+      box-sizing: border-box;
   }
   body {
-    padding: 0 200vw;
+    height: 100vh;
+    overflow-y: scroll;
+    margin: 0;
   }
   .container {
-    margin: 200vh auto;
+    margin: 200px auto;
     height: 200px;
     width: 200px;
     overflow: auto;
-    border: 1px dashed crimson;
-  }
-  .inner {
-    padding: 300px;
   }
   .target {
     background: crimson;
+    margin-top: 100vh;
     height: 100px;
     width: 100px;
   }
 </style>
-<div class="container">
-    <div class="inner">
-        <div class="target"></div>
-    </div>
-</div>
+<div class="container"></div>
+<div class="target"></div>
