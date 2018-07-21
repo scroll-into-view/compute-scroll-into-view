@@ -66,9 +66,11 @@ describe('scrollMode: if-needed', () => {
     test('completely below the fold', async () => {
       const actual = await page.evaluate(() => {
         window.scrollTo(window.innerWidth * 1.5, window.innerHeight)
-        return window.computeScrollIntoView(document.querySelector('.target'), {
-          scrollMode: 'if-needed',
-        })
+        return window
+          .computeScrollIntoView(document.querySelector('.target'), {
+            scrollMode: 'if-needed',
+          })
+          .map(window.mapActions)
       })
       expect(actual).toHaveLength(1)
       expect(actual).toMatchSnapshot()
@@ -77,9 +79,11 @@ describe('scrollMode: if-needed', () => {
     test('partially below the fold', async () => {
       const actual = await page.evaluate(() => {
         window.scrollTo(window.innerWidth * 1.5, window.innerHeight + 50)
-        return window.computeScrollIntoView(document.querySelector('.target'), {
-          scrollMode: 'if-needed',
-        })
+        return window
+          .computeScrollIntoView(document.querySelector('.target'), {
+            scrollMode: 'if-needed',
+          })
+          .map(window.mapActions)
       })
       expect(actual).toHaveLength(1)
       expect(actual).toMatchSnapshot()
@@ -88,9 +92,11 @@ describe('scrollMode: if-needed', () => {
     test('partially above the fold', async () => {
       const actual = await page.evaluate(() => {
         window.scrollTo(window.innerWidth * 1.5, window.innerHeight * 2 + 50)
-        return window.computeScrollIntoView(document.querySelector('.target'), {
-          scrollMode: 'if-needed',
-        })
+        return window
+          .computeScrollIntoView(document.querySelector('.target'), {
+            scrollMode: 'if-needed',
+          })
+          .map(window.mapActions)
       })
       expect(actual).toHaveLength(1)
       expect(actual).toMatchSnapshot()
@@ -99,9 +105,11 @@ describe('scrollMode: if-needed', () => {
     test('completely above the fold', async () => {
       const actual = await page.evaluate(() => {
         window.scrollTo(window.innerWidth * 1.5, window.innerHeight * 2 + 400)
-        return window.computeScrollIntoView(document.querySelector('.target'), {
-          scrollMode: 'if-needed',
-        })
+        return window
+          .computeScrollIntoView(document.querySelector('.target'), {
+            scrollMode: 'if-needed',
+          })
+          .map(window.mapActions)
       })
       expect(actual).toHaveLength(1)
       expect(actual).toMatchSnapshot()
@@ -112,9 +120,11 @@ describe('scrollMode: if-needed', () => {
     test('completely overflowing', async () => {
       const actual = await page.evaluate(() => {
         window.scrollTo(window.innerWidth, window.innerHeight * 1.5)
-        return window.computeScrollIntoView(document.querySelector('.target'), {
-          scrollMode: 'if-needed',
-        })
+        return window
+          .computeScrollIntoView(document.querySelector('.target'), {
+            scrollMode: 'if-needed',
+          })
+          .map(window.mapActions)
       })
       expect(actual).toHaveLength(1)
       expect(actual).toMatchSnapshot()
@@ -123,9 +133,11 @@ describe('scrollMode: if-needed', () => {
     test('partially overflowing', async () => {
       const actual = await page.evaluate(() => {
         window.scrollTo(window.innerWidth + 50, window.innerHeight * 1.5)
-        return window.computeScrollIntoView(document.querySelector('.target'), {
-          scrollMode: 'if-needed',
-        })
+        return window
+          .computeScrollIntoView(document.querySelector('.target'), {
+            scrollMode: 'if-needed',
+          })
+          .map(window.mapActions)
       })
       expect(actual).toHaveLength(1)
       expect(actual).toMatchSnapshot()
@@ -134,9 +146,11 @@ describe('scrollMode: if-needed', () => {
     test('partially negative overflowing', async () => {
       const actual = await page.evaluate(() => {
         window.scrollTo(window.innerWidth * 2 + 50, window.innerHeight * 1.5)
-        return window.computeScrollIntoView(document.querySelector('.target'), {
-          scrollMode: 'if-needed',
-        })
+        return window
+          .computeScrollIntoView(document.querySelector('.target'), {
+            scrollMode: 'if-needed',
+          })
+          .map(window.mapActions)
       })
       expect(actual).toHaveLength(1)
       expect(actual).toMatchSnapshot()
@@ -145,9 +159,11 @@ describe('scrollMode: if-needed', () => {
     test('fully negative overflowing', async () => {
       const actual = await page.evaluate(() => {
         window.scrollTo(window.innerWidth * 2 + 400, window.innerHeight * 1.5)
-        return window.computeScrollIntoView(document.querySelector('.target'), {
-          scrollMode: 'if-needed',
-        })
+        return window
+          .computeScrollIntoView(document.querySelector('.target'), {
+            scrollMode: 'if-needed',
+          })
+          .map(window.mapActions)
       })
       expect(actual).toHaveLength(1)
       expect(actual).toMatchSnapshot()

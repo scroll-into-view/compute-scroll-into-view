@@ -164,7 +164,7 @@ Object {
 exports[`scrollMode: if-needed horizontal completely overflowing 1`] = `
 Array [
   Object {
-    "el": Object {},
+    "el": "html",
     "left": 900,
     "top": 950,
   },
@@ -174,7 +174,7 @@ Array [
 exports[`scrollMode: if-needed horizontal fully negative overflowing 1`] = `
 Array [
   Object {
-    "el": Object {},
+    "el": "html",
     "left": 1600,
     "top": 950,
   },
@@ -184,7 +184,7 @@ Array [
 exports[`scrollMode: if-needed horizontal partially negative overflowing 1`] = `
 Array [
   Object {
-    "el": Object {},
+    "el": "html",
     "left": 1600,
     "top": 950,
   },
@@ -194,7 +194,7 @@ Array [
 exports[`scrollMode: if-needed horizontal partially overflowing 1`] = `
 Array [
   Object {
-    "el": Object {},
+    "el": "html",
     "left": 900,
     "top": 950,
   },
@@ -204,7 +204,7 @@ Array [
 exports[`scrollMode: if-needed vertical completely above the fold 1`] = `
 Array [
   Object {
-    "el": Object {},
+    "el": "html",
     "left": 1200,
     "top": 950,
   },
@@ -214,7 +214,7 @@ Array [
 exports[`scrollMode: if-needed vertical completely below the fold 1`] = `
 Array [
   Object {
-    "el": Object {},
+    "el": "html",
     "left": 1200,
     "top": 950,
   },
@@ -224,7 +224,7 @@ Array [
 exports[`scrollMode: if-needed vertical partially above the fold 1`] = `
 Array [
   Object {
-    "el": Object {},
+    "el": "html",
     "left": 1200,
     "top": 950,
   },
@@ -234,7 +234,7 @@ Array [
 exports[`scrollMode: if-needed vertical partially below the fold 1`] = `
 Array [
   Object {
-    "el": Object {},
+    "el": "html",
     "left": 1200,
     "top": 950,
   },

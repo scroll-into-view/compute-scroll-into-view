@@ -320,6 +320,7 @@ export default (target: Element, options: Options): CustomScrollAction[] => {
     } = frame.getBoundingClientRect()
 
     // If the element is already visible we can end it here
+    // @TODO targetBlock and targetInline should be taken into account to be compliant with https://github.com/w3c/csswg-drafts/pull/1805/files#diff-3c17f0e43c20f8ecf89419d49e7ef5e0R1333
     if (
       scrollMode === 'if-needed' &&
       targetTop >= 0 &&

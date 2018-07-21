@@ -3,14 +3,14 @@
 exports[`scrollMode: if-needed target in view, container out of view 1`] = `
 Array [
   Object {
-    "el": Object {},
+    "el": "div.container",
     "left": 250,
     "top": 250,
   },
   Object {
-    "el": Object {},
+    "el": "html",
     "left": 1250,
-    "top": 1000,
+    "top": 1001,
   },
 ]
 `;
