@@ -260,6 +260,15 @@ export default (target: Element, options: Options): CustomScrollAction[] => {
       break
     }
 
+    // Skip document.body if it's not the scrollingElement and documentElement isn't independently scrollable
+    if (
+      cursor === document.body &&
+      isScrollable(cursor) &&
+      !isScrollable(document.documentElement)
+    ) {
+      continue
+    }
+
     // Now we check if the element is scrollable, this code only runs if the loop haven't already hit the viewport or a custom boundary
     if (isScrollable(cursor, skipOverflowHiddenElements)) {
       frames.push(cursor)
