@@ -13,7 +13,7 @@ describe('document.body !== document.scrollingElement edge cases', () => {
         .map(window.mapActions)
     })
     expect(actual).toHaveLength(1)
-    expect(actual[0]).toEqual({ el: 'html' })
+    expect(actual[0]).toMatchObject({ el: 'html' })
     expect(actual).toMatchSnapshot()
   })
 })
