@@ -6141,9 +6141,9 @@ serve-handler@3.6.0:
     path-is-inside "1.0.2"
     path-to-regexp "2.2.1"
 
-serve@9.4.0:
-  version "9.4.0"
-  resolved "https://registry.yarnpkg.com/serve/-/serve-9.4.0.tgz#d04c988e9df908e053b92c1e22148c139224140f"
+serve@9.4.2:
+  version "9.4.2"
+  resolved "https://registry.yarnpkg.com/serve/-/serve-9.4.2.tgz#943a1526f424de74ac874aea449d9f9c74ffad2d"
   dependencies:
     "@zeit/schemas" "1.7.0"
     ajv "6.5.2"
