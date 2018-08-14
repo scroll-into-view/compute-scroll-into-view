@@ -53,7 +53,7 @@ function isElement(el: any) {
   return (
     el != null &&
     typeof el === 'object' &&
-    (el.nodeType === 1 || el.nodeType === 11)
+    (el.nodeType === 1)
   )
 }
 
