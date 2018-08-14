@@ -243,7 +243,7 @@ export default (target: Element, options: Options): CustomScrollAction[] => {
   let cursor = target
   while (isElement(cursor) && checkBoundary(cursor)) {
     // Move cursor to parent
-    cursor = cursor.parentNode
+    cursor = cursor.parentNode as Element
 
     // Stop when we reach the viewport
     if (cursor === scrollingElement) {
