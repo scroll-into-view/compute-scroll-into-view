@@ -246,8 +246,8 @@ export default (target: Element, options: Options): CustomScrollAction[] => {
   const frames: Element[] = []
   let cursor = target
   while (isElement(cursor) && checkBoundary(cursor)) {
-    // Move cursor to parent or shadow dom host
-    cursor = cursor.parentNode || (cursor as ShadowRoot).host
+    // Move cursor to parent
+    cursor = cursor.parentNode
 
     // Stop when we reach the viewport
     if (cursor === scrollingElement) {
