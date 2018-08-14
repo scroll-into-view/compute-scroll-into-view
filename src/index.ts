@@ -22,11 +22,6 @@ declare global {
       width: number
     }
   }
-
-  // @TODO better declaration of possible shadowdom hosts
-  interface Element {
-    host: any
-  }
 }
 
 type ScrollLogicalPosition = 'start' | 'center' | 'end' | 'nearest'
@@ -55,11 +50,7 @@ interface CustomScrollAction {
 
 // @TODO better shadowdom test, 11 = document fragment
 function isElement(el: any) {
-  return (
-    el != null &&
-    typeof el === 'object' &&
-    (el.nodeType === 1 || el.nodeType === 11)
-  )
+  return el != null && typeof el === 'object' && el.nodeType === 1
 }
 
 function canOverflow(
@@ -251,8 +242,8 @@ export default (target: Element, options: Options): CustomScrollAction[] => {
   const frames: Element[] = []
   let cursor = target
   while (isElement(cursor) && checkBoundary(cursor)) {
-    // Move cursor to parent or shadow dom host
-    cursor = cursor.parentNode || cursor.host
+    // Move cursor to parent
+    cursor = cursor.parentNode as Element
 
     // Stop when we reach the viewport
     if (cursor === scrollingElement) {
