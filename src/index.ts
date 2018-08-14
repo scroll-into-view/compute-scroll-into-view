@@ -22,11 +22,6 @@ declare global {
       width: number
     }
   }
-
-  // @TODO better declaration of possible shadowdom hosts
-  interface Element {
-    host: any
-  }
 }
 
 type ScrollLogicalPosition = 'start' | 'center' | 'end' | 'nearest'
