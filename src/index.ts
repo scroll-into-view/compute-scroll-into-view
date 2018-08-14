@@ -50,11 +50,7 @@ interface CustomScrollAction {
 
 // @TODO better shadowdom test, 11 = document fragment
 function isElement(el: any) {
-  return (
-    el != null &&
-    typeof el === 'object' &&
-    (el.nodeType === 1)
-  )
+  return el != null && typeof el === 'object' && el.nodeType === 1
 }
 
 function canOverflow(
