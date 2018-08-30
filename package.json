@@ -59,7 +59,7 @@
     "serve": "10.0.0",
     "tslint": "5.11.0",
     "tslint-config-prettier": "1.15.0",
-    "typescript": "3.0.1"
+    "typescript": "3.0.3"
   },
   "keywords": [
     "if-needed",
