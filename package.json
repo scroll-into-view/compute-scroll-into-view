@@ -119,6 +119,5 @@
       "@semantic-release/npm"
     ]
   },
-  "sideEffects": false,
   "typings": "typings/index.d.ts"
 }
