@@ -255,7 +255,7 @@ export default (target: Element, options: Options): CustomScrollAction[] => {
     if (
       cursor === document.body &&
       isScrollable(cursor) &&
-      !isScrollable(document.documentElement)
+      !isScrollable(document.documentElement as HTMLElement)
     ) {
       continue
     }
