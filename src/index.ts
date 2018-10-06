@@ -41,7 +41,7 @@ interface Options {
 
 // Custom behavior, not in any spec
 type CustomScrollBoundaryCallback = (parent: Element) => boolean
-type CustomScrollBoundary = Element | CustomScrollBoundaryCallback
+type CustomScrollBoundary = Element | CustomScrollBoundaryCallback | null
 interface CustomScrollAction {
   el: Element
   top: number
