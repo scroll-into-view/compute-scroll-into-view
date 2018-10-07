@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<script src="../umd/compute-scroll-into-view.js"></script>
+<script src="./utils.js"></script>
+<style>
+  html, body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    width: 100vw;
+  }
+  .container {
+    background: whitesmoke;
+    height: 100px;
+    width: 100px;
+    overflow: auto;
+  }
+  .pane {
+    height: 100px;
+    width: 100px;
+  }
+  .target {
+    background: crimson;
+  }
+</style>
+<div class="container">
+    <div class="pane"></div>
+    <div class="pane target"></div>
+    <div class="pane"></div>
+</div>
