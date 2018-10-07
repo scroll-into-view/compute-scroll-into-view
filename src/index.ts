@@ -161,8 +161,8 @@ function alignNearest(
    *    ┗ ━ ━ ━ ━ ┛         ┗ ━ ━ ━ ━ ┛
    */
   if (
-    (elementEdgeStart < scrollingEdgeStart && elementSize < scrollingSize) ||
-    (elementEdgeEnd > scrollingEdgeEnd && elementSize > scrollingSize)
+    (elementEdgeStart <= scrollingEdgeStart && elementSize <= scrollingSize) ||
+    (elementEdgeEnd >= scrollingEdgeEnd && elementSize >= scrollingSize)
   ) {
     return elementEdgeStart - scrollingEdgeStart - scrollingBorderStart
   }
