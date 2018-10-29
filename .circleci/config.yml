@@ -1,4 +1,3 @@
-
 aliases:
   - &restore-cache
     keys:
@@ -47,11 +46,10 @@ jobs:
           command: 'sh .circleci/setup_puppeteer.sh'
       - *install
       - run: yarn build:umd
-      - run: 
+      - run:
           command: yarn test --ci --runInBand
       - store_test_results:
           path: reports
-
 
   Semantic Release:
     docker:
