@@ -32,10 +32,10 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@babel/cli": "7.1.2",
-    "@babel/core": "7.1.2",
+    "@babel/cli": "7.1.5",
+    "@babel/core": "7.1.5",
     "@babel/plugin-external-helpers": "7.0.0",
-    "@babel/preset-env": "7.1.0",
+    "@babel/preset-env": "7.1.5",
     "@babel/preset-typescript": "7.1.0",
     "babel-plugin-add-module-exports": "1.0.0",
     "babel-plugin-dev-expression": "0.2.1",
