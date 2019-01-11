@@ -4184,10 +4184,10 @@ jest-jasmine2@^23.6.0:
     jest-util "^23.4.0"
     pretty-format "^23.6.0"
 
-jest-junit@6.0.0:
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/jest-junit/-/jest-junit-6.0.0.tgz#6e3ce9583b9416b6b07d52375a655d2b12a9a2b2"
-  integrity sha512-tEQtceScdJ33N22Cn7ltOcFucMmjRWQ1LjU6KZXV34KvE114IOuHhE2hpWvWsIBXPdSc7+hzFQO1mssNK1+ChA==
+jest-junit@6.0.1:
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/jest-junit/-/jest-junit-6.0.1.tgz#7c24b2aff4ddfce3a8c0e0c84978123c0d4a945a"
+  integrity sha512-gMJb8qqyLKTD4pyaU8gjQv6wiudAqEFFt2VFswJ/+swB69WQh5mMn8tezR9B8ukejHjFbq5y9qbYWxi9uZeQZA==
   dependencies:
     jest-config "^23.6.0"
     jest-validate "^23.0.1"
