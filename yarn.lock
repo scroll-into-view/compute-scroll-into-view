@@ -4137,10 +4137,10 @@ jest-environment-node@^23.4.0:
     jest-mock "^23.2.0"
     jest-util "^23.4.0"
 
-jest-environment-puppeteer@^3.7.0:
-  version "3.7.0"
-  resolved "https://registry.yarnpkg.com/jest-environment-puppeteer/-/jest-environment-puppeteer-3.7.0.tgz#cb61a0111ab906c2970e1c4a2ee27913c4e10ad6"
-  integrity sha512-UyDj/1F5iV81ZIsKLRmrsCkpTxDrchH82wwDWt6Rariq7ZmZicNcLJMDEndjpJ9ONds5UlKDRKKtiyXtfvqs2A==
+jest-environment-puppeteer@^3.8.0:
+  version "3.8.0"
+  resolved "https://registry.yarnpkg.com/jest-environment-puppeteer/-/jest-environment-puppeteer-3.8.0.tgz#f425c0c82c6fbfdc3876e8ef63f7dfd08e7901eb"
+  integrity sha512-Lb3bWvUFflbzoOHVMogo/H58tnrjODg33yB1GgI/xAnHbvilKp9OImvOVBZiSzR5g0CMONkUDjnFjH1MaZmYaA==
   dependencies:
     chalk "^2.4.1"
     cwd "^0.10.0"
@@ -4227,13 +4227,13 @@ jest-mock@^23.2.0:
   resolved "https://registry.yarnpkg.com/jest-mock/-/jest-mock-23.2.0.tgz#ad1c60f29e8719d47c26e1138098b6d18b261134"
   integrity sha1-rRxg8p6HGdR8JuETgJi20YsmETQ=
 
-jest-puppeteer@3.7.0:
-  version "3.7.0"
-  resolved "https://registry.yarnpkg.com/jest-puppeteer/-/jest-puppeteer-3.7.0.tgz#f1e028d4e6ff86ab860e43a629da64862c13ccda"
-  integrity sha512-YxU2kHWrmdNLI5Jw+p8vqB5vlrXHoReJTBuZUJ89mnKCNaULzjlVbnGGeBZNB5e7TaNRQ6TV3kBECM7egZ91BA==
+jest-puppeteer@3.8.0:
+  version "3.8.0"
+  resolved "https://registry.yarnpkg.com/jest-puppeteer/-/jest-puppeteer-3.8.0.tgz#3dccf8e662b05134289aaa2c4dbc27aa7c5e3ee1"
+  integrity sha512-u2rgK+Q1LrwREpyuhlX+9MO+OuihjAA7aBf3XEYzOmLJBVLCSBQlcpPOBslwU1gnhUIY9/7OmKGQy+QNYBP2JQ==
   dependencies:
     expect-puppeteer "^3.5.1"
-    jest-environment-puppeteer "^3.7.0"
+    jest-environment-puppeteer "^3.8.0"
 
 jest-regex-util@^23.3.0:
   version "23.3.0"
