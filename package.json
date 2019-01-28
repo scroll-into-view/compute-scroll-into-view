@@ -44,7 +44,7 @@
     "jest": "23.6.0",
     "jest-junit": "6.1.0",
     "jest-puppeteer": "3.9.0",
-    "lint-staged": "8.1.0",
+    "lint-staged": "8.1.1",
     "prettier": "1.16.1",
     "prettier-package-json": "2.0.1",
     "puppeteer": "1.11.0",
