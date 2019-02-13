@@ -47,7 +47,11 @@ const actions = computeScrollIntoView(node, {
 
 // same behavior as Element.scrollIntoViewIfNeeded(true)
 // see: https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoViewIfNeeded
-const actions = computeScrollIntoView(node, { scrollMode: 'if-needed', block: 'center', inline: 'center' })
+const actions = computeScrollIntoView(node, {
+  scrollMode: 'if-needed',
+  block: 'center',
+  inline: 'center',
+})
 
 // Then perform the scrolling, use scroll-into-view-if-needed if you don't want to implement this part
 actions.forEach(({ el, top, left }) => {
