@@ -47,7 +47,11 @@ const actions = computeScrollIntoView(node, {
 
 // same behavior as Element.scrollIntoViewIfNeeded(true)
 // see: https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoViewIfNeeded
-const actions = computeScrollIntoView(node, { scrollMode: 'if-needed', block: 'center', inline: 'center' })
+const actions = computeScrollIntoView(node, {
+  scrollMode: 'if-needed',
+  block: 'center',
+  inline: 'center',
+})
 
 // Then perform the scrolling, use scroll-into-view-if-needed if you don't want to implement this part
 actions.forEach(({ el, top, left }) => {
@@ -123,8 +127,6 @@ This package follows the convention [adopted by Firefox](https://hg.mozilla.org/
 # TypeScript support
 
 This library ships with library definitions for TypeScript.
-
-> FlowType definitions is coming soon...
 
 [gzip-badge]: http://img.badgesize.io/https://unpkg.com/compute-scroll-into-view/umd/compute-scroll-into-view.min.js?compression=gzip&label=gzip%20size&style=flat-square
 [size-badge]: http://img.badgesize.io/https://unpkg.com/compute-scroll-into-view/umd/compute-scroll-into-view.min.js?label=size&style=flat-square
