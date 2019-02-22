@@ -47,7 +47,7 @@
     "lint-staged": "8.1.4",
     "prettier": "1.16.4",
     "prettier-package-json": "2.1.0",
-    "puppeteer": "1.11.0",
+    "puppeteer": "1.12.2",
     "rimraf": "2.6.3",
     "rollup": "1.2.2",
     "rollup-plugin-babel": "4.3.2",
