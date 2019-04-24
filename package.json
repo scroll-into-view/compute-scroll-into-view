@@ -40,7 +40,7 @@
     "babel-plugin-add-module-exports": "1.0.2",
     "babel-plugin-dev-expression": "0.2.1",
     "concurrently": "4.1.0",
-    "husky": "2.0.0",
+    "husky": "2.1.0",
     "jest": "23.6.0",
     "jest-junit": "6.3.0",
     "jest-puppeteer": "4.1.1",
