@@ -7224,10 +7224,10 @@ rollup-plugin-commonjs@10.0.1:
     resolve "^1.11.0"
     rollup-pluginutils "^2.8.1"
 
-rollup-plugin-node-resolve@5.1.0:
-  version "5.1.0"
-  resolved "https://registry.yarnpkg.com/rollup-plugin-node-resolve/-/rollup-plugin-node-resolve-5.1.0.tgz#49608b6ecaf2b776ab83e317d39b282d65d21b76"
-  integrity sha512-2hwwHNj0s8UEtUNT+lJq8rFWEznP7yJm3GCHBicadF6hiNX1aRARRZIjz2doeTlTGg/hOvJr4C/8+3k9Y/J5Hg==
+rollup-plugin-node-resolve@5.1.1:
+  version "5.1.1"
+  resolved "https://registry.yarnpkg.com/rollup-plugin-node-resolve/-/rollup-plugin-node-resolve-5.1.1.tgz#c914ce4585509b097ed692ab4a25d089ae84fbed"
+  integrity sha512-GMirxuCZS+D7mSulCNQSr3lFnEzKVCAnVRuG1O0rSA6N6H1F2uHUetIKr0oUJ1Hd7FgF2zs1pc+KNPfyyZnAzA==
   dependencies:
     "@types/resolve" "0.0.8"
     builtin-modules "^3.1.0"
