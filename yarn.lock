@@ -3529,9 +3529,11 @@ hook-std@^2.0.0:
   integrity sha512-zZ6T5WcuBMIUVh49iPQS9t977t7C0l7OtHrpeMb5uk48JdflRX0NSFvCekfYNmGQETnLq9W/isMyHl69kxGi8g==
 
 hosted-git-info@^2.1.4, hosted-git-info@^2.6.0, hosted-git-info@^2.7.1:
-  version "2.7.1"
-  resolved "https://registry.yarnpkg.com/hosted-git-info/-/hosted-git-info-2.7.1.tgz#97f236977bd6e125408930ff6de3eec6281ec047"
-  integrity sha512-7T/BxH19zbcCTa8XkMlbK5lTo1WtgkFi3GvdWEyNuc4Vex7/9Dqbnpsf4JMydcfj9HCg4zUWFTL3Za6lapg5/w==
+  version "2.8.0"
+  resolved "https://registry.yarnpkg.com/hosted-git-info/-/hosted-git-info-2.8.0.tgz#50cd993ca316f339317744f4a5883643c2204a50"
+  integrity sha512-6rCqQduUUMaQbYbGeUPkj0Gn9ff8XlrEi3zpgyYWd8Kaf7hCtqQ6BcGq1ztE1+XjI1QhDOZQG7PO8r0VfVBG0w==
+  dependencies:
+    lru-cache "^5.1.1"
 
 html-encoding-sniffer@^1.0.2:
   version "1.0.2"
