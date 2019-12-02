@@ -42,7 +42,7 @@
     "concurrently": "5.0.0",
     "husky": "3.1.0",
     "jest": "23.6.0",
-    "jest-junit": "9.0.0",
+    "jest-junit": "10.0.0",
     "jest-puppeteer": "4.3.0",
     "lint-staged": "9.5.0",
     "prettier": "1.19.1",
