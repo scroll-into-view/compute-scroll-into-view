@@ -35,7 +35,7 @@
     "@babel/cli": "7.7.5",
     "@babel/core": "7.7.5",
     "@babel/plugin-external-helpers": "7.7.4",
-    "@babel/preset-env": "7.7.5",
+    "@babel/preset-env": "7.7.6",
     "@babel/preset-typescript": "7.7.4",
     "babel-plugin-add-module-exports": "1.0.2",
     "babel-plugin-dev-expression": "0.2.2",
