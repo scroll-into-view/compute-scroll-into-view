@@ -39,7 +39,7 @@
     "@babel/preset-typescript": "7.7.4",
     "babel-plugin-add-module-exports": "1.0.2",
     "babel-plugin-dev-expression": "0.2.2",
-    "concurrently": "5.0.0",
+    "concurrently": "5.0.1",
     "husky": "3.1.0",
     "jest": "23.6.0",
     "jest-junit": "10.0.0",
