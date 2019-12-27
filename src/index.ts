@@ -64,12 +64,31 @@ function canOverflow(
   return overflow !== 'visible' && overflow !== 'clip'
 }
 
+function getFrameElement(el: Element) {
+  if (!el.ownerDocument || !el.ownerDocument.defaultView) {
+    return null
+  }
+  return el.ownerDocument.defaultView.frameElement
+}
+
+function isHiddenByFrame(el: Element): boolean {
+  const frame = getFrameElement(el)
+  if (!frame) {
+    return false
+  }
+
+  return (
+    frame.clientHeight < el.scrollHeight || frame.clientWidth < el.scrollWidth
+  )
+}
+
 function isScrollable(el: Element, skipOverflowHiddenElements?: boolean) {
   if (el.clientHeight < el.scrollHeight || el.clientWidth < el.scrollWidth) {
     const style = getComputedStyle(el, null)
     return (
       canOverflow(style.overflowY, skipOverflowHiddenElements) ||
-      canOverflow(style.overflowX, skipOverflowHiddenElements)
+      canOverflow(style.overflowX, skipOverflowHiddenElements) ||
+      isHiddenByFrame(el)
     )
   }
 
@@ -296,14 +315,14 @@ export default (target: Element, options: Options): CustomScrollAction[] => {
     block === 'start' || block === 'nearest'
       ? targetTop
       : block === 'end'
-        ? targetBottom
-        : targetTop + targetHeight / 2 // block === 'center
+      ? targetBottom
+      : targetTop + targetHeight / 2 // block === 'center
   let targetInline: number =
     inline === 'center'
       ? targetLeft + targetWidth / 2
       : inline === 'end'
-        ? targetRight
-        : targetLeft // inline === 'start || inline === 'nearest
+      ? targetRight
+      : targetLeft // inline === 'start || inline === 'nearest
 
   // Collect new scroll positions
   const computations: CustomScrollAction[] = []
