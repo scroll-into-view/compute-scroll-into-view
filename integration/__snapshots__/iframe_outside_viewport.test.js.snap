@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`target in iframe is outside viewport should scroll top window 1`] = `
+Array [
+  Object {
+    "el": "html",
+    "left": 0,
+    "top": 366,
+  },
+]
+`;

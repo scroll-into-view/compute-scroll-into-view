@@ -49,8 +49,12 @@ interface CustomScrollAction {
 }
 
 // @TODO better shadowdom test, 11 = document fragment
-function isElement(el: any) {
+function isElement(el: any): el is Element {
   return el != null && typeof el === 'object' && el.nodeType === 1
+}
+
+function isDocument(el: any): el is Document {
+  return el != null && typeof el === 'object' && el.nodeType === 9
 }
 
 function canOverflow(
@@ -236,6 +240,34 @@ function alignNearest(
   return 0
 }
 
+/**
+ * Get rect considering iframe
+ */
+function getRect(target: Element) {
+  const clientRect = target.getBoundingClientRect()
+  const rect = {
+    height: clientRect.height,
+    width: clientRect.width,
+    top: clientRect.top,
+    left: clientRect.left,
+    bottom: clientRect.bottom,
+    right: clientRect.right,
+  }
+  const doc = target.ownerDocument
+  let childWindow = doc?.defaultView
+
+  while (childWindow && window.top !== childWindow) {
+    const frameRect = childWindow.frameElement.getBoundingClientRect()
+    rect.top += frameRect.top
+    rect.bottom += frameRect.top
+    rect.left += frameRect.left
+    rect.right += frameRect.left
+    childWindow = childWindow.parent
+  }
+
+  return rect
+}
+
 export default (target: Element, options: Options): CustomScrollAction[] => {
   const {
     scrollMode,
@@ -260,9 +292,14 @@ export default (target: Element, options: Options): CustomScrollAction[] => {
   // Collect all the scrolling boxes, as defined in the spec: https://drafts.csswg.org/cssom-view/#scrolling-box
   const frames: Element[] = []
   let cursor = target
-  while (isElement(cursor) && checkBoundary(cursor)) {
-    // Move cursor to parent
-    cursor = cursor.parentNode as Element
+  while ((isElement(cursor) || isDocument(cursor)) && checkBoundary(cursor)) {
+    if (isDocument(cursor)) {
+      const document = cursor
+      cursor = document.defaultView?.frameElement as Element
+    } else {
+      // Move cursor to parent
+      cursor = cursor.parentNode as Element
+    }
 
     // Stop when we reach the viewport
     if (cursor === scrollingElement) {
@@ -308,7 +345,7 @@ export default (target: Element, options: Options): CustomScrollAction[] => {
     right: targetRight,
     bottom: targetBottom,
     left: targetLeft,
-  } = target.getBoundingClientRect()
+  } = getRect(target)
 
   // These values mutate as we loop through and generate scroll coordinates
   let targetBlock: number =
@@ -332,14 +369,7 @@ export default (target: Element, options: Options): CustomScrollAction[] => {
 
     // @TODO add a shouldScroll hook here that allows userland code to take control
 
-    const {
-      height,
-      width,
-      top,
-      right,
-      bottom,
-      left,
-    } = frame.getBoundingClientRect()
+    const { height, width, top, right, bottom, left } = getRect(frame)
 
     // If the element is already visible we can end it here
     // @TODO targetBlock and targetInline should be taken into account to be compliant with https://github.com/w3c/csswg-drafts/pull/1805/files#diff-3c17f0e43c20f8ecf89419d49e7ef5e0R1333

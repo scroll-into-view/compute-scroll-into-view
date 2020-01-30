@@ -7,5 +7,10 @@ Array [
     "left": 0,
     "top": 116,
   },
+  Object {
+    "el": "html",
+    "left": 0,
+    "top": 0,
+  },
 ]
 `;
