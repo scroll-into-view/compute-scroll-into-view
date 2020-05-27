@@ -17,8 +17,8 @@
     "umd"
   ],
   "scripts": {
-    "prebuild": "yarn clean",
-    "build": "yarn build:d.ts && yarn build:cjs && yarn build:es && yarn build:umd && yarn build:umd.min",
+    "prebuild": "npm run clean",
+    "build": "npm run build:d.ts && npm run build:cjs && npm run build:es && npm run build:umd && npm run build:umd.min",
     "build:cjs": "BABEL_ENV=cjs babel src -d . --extensions '.ts'",
     "build:d.ts": "tsc --emitDeclarationOnly",
     "build:es": "BABEL_ENV=es babel src -d es --extensions '.ts'",
@@ -26,8 +26,8 @@
     "build:umd.min": "BABEL_ENV=umd NODE_ENV=production rollup -c -f umd -o umd/compute-scroll-into-view.min.js",
     "clean": "rimraf 'umd' 'es' 'typings'",
     "precommit": "lint-staged",
-    "dev": "concurrently 'tsc --noEmit --watch' 'yarn build:cjs --watch' 'yarn build:es --watch' 'yarn build:umd --watch' 'yarn build:umd.min --watch'",
-    "prepublishOnly": "unset npm_config_cafile && yarn build",
+    "dev": "concurrently 'tsc --noEmit --watch' 'npm run build:cjs --watch' 'npm run build:es --watch' 'npm run build:umd --watch' 'npm run build:umd.min --watch'",
+    "prepublishOnly": "unset npm_config_cafile && npm run build",
     "test": "jest -c integration/jest.config.js",
     "typecheck": "tsc --noEmit"
   },
