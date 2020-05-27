@@ -1,9 +1,9 @@
 aliases:
   - &restore-cache
     keys:
-      - v1-dependencies-{{ .Branch }}-{{ checksum "yarn.lock" }}
+      - v2-dependencies-{{ .Branch }}-{{ checksum "yarn.lock" }}
       # Fallback in case checksum fails
-      - v1-dependencies-{{ .Branch }}-
+      - v2-dependencies-{{ .Branch }}-
 
   - &install
     run: yarn --no-progress
@@ -11,13 +11,13 @@ aliases:
   - &save-cache
     paths:
       - node_modules
-    key: v1-dependencies-{{ .Branch }}-{{ checksum "yarn.lock" }}
+    key: v2-dependencies-{{ .Branch }}-{{ checksum "yarn.lock" }}
 
 version: 2
 jobs:
   Typecheck:
     docker:
-      - image: circleci/node:8
+      - image: circleci/node:12
     steps:
       - checkout
       - restore-cache: *restore-cache
@@ -26,7 +26,7 @@ jobs:
 
   Build:
     docker:
-      - image: circleci/node:8
+      - image: circleci/node:12
     steps:
       - checkout
       - restore-cache: *restore-cache
@@ -37,7 +37,7 @@ jobs:
 
   Test:
     docker:
-      - image: circleci/node:8
+      - image: circleci/node:12
     steps:
       - checkout
       - restore-cache: *restore-cache
@@ -53,7 +53,7 @@ jobs:
 
   Semantic Release:
     docker:
-      - image: circleci/node:8
+      - image: circleci/node:12
     steps:
       - checkout
       - restore-cache: *restore-cache
