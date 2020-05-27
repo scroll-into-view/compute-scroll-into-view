@@ -68,7 +68,12 @@ function getFrameElement(el: Element) {
   if (!el.ownerDocument || !el.ownerDocument.defaultView) {
     return null
   }
-  return el.ownerDocument.defaultView.frameElement
+
+  try {
+    return el.ownerDocument.defaultView.frameElement
+  } catch (e) {
+    return null
+  }
 }
 
 function isHiddenByFrame(el: Element): boolean {
