@@ -9,24 +9,25 @@
     "url": "git+https://github.com/stipsan/compute-scroll-into-view.git"
   },
   "version": "0.1.0",
-  "source": "src/index.ts",
   "main": "dist/index.js",
   "module": "dist/index.module.js",
-  "typings": "dist/index.d.ts",
-  "umd:main": "umd/compute-scroll-into-view.min.js",
-  "files": [    "dist",    "umd/compute-scroll-into-view.min.js","umd/compute-scroll-into-view.min.js.map"  ],
+  "files": [
+    "dist",
+    "umd/compute-scroll-into-view.min.js",
+    "umd/compute-scroll-into-view.min.js.map"
+  ],
   "scripts": {
     "prebuild": "rimraf 'dist' 'umd'",
     "build": "npm run build:dist && npm run build:umd",
     "build:dist": "microbundle -f cjs,es",
     "build:umd": "microbundle -f umd -o umd",
-    "precommit": "lint-staged",
     "dev": "concurrently 'tsc --noEmit --watch' 'npm run build:dist -- --watch' 'npm run build:umd -- --watch'",
     "prepublishOnly": "unset npm_config_cafile && npm run build",
     "test": "jest -c integration/jest.config.js",
     "typecheck": "tsc --noEmit"
   },
   "sideEffects": false,
+  "typings": "dist/index.d.ts",
   "devDependencies": {
     "concurrently": "5.2.0",
     "husky": "4.2.5",
@@ -64,31 +65,14 @@
       "compression": "none"
     }
   ],
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
   "lint-staged": {
-    "*.js": [
-      "prettier --write",
-      "git add"
-    ],
-    "*.{ts,tsx}": [
-      "prettier --write",
-      "git add"
-    ],
-    "*.json": [
-      "prettier --write",
-      "git add"
-    ],
-    "*.md": [
-      "prettier --write",
-      "git add"
-    ],
-    "**/package.json": [
-      "prettier-package-json --write",
-      "git add"
-    ],
-    "**/.babelrc": [
-      "prettier --write",
-      "git add"
-    ]
+    "*.{js,ts,tsx,json,md}": "prettier --write",
+    "**/package.json": "prettier-package-json --write"
   },
   "prettier": {
     "semi": false,
@@ -99,5 +83,7 @@
     "prepare": [
       "@semantic-release/npm"
     ]
-  }
+  },
+  "source": "src/index.ts",
+  "umd:main": "umd/compute-scroll-into-view.min.js"
 }
