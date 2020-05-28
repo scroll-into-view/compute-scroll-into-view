@@ -21,7 +21,7 @@
     "build": "npm run build:dist && npm run build:umd",
     "build:dist": "microbundle -f cjs,es",
     "build:umd": "microbundle -f umd -o umd",
-    "dev": "concurrently 'tsc --noEmit --watch' 'npm run build:dist -- --watch' 'npm run build:umd -- --watch'",
+    "dev": "concurrently 'npm run typecheck -- --watch' 'npm run build:dist -- --watch' 'npm run build:umd -- --watch'",
     "prepublishOnly": "unset npm_config_cafile && npm run build",
     "test": "jest -c integration/jest.config.js",
     "typecheck": "tsc --noEmit"
