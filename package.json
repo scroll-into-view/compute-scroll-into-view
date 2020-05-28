@@ -61,7 +61,7 @@
   "bundlesize": [
     {
       "path": "./umd/compute-scroll-into-view.min.js",
-      "maxSize": "2.6 kB",
+      "maxSize": "3 kB",
       "compression": "none"
     }
   ],
