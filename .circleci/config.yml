@@ -1,43 +1,43 @@
 aliases:
   - &restore-cache
     keys:
-      - v1-dependencies-{{ .Branch }}-{{ checksum "yarn.lock" }}
+      - v2-dependencies-{{ .Branch }}-{{ checksum "package-lock.json" }}
       # Fallback in case checksum fails
-      - v1-dependencies-{{ .Branch }}-
+      - v2-dependencies-{{ .Branch }}-
 
   - &install
-    run: yarn --no-progress
+    run: npm ci
 
   - &save-cache
     paths:
       - node_modules
-    key: v1-dependencies-{{ .Branch }}-{{ checksum "yarn.lock" }}
+    key: v2-dependencies-{{ .Branch }}-{{ checksum "package-lock.json" }}
 
 version: 2
 jobs:
   Typecheck:
     docker:
-      - image: circleci/node:8
+      - image: circleci/node:12
     steps:
       - checkout
       - restore-cache: *restore-cache
       - *install
-      - run: yarn typecheck
+      - run: npm run typecheck
 
   Build:
     docker:
-      - image: circleci/node:8
+      - image: circleci/node:12
     steps:
       - checkout
       - restore-cache: *restore-cache
       - *install
-      - run: yarn build
+      - run: npm run build
       - run: npx bundlesize
       - save-cache: *save-cache
 
   Test:
     docker:
-      - image: circleci/node:8
+      - image: circleci/node:12
     steps:
       - checkout
       - restore-cache: *restore-cache
@@ -45,15 +45,15 @@ jobs:
           name: Workaround for GoogleChrome/puppeteer#290
           command: 'sh .circleci/setup_puppeteer.sh'
       - *install
-      - run: yarn build:umd
+      - run: npm run build:umd
       - run:
-          command: yarn test --ci --runInBand
+          command: npm test -- --ci --runInBand
       - store_test_results:
           path: reports
 
   Semantic Release:
     docker:
-      - image: circleci/node:8
+      - image: circleci/node:12
     steps:
       - checkout
       - restore-cache: *restore-cache
