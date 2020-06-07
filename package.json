@@ -41,7 +41,7 @@
     "puppeteer": "3.3.0",
     "rimraf": "3.0.2",
     "serve": "11.3.2",
-    "typescript": "3.9.3"
+    "typescript": "3.9.5"
   },
   "keywords": [
     "if-needed",
