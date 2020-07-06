@@ -389,6 +389,19 @@ export default (target: Element, options: Options): CustomScrollAction[] => {
           borderBottom
         : 0
 
+    const scaleX = 
+      'offsetWidth' in frame
+        ? (frame as HTMLElement).offsetWidth === 0 
+            ? 0
+            : width / (frame as HTMLElement).offsetWidth
+        : 0
+    const scaleY = 
+      'offsetHeight' in frame
+        ? (frame as HTMLElement).offsetHeight === 0 
+            ? 0
+            : height / (frame as HTMLElement).offsetHeight
+        : 0
+
     if (scrollingElement === frame) {
       // Handle viewport logic (document.documentElement or document.body)
 
@@ -484,15 +497,15 @@ export default (target: Element, options: Options): CustomScrollAction[] => {
       blockScroll = Math.max(
         0,
         Math.min(
-          scrollTop + blockScroll,
-          frame.scrollHeight - height + scrollbarHeight
+          scrollTop + blockScroll / scaleY,
+          frame.scrollHeight - height / scaleY + scrollbarHeight
         )
       )
       inlineScroll = Math.max(
         0,
         Math.min(
-          scrollLeft + inlineScroll,
-          frame.scrollWidth - width + scrollbarWidth
+          scrollLeft + inlineScroll / scaleX,
+          frame.scrollWidth - width / scaleX + scrollbarWidth
         )
       )
 
