@@ -29,7 +29,7 @@
   "sideEffects": false,
   "typings": "dist/index.d.ts",
   "devDependencies": {
-    "concurrently": "5.2.0",
+    "concurrently": "5.3.0",
     "husky": "4.2.5",
     "jest": "26.2.2",
     "jest-junit": "10.0.0",
