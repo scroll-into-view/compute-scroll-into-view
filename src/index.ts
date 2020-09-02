@@ -12,18 +12,6 @@ interface visualViewport {
   width: number
 }
 
-// @TODO report to typescript
-declare var visualViewport: visualViewport
-
-declare global {
-  interface Window {
-    visualViewport?: {
-      height: number
-      width: number
-    }
-  }
-}
-
 type ScrollLogicalPosition = 'start' | 'center' | 'end' | 'nearest'
 // This new option is tracked in this PR, which is the most likely candidate at the time: https://github.com/w3c/csswg-drafts/pull/1805
 type ScrollMode = 'always' | 'if-needed'
@@ -242,6 +230,11 @@ function alignNearest(
 }
 
 export default (target: Element, options: Options): CustomScrollAction[] => {
+  //TODO: remove this hack when microbundle will support typescript >= 4.0
+  const windowWithViewport = (window as unknown) as Window & {
+    visualViewport: visualViewport
+  }
+
   const {
     scrollMode,
     block,
@@ -295,11 +288,11 @@ export default (target: Element, options: Options): CustomScrollAction[] => {
   // and viewport dimensions on window.innerWidth/Height
   // https://www.quirksmode.org/mobile/viewports2.html
   // https://bokand.github.io/viewport/index.html
-  const viewportWidth = window.visualViewport
-    ? visualViewport.width
+  const viewportWidth = windowWithViewport.visualViewport
+    ? windowWithViewport.visualViewport.width
     : innerWidth
-  const viewportHeight = window.visualViewport
-    ? visualViewport.height
+  const viewportHeight = windowWithViewport.visualViewport
+    ? windowWithViewport.visualViewport.height
     : innerHeight
 
   // Newer browsers supports scroll[X|Y], page[X|Y]Offset is
