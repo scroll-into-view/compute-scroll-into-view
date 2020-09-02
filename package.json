@@ -28,7 +28,7 @@
     "typecheck": "tsc --noEmit"
   },
   "sideEffects": false,
-  "typings": "dist/index.d.ts",
+  "typings": "typings/index.d.ts",
   "devDependencies": {
     "concurrently": "5.3.0",
     "husky": "4.2.5",
