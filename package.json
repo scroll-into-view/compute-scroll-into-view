@@ -35,7 +35,7 @@
     "jest": "26.5.3",
     "jest-junit": "11.1.0",
     "jest-puppeteer": "4.4.0",
-    "lint-staged": "10.4.0",
+    "lint-staged": "10.4.2",
     "microbundle": "^0.12.4",
     "prettier": "2.1.2",
     "prettier-package-json": "2.1.3",
