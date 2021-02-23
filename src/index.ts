@@ -37,8 +37,8 @@ interface CustomScrollAction {
 }
 
 // @TODO better shadowdom test, 11 = document fragment
-function isElement(el: any) {
-  return el != null && typeof el === 'object' && el.nodeType === 1
+function isElement(el: any): el is Element {
+  return typeof el === 'object' && el != null && el.nodeType === 1
 }
 
 function canOverflow(
@@ -257,10 +257,10 @@ export default (target: Element, options: Options): CustomScrollAction[] => {
 
   // Collect all the scrolling boxes, as defined in the spec: https://drafts.csswg.org/cssom-view/#scrolling-box
   const frames: Element[] = []
-  let cursor = target
+  let cursor: Element | null = target
   while (isElement(cursor) && checkBoundary(cursor)) {
     // Move cursor to parent
-    cursor = cursor.parentNode as Element
+    cursor = cursor.parentElement
 
     // Stop when we reach the viewport
     if (cursor === scrollingElement) {
@@ -270,15 +270,16 @@ export default (target: Element, options: Options): CustomScrollAction[] => {
 
     // Skip document.body if it's not the scrollingElement and documentElement isn't independently scrollable
     if (
+      cursor != null &&
       cursor === document.body &&
       isScrollable(cursor) &&
-      !isScrollable(document.documentElement as HTMLElement)
+      !isScrollable(document.documentElement)
     ) {
       continue
     }
 
     // Now we check if the element is scrollable, this code only runs if the loop haven't already hit the viewport or a custom boundary
-    if (isScrollable(cursor, skipOverflowHiddenElements)) {
+    if (cursor != null && isScrollable(cursor, skipOverflowHiddenElements)) {
       frames.push(cursor)
     }
   }
