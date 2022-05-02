@@ -229,6 +229,14 @@ function alignNearest(
   return 0
 }
 
+function getParentElement(element: Node): Element | null {
+	const parent = element.parentElement;
+	if (parent == null) {
+		return (element.getRootNode() as ShadowRoot).host || null;
+	}
+	return parent;
+}
+
 export default (target: Element, options: Options): CustomScrollAction[] => {
   //TODO: remove this hack when microbundle will support typescript >= 4.0
   const windowWithViewport = (window as unknown) as Window & {
@@ -260,7 +268,7 @@ export default (target: Element, options: Options): CustomScrollAction[] => {
   let cursor: Element | null = target
   while (isElement(cursor) && checkBoundary(cursor)) {
     // Move cursor to parent
-    cursor = cursor.parentElement
+    cursor = getParentElement(cursor)
 
     // Stop when we reach the viewport
     if (cursor === scrollingElement) {
