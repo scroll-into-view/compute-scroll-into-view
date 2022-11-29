@@ -5,6 +5,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.19](https://github.com/scroll-into-view/compute-scroll-into-view/compare/v1.0.18...v1.0.19) (2022-11-29)
+
+### Bug Fixes
+
+- microbundle isn't exporting `.cjs` ([bef7bb2](https://github.com/scroll-into-view/compute-scroll-into-view/commit/bef7bb2d1c48dbf5ef2ece976acf8c33ee9d12f1))
+
 ## [1.0.18](https://github.com/scroll-into-view/compute-scroll-into-view/compare/v1.0.17...v1.0.18) (2022-11-29)
 
 ### Bug Fixes
