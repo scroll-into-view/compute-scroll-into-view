@@ -1,22 +1,25 @@
 {
   "name": "compute-scroll-into-view",
+  "version": "0.1.0",
   "description": "The engine that powers scroll-into-view-if-needed",
-  "license": "MIT",
-  "author": "Cody Olsen",
+  "keywords": [
+    "if-needed",
+    "scroll",
+    "scroll-into-view",
+    "scroll-into-view-if-needed",
+    "scrollIntoView",
+    "scrollIntoViewIfNeeded",
+    "scrollMode",
+    "typescript"
+  ],
   "homepage": "https://scroll-into-view.dev",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/scroll-into-view/compute-scroll-into-view.git"
   },
-  "version": "0.1.0",
-  "main": "dist/index.cjs",
-  "module": "dist/index.module.js",
-  "files": [
-    "dist",
-    "typings",
-    "umd/compute-scroll-into-view.min.js",
-    "umd/compute-scroll-into-view.min.js.map"
-  ],
+  "license": "MIT",
+  "author": "Cody Olsen",
+  "sideEffects": false,
   "type": "module",
   "exports": {
     ".": {
@@ -28,6 +31,17 @@
     },
     "./package.json": "./package.json"
   },
+  "main": "dist/index.cjs",
+  "umd:main": "umd/compute-scroll-into-view.min.js",
+  "module": "dist/index.module.js",
+  "source": "src/index.ts",
+  "typings": "typings/index.d.ts",
+  "files": [
+    "dist",
+    "typings",
+    "umd/compute-scroll-into-view.min.js",
+    "umd/compute-scroll-into-view.min.js.map"
+  ],
   "scripts": {
     "prebuild": "rimraf 'dist' 'umd'",
     "build": "npm run build:dist && npm run build:umd",
@@ -37,8 +51,24 @@
     "test": "jest -c integration/jest.config.js",
     "typecheck": "tsc --noEmit"
   },
-  "sideEffects": false,
-  "typings": "typings/index.d.ts",
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,ts,tsx,json,md}": "prettier --write"
+  },
+  "browserify": {
+    "transform": [
+      "loose-envify"
+    ]
+  },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true,
+    "trailingComma": "es5"
+  },
   "devDependencies": {
     "@sanity/semantic-release-preset": "^2.0.2",
     "husky": "^8.0.1",
@@ -54,41 +84,11 @@
     "serve": "^11.3.2",
     "typescript": "^4.9.3"
   },
-  "keywords": [
-    "if-needed",
-    "scroll",
-    "scroll-into-view",
-    "scroll-into-view-if-needed",
-    "scrollIntoView",
-    "scrollIntoViewIfNeeded",
-    "scrollMode",
-    "typescript"
-  ],
-  "browserify": {
-    "transform": [
-      "loose-envify"
-    ]
-  },
   "bundlesize": [
     {
       "path": "./umd/compute-scroll-into-view.min.js",
       "maxSize": "3 kB",
       "compression": "none"
     }
-  ],
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "*.{js,ts,tsx,json,md}": "prettier --write"
-  },
-  "prettier": {
-    "semi": false,
-    "singleQuote": true,
-    "trailingComma": "es5"
-  },
-  "source": "src/index.ts",
-  "umd:main": "umd/compute-scroll-into-view.min.js"
+  ]
 }
