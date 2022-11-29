@@ -25,15 +25,15 @@
     ".": {
       "types": "./typings/index.d.ts",
       "source": "./src/index.ts",
-      "import": "./dist/index.module.js",
+      "import": "./dist/index.mjs",
       "require": "./dist/index.cjs",
-      "default": "./dist/index.module.js"
+      "default": "./dist/index.mjs"
     },
     "./package.json": "./package.json"
   },
   "main": "dist/index.cjs",
   "umd:main": "umd/compute-scroll-into-view.min.js",
-  "module": "dist/index.module.js",
+  "module": "dist/index.mjs",
   "source": "src/index.ts",
   "typings": "typings/index.d.ts",
   "files": [
