@@ -51,15 +51,6 @@ jobs:
       - store_test_results:
           path: reports
 
-  Semantic Release:
-    docker:
-      - image: circleci/node:12
-    steps:
-      - checkout
-      - restore-cache: *restore-cache
-      - *install
-      - run: npx semantic-release
-
 # Workflows enables us to run multiple jobs in parallel
 workflows:
   version: 2
@@ -68,12 +59,3 @@ workflows:
       - Typecheck
       - Build
       - Test
-      - Semantic Release:
-          requires:
-            - Typecheck
-            - Build
-            - Test
-          filters:
-            branches:
-              only:
-                - master

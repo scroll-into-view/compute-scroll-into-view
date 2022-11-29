@@ -1,4 +1,3 @@
-[![CircleCI Status](https://img.shields.io/circleci/project/github/stipsan/compute-scroll-into-view.svg?style=flat-square)](https://circleci.com/gh/stipsan/compute-scroll-into-view)
 [![npm stat](https://img.shields.io/npm/dm/compute-scroll-into-view.svg?style=flat-square)](https://npm-stat.com/charts.html?package=compute-scroll-into-view)
 [![npm version](https://img.shields.io/npm/v/compute-scroll-into-view.svg?style=flat-square)](https://www.npmjs.com/package/compute-scroll-into-view)
 [![gzip size][gzip-badge]][unpkg-dist]
@@ -8,7 +7,7 @@
 
 ![compute-scroll-into-view](https://user-images.githubusercontent.com/81981/43024153-a2cc212c-8c6d-11e8-913b-b4d62efcf105.png)
 
-Lower level API that is used by the [ponyfill](https://ponyfill.com) [scroll-into-view-if-needed](https://github.com/stipsan/scroll-into-view-if-needed) to compute where (if needed) elements should scroll based on [options defined in the spec](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView) and the [`scrollMode: "if-needed"` draft spec proposal](https://github.com/w3c/csswg-drafts/pull/1805).
+Lower level API that is used by the [ponyfill](https://ponyfill.com) [scroll-into-view-if-needed](https://github.com/scroll-into-view/scroll-into-view-if-needed) to compute where (if needed) elements should scroll based on [options defined in the spec](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView) and the [`scrollMode: "if-needed"` draft spec proposal](https://github.com/w3c/csswg-drafts/pull/1805).
 Use this if you want the smallest possible bundlesize and is ok with implementing the actual scrolling yourself.
 
 Scrolling SVG elements are supported, as well as Shadow DOM elements. The [VisualViewport](https://developer.mozilla.org/en-US/docs/Web/API/VisualViewport) API is also supported, ensuring scrolling works properly on modern devices. Quirksmode is also supported as long as you polyfill [`document.scrollingElement`](https://developer.mozilla.org/en-US/docs/Web/API/document/scrollingElement).
@@ -16,7 +15,7 @@ Scrolling SVG elements are supported, as well as Shadow DOM elements. The [Visua
 ## Install
 
 ```bash
-yarn add compute-scroll-into-view
+npm i compute-scroll-into-view
 ```
 
 The UMD build is also available on [unpkg](https://unpkg.com/compute-scroll-into-view/umd/):
@@ -68,20 +67,20 @@ actions.forEach(({ el, top, left }) => {
 
 Type: `Object`
 
-#### [block](https://scroll-into-view-if-needed.netlify.com/#scroll-alignment)
+#### [block](https://scroll-into-view.dev/#scroll-alignment)
 
 Type: `'start' | 'center' | 'end' | 'nearest'`<br> Default: `'center'`
 
 Control the logical scroll position on the y-axis. The spec states that the `block` direction is related to the [writing-mode](https://developer.mozilla.org/en-US/docs/Web/CSS/writing-mode), but this is not implemented yet in this library.
 This means that `block: 'start'` aligns to the top edge and `block: 'end'` to the bottom.
 
-#### [inline](https://scroll-into-view-if-needed.netlify.com/#scroll-alignment)
+#### [inline](https://scroll-into-view.dev/#scroll-alignment)
 
 Type: `'start' | 'center' | 'end' | 'nearest'`<br> Default: `'nearest'`
 
 Like `block` this is affected by the [writing-mode](https://developer.mozilla.org/en-US/docs/Web/CSS/writing-mode). In left-to-right pages `inline: 'start'` will align to the left edge. In right-to-left it should be flipped. This will be supported in a future release.
 
-#### [scrollMode](https://scroll-into-view-if-needed.netlify.com/#scrolling-if-needed)
+#### [scrollMode](https://scroll-into-view.dev/#scrolling-if-needed)
 
 Type: `'always' | 'if-needed'`<br> Default: `'always'`
 
@@ -90,7 +89,7 @@ This is a proposed addition to the spec that you can track here: https://github.
 This library will be updated to reflect any changes to the spec and will provide a migration path.
 To be backwards compatible with `Element.scrollIntoViewIfNeeded` if something is not 100% visible it will count as "needs scrolling". If you need a different visibility ratio your best option would be to implement an [Intersection Observer](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API).
 
-#### [boundary](https://scroll-into-view-if-needed.netlify.com/#limit-propagation)
+#### [boundary](https://scroll-into-view.dev/#limit-propagation)
 
 Type: `Element | Function`
 
@@ -120,7 +119,7 @@ const actions = computeScrollIntoView(target, {
 
 Type: `Boolean`<br> Default: `false`
 
-By default the [spec](https://drafts.csswg.org/cssom-view/#scrolling-box) states that `overflow: hidden` elements should be scrollable because it has [been used to allow programatic scrolling](https://drafts.csswg.org/css-overflow-3/#valdef-overflow-hidden). This behavior can sometimes lead to [scrolling issues](https://github.com/stipsan/scroll-into-view-if-needed/pull/225#issue-186419520) when you have a node that is a child of an `overflow: hidden` node.
+By default the [spec](https://drafts.csswg.org/cssom-view/#scrolling-box) states that `overflow: hidden` elements should be scrollable because it has [been used to allow programatic scrolling](https://drafts.csswg.org/css-overflow-3/#valdef-overflow-hidden). This behavior can sometimes lead to [scrolling issues](https://github.com/scroll-into-view/scroll-into-view-if-needed/pull/225#issue-186419520) when you have a node that is a child of an `overflow: hidden` node.
 
 This package follows the convention [adopted by Firefox](https://hg.mozilla.org/integration/fx-team/rev/c48c3ec05012#l7.18) of setting a boolean option to _not_ scroll all nodes with `overflow: hidden` set.
 
