@@ -5,6 +5,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.20](https://github.com/scroll-into-view/compute-scroll-into-view/compare/v1.0.19...v1.0.20) (2022-11-29)
+
+### Bug Fixes
+
+- support of shadow DOM ([#829](https://github.com/scroll-into-view/compute-scroll-into-view/issues/829)) ([9b21d76](https://github.com/scroll-into-view/compute-scroll-into-view/commit/9b21d760744b5474bcb0f22f09dcb800296fbc4b))
+
 ## [1.0.19](https://github.com/scroll-into-view/compute-scroll-into-view/compare/v1.0.18...v1.0.19) (2022-11-29)
 
 ### Bug Fixes
