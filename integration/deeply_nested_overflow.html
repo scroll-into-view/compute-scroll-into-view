@@ -1,10 +1,14 @@
 <!DOCTYPE html>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta charset="utf-8" />
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+/>
 <script src="../umd/compute-scroll-into-view.min.js"></script>
 <script src="./utils.js"></script>
 <style>
-  html, body {
+  html,
+  body {
     margin: 0;
     padding: 0;
     height: 100vh;
@@ -14,93 +18,93 @@
     padding: 0 100vw;
   }
 
-.outer-scroll-container,
-.inner-scroll-container {
-  overflow: scroll;
-  -webkit-box-shadow: 0 0 0 1px hsla(0, 0%, 0%, .1);
-          box-shadow: 0 0 0 1px hsla(0, 0%, 0%, .1);
-}
-.outer-scroll-container {
-  background: #f5f5fb;
-  margin: 200vh auto;
-}
-.outer-scroll-container,
-.inner-scroll-element {
-  height: 400px;
-  width: 400px;
-}
-.inner-scroll-container {
-  height: 200px;
-  width: 200px;
-}
+  .outer-scroll-container,
+  .inner-scroll-container {
+    overflow: scroll;
+    -webkit-box-shadow: 0 0 0 1px hsla(0, 0%, 0%, 0.1);
+    box-shadow: 0 0 0 1px hsla(0, 0%, 0%, 0.1);
+  }
+  .outer-scroll-container {
+    background: #f5f5fb;
+    margin: 200vh auto;
+  }
+  .outer-scroll-container,
+  .inner-scroll-element {
+    height: 400px;
+    width: 400px;
+  }
+  .inner-scroll-container {
+    height: 200px;
+    width: 200px;
+  }
 
-.outer-scroll-element,
-.inner-scroll-element {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
-}
+  .outer-scroll-element,
+  .inner-scroll-element {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+  }
 
-.outer-scroll-element {
-  height: 800px;
-  width: 800px;
-}
+  .outer-scroll-element {
+    height: 800px;
+    width: 800px;
+  }
 
-.inner-scroll-element {
-  background: hsla(0, 0%, 0%, .05);
-}
+  .inner-scroll-element {
+    background: hsla(0, 0%, 0%, 0.05);
+  }
 
-.scroll-padding {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-wrap: wrap;
-      flex-wrap: wrap;
-  padding: 16.666666666666668px;
-  height: 333.3333333333333px;
-  width: 333.3333333333333px;
-}
+  .scroll-padding {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    padding: 16.666666666666668px;
+    height: 333.3333333333333px;
+    width: 333.3333333333333px;
+  }
 
-.layer {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
-  height: 33.333333333333336%;
-  -webkit-box-flex: 0;
-      -ms-flex: none;
-          flex: none;
-  width: 33.3333%;
-}
-.scroll-tile {
-  font-size: 48px !important;
-  font-size: 3rem !important;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
-  border-radius: 4px;
-  height: 66.66666666666667px;
-  color: hsla(0, 0%, 0%, .3);
-  background-color: #00d1b2;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
-  width: 66.66666666666667px;
-}
+  .layer {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    height: 33.333333333333336%;
+    -webkit-box-flex: 0;
+    -ms-flex: none;
+    flex: none;
+    width: 33.3333%;
+  }
+  .scroll-tile {
+    font-size: 48px !important;
+    font-size: 3rem !important;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    border-radius: 4px;
+    height: 66.66666666666667px;
+    color: hsla(0, 0%, 0%, 0.3);
+    background-color: #00d1b2;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    width: 66.66666666666667px;
+  }
 </style>
 <div class="outer-scroll-container">
   <div class="outer-scroll-element">

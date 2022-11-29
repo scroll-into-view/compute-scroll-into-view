@@ -103,7 +103,7 @@ You can also pass a function to do more dynamic checks to override the scroll sc
 
 ```js
 const actions = computeScrollIntoView(target, {
-  boundary: parent => {
+  boundary: (parent) => {
     // By default `overflow: hidden` elements are allowed, only `overflow: visible | clip` is skipped as
     // this is required by the CSSOM spec
     if (getComputedStyle(parent)['overflow'] === 'hidden') {

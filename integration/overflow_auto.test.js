@@ -5,11 +5,11 @@ beforeAll(async () => {
 const ScrollLogicalPosition = ['start', 'center', 'end', 'nearest']
 
 describe('scrollMode: always', () => {
-  ScrollLogicalPosition.forEach(block => {
-    ScrollLogicalPosition.forEach(inline => {
+  ScrollLogicalPosition.forEach((block) => {
+    ScrollLogicalPosition.forEach((inline) => {
       test(`block: ${block}, inline: ${inline}`, async () => {
         const expected = await page.evaluate(
-          options => {
+          (options) => {
             const container = document.querySelector('.container')
             container.scrollTo(0, 0)
             document.querySelector('.target').scrollIntoView(options)
@@ -19,7 +19,7 @@ describe('scrollMode: always', () => {
           { block, inline }
         )
         const actual = await page.evaluate(
-          options => {
+          (options) => {
             const container = document.querySelector('.container')
             container.scrollTo(0, 0)
             const [{ left, top }] = window.computeScrollIntoView(
@@ -36,7 +36,7 @@ describe('scrollMode: always', () => {
         // The 'nearest' cases can have diff behavior depending on the current scroll position
         if (block === 'nearest' || inline === 'nearest') {
           const expected = await page.evaluate(
-            options => {
+            (options) => {
               const container = document.querySelector('.container')
               container.scrollTo(
                 container.clientWidth * 3,
@@ -49,7 +49,7 @@ describe('scrollMode: always', () => {
             { block, inline }
           )
           const actual = await page.evaluate(
-            options => {
+            (options) => {
               const container = document.querySelector('.container')
               container.scrollTo(
                 container.clientWidth * 3,

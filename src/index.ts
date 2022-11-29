@@ -231,17 +231,12 @@ function alignNearest(
 
 export default (target: Element, options: Options): CustomScrollAction[] => {
   //TODO: remove this hack when microbundle will support typescript >= 4.0
-  const windowWithViewport = (window as unknown) as Window & {
+  const windowWithViewport = window as unknown as Window & {
     visualViewport: visualViewport
   }
 
-  const {
-    scrollMode,
-    block,
-    inline,
-    boundary,
-    skipOverflowHiddenElements,
-  } = options
+  const { scrollMode, block, inline, boundary, skipOverflowHiddenElements } =
+    options
   // Allow using a callback to check the boundary
   // The default behavior is to check if the current target matches the boundary element or not
   // If undefined it'll check that target is never undefined (can happen as we recurse up the tree)
@@ -331,14 +326,8 @@ export default (target: Element, options: Options): CustomScrollAction[] => {
 
     // @TODO add a shouldScroll hook here that allows userland code to take control
 
-    const {
-      height,
-      width,
-      top,
-      right,
-      bottom,
-      left,
-    } = frame.getBoundingClientRect()
+    const { height, width, top, right, bottom, left } =
+      frame.getBoundingClientRect()
 
     // If the element is already visible we can end it here
     // @TODO targetBlock and targetInline should be taken into account to be compliant with https://github.com/w3c/csswg-drafts/pull/1805/files#diff-3c17f0e43c20f8ecf89419d49e7ef5e0R1333
@@ -383,17 +372,17 @@ export default (target: Element, options: Options): CustomScrollAction[] => {
           borderBottom
         : 0
 
-    const scaleX = 
+    const scaleX =
       'offsetWidth' in frame
-        ? (frame as HTMLElement).offsetWidth === 0 
-            ? 0
-            : width / (frame as HTMLElement).offsetWidth
+        ? (frame as HTMLElement).offsetWidth === 0
+          ? 0
+          : width / (frame as HTMLElement).offsetWidth
         : 0
-    const scaleY = 
+    const scaleY =
       'offsetHeight' in frame
-        ? (frame as HTMLElement).offsetHeight === 0 
-            ? 0
-            : height / (frame as HTMLElement).offsetHeight
+        ? (frame as HTMLElement).offsetHeight === 0
+          ? 0
+          : height / (frame as HTMLElement).offsetHeight
         : 0
 
     if (scrollingElement === frame) {
