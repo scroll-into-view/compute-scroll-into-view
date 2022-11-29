@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`scrollable element is "overflow: visible" but hidden by iframe should scroll to inside iframe 1`] = `
-Array [
-  Object {
+[
+  {
     "el": "html",
     "left": 0,
     "top": 116,

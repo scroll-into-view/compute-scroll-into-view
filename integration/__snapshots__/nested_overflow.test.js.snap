@@ -1,13 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`scrollMode: if-needed target in view, container out of view 1`] = `
-Array [
-  Object {
+[
+  {
     "el": "div.container",
     "left": 250,
     "top": 250,
   },
-  Object {
+  {
     "el": "html",
     "left": 1250,
     "top": 1001,

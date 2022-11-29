@@ -1,169 +1,169 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`scrollMode: always block: center, inline: center 1`] = `
-Object {
+{
   "left": 1250,
   "top": 950,
 }
 `;
 
 exports[`scrollMode: always block: center, inline: end 1`] = `
-Object {
+{
   "left": 900,
   "top": 950,
 }
 `;
 
 exports[`scrollMode: always block: center, inline: nearest 1`] = `
-Object {
+{
   "left": 900,
   "top": 950,
 }
 `;
 
 exports[`scrollMode: always block: center, inline: nearest 2`] = `
-Object {
+{
   "left": 1600,
   "top": 950,
 }
 `;
 
 exports[`scrollMode: always block: center, inline: start 1`] = `
-Object {
+{
   "left": 1600,
   "top": 950,
 }
 `;
 
 exports[`scrollMode: always block: end, inline: center 1`] = `
-Object {
+{
   "left": 1250,
   "top": 700,
 }
 `;
 
 exports[`scrollMode: always block: end, inline: end 1`] = `
-Object {
+{
   "left": 900,
   "top": 700,
 }
 `;
 
 exports[`scrollMode: always block: end, inline: nearest 1`] = `
-Object {
+{
   "left": 900,
   "top": 700,
 }
 `;
 
 exports[`scrollMode: always block: end, inline: nearest 2`] = `
-Object {
+{
   "left": 1600,
   "top": 700,
 }
 `;
 
 exports[`scrollMode: always block: end, inline: start 1`] = `
-Object {
+{
   "left": 1600,
   "top": 700,
 }
 `;
 
 exports[`scrollMode: always block: nearest, inline: center 1`] = `
-Object {
+{
   "left": 1250,
   "top": 700,
 }
 `;
 
 exports[`scrollMode: always block: nearest, inline: center 2`] = `
-Object {
+{
   "left": 1250,
   "top": 1200,
 }
 `;
 
 exports[`scrollMode: always block: nearest, inline: end 1`] = `
-Object {
+{
   "left": 900,
   "top": 700,
 }
 `;
 
 exports[`scrollMode: always block: nearest, inline: end 2`] = `
-Object {
+{
   "left": 900,
   "top": 1200,
 }
 `;
 
 exports[`scrollMode: always block: nearest, inline: nearest 1`] = `
-Object {
+{
   "left": 900,
   "top": 700,
 }
 `;
 
 exports[`scrollMode: always block: nearest, inline: nearest 2`] = `
-Object {
+{
   "left": 1600,
   "top": 1200,
 }
 `;
 
 exports[`scrollMode: always block: nearest, inline: start 1`] = `
-Object {
+{
   "left": 1600,
   "top": 700,
 }
 `;
 
 exports[`scrollMode: always block: nearest, inline: start 2`] = `
-Object {
+{
   "left": 1600,
   "top": 1200,
 }
 `;
 
 exports[`scrollMode: always block: start, inline: center 1`] = `
-Object {
+{
   "left": 1250,
   "top": 1200,
 }
 `;
 
 exports[`scrollMode: always block: start, inline: end 1`] = `
-Object {
+{
   "left": 900,
   "top": 1200,
 }
 `;
 
 exports[`scrollMode: always block: start, inline: nearest 1`] = `
-Object {
+{
   "left": 900,
   "top": 1200,
 }
 `;
 
 exports[`scrollMode: always block: start, inline: nearest 2`] = `
-Object {
+{
   "left": 1600,
   "top": 1200,
 }
 `;
 
 exports[`scrollMode: always block: start, inline: start 1`] = `
-Object {
+{
   "left": 1600,
   "top": 1200,
 }
 `;
 
 exports[`scrollMode: if-needed horizontal completely overflowing 1`] = `
-Array [
-  Object {
+[
+  {
     "el": "html",
     "left": 900,
     "top": 950,
@@ -172,8 +172,8 @@ Array [
 `;
 
 exports[`scrollMode: if-needed horizontal fully negative overflowing 1`] = `
-Array [
-  Object {
+[
+  {
     "el": "html",
     "left": 1600,
     "top": 950,
@@ -182,8 +182,8 @@ Array [
 `;
 
 exports[`scrollMode: if-needed horizontal partially negative overflowing 1`] = `
-Array [
-  Object {
+[
+  {
     "el": "html",
     "left": 1600,
     "top": 950,
@@ -192,8 +192,8 @@ Array [
 `;
 
 exports[`scrollMode: if-needed horizontal partially overflowing 1`] = `
-Array [
-  Object {
+[
+  {
     "el": "html",
     "left": 900,
     "top": 950,
@@ -202,8 +202,8 @@ Array [
 `;
 
 exports[`scrollMode: if-needed vertical completely above the fold 1`] = `
-Array [
-  Object {
+[
+  {
     "el": "html",
     "left": 1200,
     "top": 950,
@@ -212,8 +212,8 @@ Array [
 `;
 
 exports[`scrollMode: if-needed vertical completely below the fold 1`] = `
-Array [
-  Object {
+[
+  {
     "el": "html",
     "left": 1200,
     "top": 950,
@@ -222,8 +222,8 @@ Array [
 `;
 
 exports[`scrollMode: if-needed vertical partially above the fold 1`] = `
-Array [
-  Object {
+[
+  {
     "el": "html",
     "left": 1200,
     "top": 950,
@@ -232,8 +232,8 @@ Array [
 `;
 
 exports[`scrollMode: if-needed vertical partially below the fold 1`] = `
-Array [
-  Object {
+[
+  {
     "el": "html",
     "left": 1200,
     "top": 950,

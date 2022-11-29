@@ -1,18 +1,18 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`scrollMode: if-needed test 0, block start, inline start 1`] = `
-Array [
-  Object {
+[
+  {
     "el": "div.inner-scroll-container",
-    "left": 55.546875,
-    "top": 55.546875,
+    "left": 55.5546875,
+    "top": 55.5546875,
   },
-  Object {
+  {
     "el": "div.outer-scroll-container",
     "left": 300,
     "top": 300,
   },
-  Object {
+  {
     "el": "html",
     "left": 1000,
     "top": 1200,
@@ -21,18 +21,18 @@ Array [
 `;
 
 exports[`scrollMode: if-needed test 1, block start, inline center 1`] = `
-Array [
-  Object {
+[
+  {
     "el": "div.inner-scroll-container",
-    "left": 99.96875,
-    "top": 55.546875,
+    "left": 99.98828125,
+    "top": 55.5546875,
   },
-  Object {
+  {
     "el": "div.outer-scroll-container",
     "left": 200,
     "top": 300,
   },
-  Object {
+  {
     "el": "html",
     "left": 800,
     "top": 1200,
@@ -41,18 +41,18 @@ Array [
 `;
 
 exports[`scrollMode: if-needed test 2, block start, inline end 1`] = `
-Array [
-  Object {
+[
+  {
     "el": "div.inner-scroll-container",
-    "left": 144.390625,
-    "top": 55.546875,
+    "left": 144.421875,
+    "top": 55.5546875,
   },
-  Object {
+  {
     "el": "div.outer-scroll-container",
     "left": 100,
     "top": 300,
   },
-  Object {
+  {
     "el": "html",
     "left": 600,
     "top": 1200,
@@ -61,18 +61,18 @@ Array [
 `;
 
 exports[`scrollMode: if-needed test 3, block center, inline start 1`] = `
-Array [
-  Object {
+[
+  {
     "el": "div.inner-scroll-container",
-    "left": 55.546875,
-    "top": 99.984375,
+    "left": 55.5546875,
+    "top": 99.99609375,
   },
-  Object {
+  {
     "el": "div.outer-scroll-container",
     "left": 300,
     "top": 200,
   },
-  Object {
+  {
     "el": "html",
     "left": 1000,
     "top": 1100,
@@ -81,18 +81,18 @@ Array [
 `;
 
 exports[`scrollMode: if-needed test 4, block center, inline center 1`] = `
-Array [
-  Object {
+[
+  {
     "el": "div.inner-scroll-container",
-    "left": 99.96875,
-    "top": 99.984375,
+    "left": 99.98828125,
+    "top": 99.99609375,
   },
-  Object {
+  {
     "el": "div.outer-scroll-container",
     "left": 200,
     "top": 200,
   },
-  Object {
+  {
     "el": "html",
     "left": 800,
     "top": 1100,
@@ -101,18 +101,18 @@ Array [
 `;
 
 exports[`scrollMode: if-needed test 5, block center, inline end 1`] = `
-Array [
-  Object {
+[
+  {
     "el": "div.inner-scroll-container",
-    "left": 144.390625,
-    "top": 99.984375,
+    "left": 144.421875,
+    "top": 99.99609375,
   },
-  Object {
+  {
     "el": "div.outer-scroll-container",
     "left": 100,
     "top": 200,
   },
-  Object {
+  {
     "el": "html",
     "left": 600,
     "top": 1100,
@@ -121,18 +121,18 @@ Array [
 `;
 
 exports[`scrollMode: if-needed test 6, block end, inline start 1`] = `
-Array [
-  Object {
+[
+  {
     "el": "div.inner-scroll-container",
-    "left": 55.546875,
-    "top": 144.421875,
+    "left": 55.5546875,
+    "top": 144.4375,
   },
-  Object {
+  {
     "el": "div.outer-scroll-container",
     "left": 300,
     "top": 100,
   },
-  Object {
+  {
     "el": "html",
     "left": 1000,
     "top": 1000,
@@ -141,18 +141,18 @@ Array [
 `;
 
 exports[`scrollMode: if-needed test 7, block end, inline center 1`] = `
-Array [
-  Object {
+[
+  {
     "el": "div.inner-scroll-container",
-    "left": 99.96875,
-    "top": 144.421875,
+    "left": 99.98828125,
+    "top": 144.4375,
   },
-  Object {
+  {
     "el": "div.outer-scroll-container",
     "left": 200,
     "top": 100,
   },
-  Object {
+  {
     "el": "html",
     "left": 800,
     "top": 1000,
@@ -161,18 +161,18 @@ Array [
 `;
 
 exports[`scrollMode: if-needed test 8, block end, inline end 1`] = `
-Array [
-  Object {
+[
+  {
     "el": "div.inner-scroll-container",
-    "left": 144.390625,
-    "top": 144.421875,
+    "left": 144.421875,
+    "top": 144.4375,
   },
-  Object {
+  {
     "el": "div.outer-scroll-container",
     "left": 100,
     "top": 100,
   },
-  Object {
+  {
     "el": "html",
     "left": 600,
     "top": 1000,

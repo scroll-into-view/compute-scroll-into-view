@@ -1,13 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`the "nearest" option works with target and frame having equal dimensions block: "nearest" 1`] = `
-Array [
-  Object {
+[
+  {
     "el": "div.container",
     "left": 0,
     "top": 100,
   },
-  Object {
+  {
     "el": "html",
     "left": 0,
     "top": 0,
