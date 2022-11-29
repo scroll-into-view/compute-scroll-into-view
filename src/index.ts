@@ -230,11 +230,11 @@ function alignNearest(
 }
 
 function getParentElement(element: Node): Element | null {
-	const parent = element.parentElement;
-	if (parent == null) {
-		return (element.getRootNode() as ShadowRoot).host || null;
-	}
-	return parent;
+  const parent = element.parentElement
+  if (parent == null) {
+    return (element.getRootNode() as ShadowRoot).host || null
+  }
+  return parent
 }
 
 export default (target: Element, options: Options): CustomScrollAction[] => {
