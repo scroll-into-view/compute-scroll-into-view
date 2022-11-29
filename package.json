@@ -20,7 +20,6 @@
   "license": "MIT",
   "author": "Cody Olsen",
   "sideEffects": false,
-  "type": "module",
   "exports": {
     ".": {
       "types": "./typings/index.d.ts",
