@@ -25,12 +25,12 @@
       "types": "./typings/index.d.ts",
       "source": "./src/index.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs",
+      "require": "./dist/index.js",
       "default": "./dist/index.mjs"
     },
     "./package.json": "./package.json"
   },
-  "main": "dist/index.cjs",
+  "main": "dist/index.js",
   "umd:main": "umd/compute-scroll-into-view.min.js",
   "module": "dist/index.mjs",
   "source": "src/index.ts",
