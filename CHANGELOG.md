@@ -5,6 +5,17 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0](https://github.com/scroll-into-view/compute-scroll-into-view/compare/v1.0.20...v2.0.0) (2022-12-01)
+
+### ⚠ BREAKING CHANGES
+
+- drops umd builds, and ships more modern syntax with ESM as baseline
+
+### Bug Fixes
+
+- update build tooling ([5960c1f](https://github.com/scroll-into-view/compute-scroll-into-view/commit/5960c1f4cfcddd1b1651438d73701d0a572f561c))
+- use `typeof document` check for env detection ([ae9ebbd](https://github.com/scroll-into-view/compute-scroll-into-view/commit/ae9ebbddc1f4d3e815a82adbfc8e7c2f31c5f778))
+
 ## [1.0.20](https://github.com/scroll-into-view/compute-scroll-into-view/compare/v1.0.19...v1.0.20) (2022-11-29)
 
 ### Bug Fixes
