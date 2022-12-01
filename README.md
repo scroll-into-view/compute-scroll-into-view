@@ -28,7 +28,7 @@ Scrolling SVG elements are supported, as well as Shadow DOM elements. The [Visua
 npm i compute-scroll-into-view
 ```
 
-You can also use it from an CDN:
+You can also use it from a CDN:
 
 ```js
 const { default: compute } = await import(
