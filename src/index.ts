@@ -14,14 +14,54 @@ export type ScrollMode = 'always' | 'if-needed'
 
 /** @public */
 export interface Options {
+  /**
+   * Control the logical scroll position on the y-axis. The spec states that the `block` direction is related to the [writing-mode](https://developer.mozilla.org/en-US/docs/Web/CSS/writing-mode), but this is not implemented yet in this library.
+   * This means that `block: 'start'` aligns to the top edge and `block: 'end'` to the bottom.
+   * @defaultValue 'center'
+   */
   block?: ScrollLogicalPosition
+  /**
+   * Like `block` this is affected by the [writing-mode](https://developer.mozilla.org/en-US/docs/Web/CSS/writing-mode). In left-to-right pages `inline: 'start'` will align to the left edge. In right-to-left it should be flipped. This will be supported in a future release.
+   * @defaultValue 'nearest'
+   */
   inline?: ScrollLogicalPosition
+  /**
+   * This is a proposed addition to the spec that you can track here: https://github.com/w3c/csswg-drafts/pull/5677
+   *
+   * This library will be updated to reflect any changes to the spec and will provide a migration path.
+   * To be backwards compatible with `Element.scrollIntoViewIfNeeded` if something is not 100% visible it will count as "needs scrolling". If you need a different visibility ratio your best option would be to implement an [Intersection Observer](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API).
+   * @defaultValue 'always'
+   */
   scrollMode?: ScrollMode
-  // Custom behavior, not in any spec
+  /**
+   * By default there is no boundary. All the parent elements of your target is checked until it reaches the viewport ([`document.scrollingElement`](https://developer.mozilla.org/en-US/docs/Web/API/document/scrollingElement)) when calculating layout and what to scroll.
+   * By passing a boundary you can short-circuit this loop depending on your needs:
+   * 
+   * - Prevent the browser window from scrolling.
+   * - Scroll elements into view in a list, without scrolling container elements.
+   * 
+   * You can also pass a function to do more dynamic checks to override the scroll scoping:
+   * 
+   * ```js
+   * let actions = compute(target, {
+   *   boundary: (parent) => {
+   *     // By default `overflow: hidden` elements are allowed, only `overflow: visible | clip` is skipped as
+   *     // this is required by the CSSOM spec
+   *     if (getComputedStyle(parent)['overflow'] === 'hidden') {
+   *       return false
+   *     }
+
+   *     return true
+   *   },
+   * })
+   * ```
+   * @defaultValue null
+   */
   boundary?: Element | ((parent: Element) => boolean) | null
   /**
    * New option that skips auto-scrolling all nodes with overflow: hidden set
    * See FF implementation: https://hg.mozilla.org/integration/fx-team/rev/c48c3ec05012#l7.18
+   * @defaultValue false
    * @public
    */
   skipOverflowHiddenElements?: boolean
@@ -35,14 +75,13 @@ export interface ScrollAction {
 }
 
 // @TODO better shadowdom test, 11 = document fragment
-function isElement(el: any): el is Element {
-  return typeof el === 'object' && el != null && el.nodeType === 1
-}
+let isElement = (el: any): el is Element =>
+  typeof el === 'object' && el != null && el.nodeType === 1
 
-function canOverflow(
+let canOverflow = (
   overflow: string | null,
   skipOverflowHiddenElements?: boolean
-) {
+) => {
   if (skipOverflowHiddenElements && overflow === 'hidden') {
     return false
   }
@@ -50,7 +89,7 @@ function canOverflow(
   return overflow !== 'visible' && overflow !== 'clip'
 }
 
-function getFrameElement(el: Element) {
+let getFrameElement = (el: Element) => {
   if (!el.ownerDocument || !el.ownerDocument.defaultView) {
     return null
   }
@@ -62,8 +101,8 @@ function getFrameElement(el: Element) {
   }
 }
 
-function isHiddenByFrame(el: Element): boolean {
-  const frame = getFrameElement(el)
+let isHiddenByFrame = (el: Element): boolean => {
+  let frame = getFrameElement(el)
   if (!frame) {
     return false
   }
@@ -73,9 +112,9 @@ function isHiddenByFrame(el: Element): boolean {
   )
 }
 
-function isScrollable(el: Element, skipOverflowHiddenElements?: boolean) {
+let isScrollable = (el: Element, skipOverflowHiddenElements?: boolean) => {
   if (el.clientHeight < el.scrollHeight || el.clientWidth < el.scrollWidth) {
-    const style = getComputedStyle(el, null)
+    let style = getComputedStyle(el, null)
     return (
       canOverflow(style.overflowY, skipOverflowHiddenElements) ||
       canOverflow(style.overflowX, skipOverflowHiddenElements) ||
@@ -94,7 +133,7 @@ function isScrollable(el: Element, skipOverflowHiddenElements?: boolean) {
  * │ target │   frame
  * └────────┘ ┗ ━ ━ ━ ┛
  */
-function alignNearest(
+let alignNearest = (
   scrollingEdgeStart: number,
   scrollingEdgeEnd: number,
   scrollingSize: number,
@@ -103,7 +142,7 @@ function alignNearest(
   elementEdgeStart: number,
   elementEdgeEnd: number,
   elementSize: number
-) {
+) => {
   /**
    * If element edge A and element edge B are both outside scrolling box edge A and scrolling box edge B
    *
@@ -227,8 +266,8 @@ function alignNearest(
   return 0
 }
 
-function getParentElement(element: Node): Element | null {
-  const parent = element.parentElement
+let getParentElement = (element: Node): Element | null => {
+  let parent = element.parentElement
   if (parent == null) {
     return (element.getRootNode() as ShadowRoot).host || null
   }
@@ -242,12 +281,12 @@ export default (target: Element, options: Options): ScrollAction[] => {
     return []
   }
 
-  const { scrollMode, block, inline, boundary, skipOverflowHiddenElements } =
+  let { scrollMode, block, inline, boundary, skipOverflowHiddenElements } =
     options
   // Allow using a callback to check the boundary
   // The default behavior is to check if the current target matches the boundary element or not
   // If undefined it'll check that target is never undefined (can happen as we recurse up the tree)
-  const checkBoundary =
+  let checkBoundary =
     typeof boundary === 'function' ? boundary : (node: any) => node !== boundary
 
   if (!isElement(target)) {
@@ -255,10 +294,10 @@ export default (target: Element, options: Options): ScrollAction[] => {
   }
 
   // Used to handle the top most element that can be scrolled
-  const scrollingElement = document.scrollingElement || document.documentElement
+  let scrollingElement = document.scrollingElement || document.documentElement
 
   // Collect all the scrolling boxes, as defined in the spec: https://drafts.csswg.org/cssom-view/#scrolling-box
-  const frames: Element[] = []
+  let frames: Element[] = []
   let cursor: Element | null = target
   while (isElement(cursor) && checkBoundary(cursor)) {
     // Move cursor to parent
@@ -291,14 +330,14 @@ export default (target: Element, options: Options): ScrollAction[] => {
   // and viewport dimensions on window.innerWidth/Height
   // https://www.quirksmode.org/mobile/viewports2.html
   // https://bokand.github.io/viewport/index.html
-  const viewportWidth = window.visualViewport?.width ?? innerWidth
-  const viewportHeight = window.visualViewport?.height ?? innerHeight
+  let viewportWidth = window.visualViewport?.width ?? innerWidth
+  let viewportHeight = window.visualViewport?.height ?? innerHeight
 
   // Newer browsers supports scroll[X|Y], page[X|Y]Offset is
-  const viewportX = window.scrollX ?? pageXOffset
-  const viewportY = window.scrollY ?? pageYOffset
+  let viewportX = window.scrollX ?? pageXOffset
+  let viewportY = window.scrollY ?? pageYOffset
 
-  const {
+  let {
     height: targetHeight,
     width: targetWidth,
     top: targetTop,
@@ -322,14 +361,14 @@ export default (target: Element, options: Options): ScrollAction[] => {
       : targetLeft // inline === 'start || inline === 'nearest
 
   // Collect new scroll positions
-  const computations: ScrollAction[] = []
+  let computations: ScrollAction[] = []
   // In chrome there's no longer a difference between caching the `frames.length` to a var or not, so we don't in this case (size > speed anyways)
   for (let index = 0; index < frames.length; index++) {
-    const frame = frames[index]
+    let frame = frames[index]
 
     // @TODO add a shouldScroll hook here that allows userland code to take control
 
-    const { height, width, top, right, bottom, left } =
+    let { height, width, top, right, bottom, left } =
       frame.getBoundingClientRect()
 
     // If the element is already visible we can end it here
@@ -349,25 +388,25 @@ export default (target: Element, options: Options): ScrollAction[] => {
       return computations
     }
 
-    const frameStyle = getComputedStyle(frame)
-    const borderLeft = parseInt(frameStyle.borderLeftWidth as string, 10)
-    const borderTop = parseInt(frameStyle.borderTopWidth as string, 10)
-    const borderRight = parseInt(frameStyle.borderRightWidth as string, 10)
-    const borderBottom = parseInt(frameStyle.borderBottomWidth as string, 10)
+    let frameStyle = getComputedStyle(frame)
+    let borderLeft = parseInt(frameStyle.borderLeftWidth as string, 10)
+    let borderTop = parseInt(frameStyle.borderTopWidth as string, 10)
+    let borderRight = parseInt(frameStyle.borderRightWidth as string, 10)
+    let borderBottom = parseInt(frameStyle.borderBottomWidth as string, 10)
 
     let blockScroll: number = 0
     let inlineScroll: number = 0
 
     // The property existance checks for offfset[Width|Height] is because only HTMLElement objects have them, but any Element might pass by here
     // @TODO find out if the "as HTMLElement" overrides can be dropped
-    const scrollbarWidth =
+    let scrollbarWidth =
       'offsetWidth' in frame
         ? (frame as HTMLElement).offsetWidth -
           (frame as HTMLElement).clientWidth -
           borderLeft -
           borderRight
         : 0
-    const scrollbarHeight =
+    let scrollbarHeight =
       'offsetHeight' in frame
         ? (frame as HTMLElement).offsetHeight -
           (frame as HTMLElement).clientHeight -
@@ -375,13 +414,13 @@ export default (target: Element, options: Options): ScrollAction[] => {
           borderBottom
         : 0
 
-    const scaleX =
+    let scaleX =
       'offsetWidth' in frame
         ? (frame as HTMLElement).offsetWidth === 0
           ? 0
           : width / (frame as HTMLElement).offsetWidth
         : 0
-    const scaleY =
+    let scaleY =
       'offsetHeight' in frame
         ? (frame as HTMLElement).offsetHeight === 0
           ? 0
@@ -478,7 +517,7 @@ export default (target: Element, options: Options): ScrollAction[] => {
         )
       }
 
-      const { scrollLeft, scrollTop } = frame
+      let { scrollLeft, scrollTop } = frame
       // Ensure scroll coordinates are not out of bounds while applying scroll offsets
       blockScroll = Math.max(
         0,
