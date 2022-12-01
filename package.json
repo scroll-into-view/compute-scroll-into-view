@@ -44,7 +44,7 @@
     "build": "pkg build --strict",
     "prepublishOnly": "npm run build",
     "test": "jest -c integration/jest.config.cjs",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc"
   },
   "browserslist": [
     "> 0.2% and supports es6-module and supports es6-module-dynamic-import and not dead and not IE 11",
