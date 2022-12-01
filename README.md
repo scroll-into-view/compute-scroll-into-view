@@ -22,7 +22,7 @@ Scrolling SVG elements are supported, as well as Shadow DOM elements. The [Visua
     - [boundary](#boundary)
     - [skipOverflowHiddenElements](#skipoverflowhiddenelements)
 
-## Install
+# Install
 
 ```bash
 npm i compute-scroll-into-view
@@ -36,7 +36,7 @@ const { default: compute } = await import(
 )
 ```
 
-## Usage
+# Usage
 
 ```js
 import compute from 'compute-scroll-into-view'
@@ -66,28 +66,28 @@ actions.forEach(({ el, top, left }) => {
 })
 ```
 
-## API
+# API
 
-### compute(target, options)
+## compute(target, options)
 
-### options
+## options
 
 Type: `Object`
 
-#### [block](https://scroll-into-view.dev/#scroll-alignment)
+### [block](https://scroll-into-view.dev/#scroll-alignment)
 
 Type: `'start' | 'center' | 'end' | 'nearest'`<br> Default: `'center'`
 
 Control the logical scroll position on the y-axis. The spec states that the `block` direction is related to the [writing-mode](https://developer.mozilla.org/en-US/docs/Web/CSS/writing-mode), but this is not implemented yet in this library.
 This means that `block: 'start'` aligns to the top edge and `block: 'end'` to the bottom.
 
-#### [inline](https://scroll-into-view.dev/#scroll-alignment)
+### [inline](https://scroll-into-view.dev/#scroll-alignment)
 
 Type: `'start' | 'center' | 'end' | 'nearest'`<br> Default: `'nearest'`
 
 Like `block` this is affected by the [writing-mode](https://developer.mozilla.org/en-US/docs/Web/CSS/writing-mode). In left-to-right pages `inline: 'start'` will align to the left edge. In right-to-left it should be flipped. This will be supported in a future release.
 
-#### [scrollMode](https://scroll-into-view.dev/#scrolling-if-needed)
+### [scrollMode](https://scroll-into-view.dev/#scrolling-if-needed)
 
 Type: `'always' | 'if-needed'`<br> Default: `'always'`
 
@@ -96,7 +96,7 @@ This is a proposed addition to the spec that you can track here: https://github.
 This library will be updated to reflect any changes to the spec and will provide a migration path.
 To be backwards compatible with `Element.scrollIntoViewIfNeeded` if something is not 100% visible it will count as "needs scrolling". If you need a different visibility ratio your best option would be to implement an [Intersection Observer](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API).
 
-#### [boundary](https://scroll-into-view.dev/#limit-propagation)
+### [boundary](https://scroll-into-view.dev/#limit-propagation)
 
 Type: `Element | Function`
 
@@ -122,7 +122,7 @@ const actions = compute(target, {
 })
 ```
 
-#### skipOverflowHiddenElements
+### skipOverflowHiddenElements
 
 Type: `Boolean`<br> Default: `false`
 
