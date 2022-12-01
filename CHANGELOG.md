@@ -5,6 +5,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.1](https://github.com/scroll-into-view/compute-scroll-into-view/compare/v2.0.0...v2.0.1) (2022-12-01)
+
+### Bug Fixes
+
+- **docs:** update size badges ([8d6170d](https://github.com/scroll-into-view/compute-scroll-into-view/commit/8d6170dde25e6753e8ee611eb2a7c2eca027de43))
+
 ## [2.0.0](https://github.com/scroll-into-view/compute-scroll-into-view/compare/v1.0.20...v2.0.0) (2022-12-01)
 
 ### ⚠ BREAKING CHANGES
