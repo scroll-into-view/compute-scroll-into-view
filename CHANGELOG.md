@@ -5,6 +5,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.2](https://github.com/scroll-into-view/compute-scroll-into-view/compare/v2.0.1...v2.0.2) (2022-12-01)
+
+### Bug Fixes
+
+- improve typings, reduce bundlesize ([0246e86](https://github.com/scroll-into-view/compute-scroll-into-view/commit/0246e86d9a4a0aaf37451db197145de6d2be34a2))
+
 ## [2.0.1](https://github.com/scroll-into-view/compute-scroll-into-view/compare/v2.0.0...v2.0.1) (2022-12-01)
 
 ### Bug Fixes
