@@ -130,6 +130,6 @@ By default the [spec](https://drafts.csswg.org/cssom-view/#scrolling-box) states
 
 This package follows the convention [adopted by Firefox](https://hg.mozilla.org/integration/fx-team/rev/c48c3ec05012#l7.18) of setting a boolean option to _not_ scroll all nodes with `overflow: hidden` set.
 
-[gzip-badge]: https://img.badgesize.io/https:/unpkg.com/compute-scroll-into-view/dist/index.js?label=gzip%20size&compression=gzip&style=flat-square
-[size-badge]: https://img.badgesize.io/https:/unpkg.com/compute-scroll-into-view/dist/index.js?label=size&style=flat-square
+[gzip-badge]: https://img.shields.io/bundlephobia/minzip/compute-scroll-into-view?label=size&style=flat-square
+[size-badge]: https://img.shields.io/bundlephobia/min/compute-scroll-into-view?label=size&style=flat-square
 [unpkg-dist]: https://unpkg.com/compute-scroll-into-view/dist/
