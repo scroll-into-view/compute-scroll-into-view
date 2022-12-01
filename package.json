@@ -74,7 +74,7 @@
   },
   "bundlesize": [
     {
-      "path": "./dist/index.mjs",
+      "path": "./dist/index.js",
       "maxSize": "3 kB",
       "compression": "none"
     }
