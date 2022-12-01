@@ -6,31 +6,29 @@
 
 // For a definition on what is "block flow direction" exactly, check this: https://drafts.csswg.org/css-writing-modes-4/#block-flow-direction
 
-// add support for visualViewport object currently implemented in chrome
-interface visualViewport {
-  height: number
-  width: number
-}
+/**
+ * This new option is tracked in this PR, which is the most likely candidate at the time: https://github.com/w3c/csswg-drafts/pull/1805
+ * @public
+ */
+export type ScrollMode = 'always' | 'if-needed'
 
-type ScrollLogicalPosition = 'start' | 'center' | 'end' | 'nearest'
-// This new option is tracked in this PR, which is the most likely candidate at the time: https://github.com/w3c/csswg-drafts/pull/1805
-type ScrollMode = 'always' | 'if-needed'
-// New option that skips auto-scrolling all nodes with overflow: hidden set
-// See FF implementation: https://hg.mozilla.org/integration/fx-team/rev/c48c3ec05012#l7.18
-type SkipOverflowHiddenElements = boolean
-
-interface Options {
+/** @public */
+export interface Options {
   block?: ScrollLogicalPosition
   inline?: ScrollLogicalPosition
   scrollMode?: ScrollMode
-  boundary?: CustomScrollBoundary
-  skipOverflowHiddenElements?: SkipOverflowHiddenElements
+  // Custom behavior, not in any spec
+  boundary?: Element | ((parent: Element) => boolean) | null
+  /**
+   * New option that skips auto-scrolling all nodes with overflow: hidden set
+   * See FF implementation: https://hg.mozilla.org/integration/fx-team/rev/c48c3ec05012#l7.18
+   * @public
+   */
+  skipOverflowHiddenElements?: boolean
 }
 
-// Custom behavior, not in any spec
-type CustomScrollBoundaryCallback = (parent: Element) => boolean
-type CustomScrollBoundary = Element | CustomScrollBoundaryCallback | null
-interface CustomScrollAction {
+/** @public */
+export interface ScrollAction {
   el: Element
   top: number
   left: number
@@ -237,10 +235,8 @@ function getParentElement(element: Node): Element | null {
   return parent
 }
 
-export default (target: Element, options: Options): CustomScrollAction[] => {
-  //TODO: remove this hack when microbundle will support typescript >= 4.0
-  const windowWithViewport = window as unknown as Window & {
-    visualViewport: visualViewport
+/** @public */
+export default (target: Element, options: Options): ScrollAction[] => {
   if (typeof document === 'undefined') {
     // If there's no DOM we assume it's not in a browser environment
     return []
@@ -295,16 +291,12 @@ export default (target: Element, options: Options): CustomScrollAction[] => {
   // and viewport dimensions on window.innerWidth/Height
   // https://www.quirksmode.org/mobile/viewports2.html
   // https://bokand.github.io/viewport/index.html
-  const viewportWidth = windowWithViewport.visualViewport
-    ? windowWithViewport.visualViewport.width
-    : innerWidth
-  const viewportHeight = windowWithViewport.visualViewport
-    ? windowWithViewport.visualViewport.height
-    : innerHeight
+  const viewportWidth = window.visualViewport?.width ?? innerWidth
+  const viewportHeight = window.visualViewport?.height ?? innerHeight
 
   // Newer browsers supports scroll[X|Y], page[X|Y]Offset is
-  const viewportX = window.scrollX || pageXOffset
-  const viewportY = window.scrollY || pageYOffset
+  const viewportX = window.scrollX ?? pageXOffset
+  const viewportY = window.scrollY ?? pageYOffset
 
   const {
     height: targetHeight,
@@ -330,7 +322,7 @@ export default (target: Element, options: Options): CustomScrollAction[] => {
       : targetLeft // inline === 'start || inline === 'nearest
 
   // Collect new scroll positions
-  const computations: CustomScrollAction[] = []
+  const computations: ScrollAction[] = []
   // In chrome there's no longer a difference between caching the `frames.length` to a var or not, so we don't in this case (size > speed anyways)
   for (let index = 0; index < frames.length; index++) {
     const frame = frames[index]

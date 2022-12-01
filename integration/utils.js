@@ -1,3 +1,6 @@
+import compute from '../dist/index.js'
+window.computeScrollIntoView = compute
+
 window.mapActions = (item) => ({
   el: (item.el.tagName.toLowerCase() + '.' + item.el.className).replace(
     /\.$/,
