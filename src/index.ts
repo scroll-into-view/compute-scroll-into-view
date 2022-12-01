@@ -241,6 +241,9 @@ export default (target: Element, options: Options): CustomScrollAction[] => {
   //TODO: remove this hack when microbundle will support typescript >= 4.0
   const windowWithViewport = window as unknown as Window & {
     visualViewport: visualViewport
+  if (typeof document === 'undefined') {
+    // If there's no DOM we assume it's not in a browser environment
+    return []
   }
 
   const { scrollMode, block, inline, boundary, skipOverflowHiddenElements } =
