@@ -4,8 +4,8 @@ exports[`scrollMode: if-needed test 0, block start, inline start 1`] = `
 [
   {
     "el": "div.inner-scroll-container",
-    "left": 55.546875,
-    "top": 55.546875,
+    "left": 56,
+    "top": 56,
   },
   {
     "el": "div.outer-scroll-container",
@@ -24,8 +24,8 @@ exports[`scrollMode: if-needed test 1, block start, inline center 1`] = `
 [
   {
     "el": "div.inner-scroll-container",
-    "left": 99.96875,
-    "top": 55.546875,
+    "left": 100,
+    "top": 56,
   },
   {
     "el": "div.outer-scroll-container",
@@ -44,8 +44,8 @@ exports[`scrollMode: if-needed test 2, block start, inline end 1`] = `
 [
   {
     "el": "div.inner-scroll-container",
-    "left": 144.390625,
-    "top": 55.546875,
+    "left": 144,
+    "top": 56,
   },
   {
     "el": "div.outer-scroll-container",
@@ -64,8 +64,8 @@ exports[`scrollMode: if-needed test 3, block center, inline start 1`] = `
 [
   {
     "el": "div.inner-scroll-container",
-    "left": 55.546875,
-    "top": 99.984375,
+    "left": 56,
+    "top": 100,
   },
   {
     "el": "div.outer-scroll-container",
@@ -84,8 +84,8 @@ exports[`scrollMode: if-needed test 4, block center, inline center 1`] = `
 [
   {
     "el": "div.inner-scroll-container",
-    "left": 99.96875,
-    "top": 99.984375,
+    "left": 100,
+    "top": 100,
   },
   {
     "el": "div.outer-scroll-container",
@@ -104,8 +104,8 @@ exports[`scrollMode: if-needed test 5, block center, inline end 1`] = `
 [
   {
     "el": "div.inner-scroll-container",
-    "left": 144.390625,
-    "top": 99.984375,
+    "left": 144,
+    "top": 100,
   },
   {
     "el": "div.outer-scroll-container",
@@ -124,8 +124,8 @@ exports[`scrollMode: if-needed test 6, block end, inline start 1`] = `
 [
   {
     "el": "div.inner-scroll-container",
-    "left": 55.546875,
-    "top": 144.421875,
+    "left": 56,
+    "top": 144,
   },
   {
     "el": "div.outer-scroll-container",
@@ -144,8 +144,8 @@ exports[`scrollMode: if-needed test 7, block end, inline center 1`] = `
 [
   {
     "el": "div.inner-scroll-container",
-    "left": 99.96875,
-    "top": 144.421875,
+    "left": 100,
+    "top": 144,
   },
   {
     "el": "div.outer-scroll-container",
@@ -164,8 +164,8 @@ exports[`scrollMode: if-needed test 8, block end, inline end 1`] = `
 [
   {
     "el": "div.inner-scroll-container",
-    "left": 144.390625,
-    "top": 144.421875,
+    "left": 144,
+    "top": 144,
   },
   {
     "el": "div.outer-scroll-container",
