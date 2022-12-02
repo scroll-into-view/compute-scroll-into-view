@@ -91,7 +91,7 @@ Like `block` this is affected by the [writing-mode](https://developer.mozilla.or
 
 Type: `'always' | 'if-needed'`<br> Default: `'always'`
 
-This is a proposed addition to the spec that you can track here: https://github.com/w3c/csswg-drafts/pull/1805
+This is a proposed addition to the spec that you can track here: https://github.com/w3c/csswg-drafts/pull/5677
 
 This library will be updated to reflect any changes to the spec and will provide a migration path.
 To be backwards compatible with `Element.scrollIntoViewIfNeeded` if something is not 100% visible it will count as "needs scrolling". If you need a different visibility ratio your best option would be to implement an [Intersection Observer](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API).
