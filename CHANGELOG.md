@@ -5,6 +5,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.3](https://github.com/scroll-into-view/compute-scroll-into-view/compare/v2.0.2...v2.0.3) (2022-12-18)
+
+### Bug Fixes
+
+- **deps:** update devdependencies (non-major) ([#857](https://github.com/scroll-into-view/compute-scroll-into-view/issues/857)) ([d61db89](https://github.com/scroll-into-view/compute-scroll-into-view/commit/d61db8929370192d6d63d174381ae77bedec5fdd))
+
 ## [2.0.2](https://github.com/scroll-into-view/compute-scroll-into-view/compare/v2.0.1...v2.0.2) (2022-12-01)
 
 ### Bug Fixes
