@@ -5,6 +5,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.4](https://github.com/scroll-into-view/compute-scroll-into-view/compare/v2.0.3...v2.0.4) (2023-01-08)
+
+### Bug Fixes
+
+- **deps:** update dependency @sanity/pkg-utils to v2 ([#860](https://github.com/scroll-into-view/compute-scroll-into-view/issues/860)) ([7804e3d](https://github.com/scroll-into-view/compute-scroll-into-view/commit/7804e3dd13f8b82e82e560f1e28e3041bb1c5df4))
+
 ## [2.0.3](https://github.com/scroll-into-view/compute-scroll-into-view/compare/v2.0.2...v2.0.3) (2022-12-18)
 
 ### Bug Fixes
