@@ -54,7 +54,7 @@
     "singleQuote": true
   },
   "devDependencies": {
-    "@sanity/pkg-utils": "^1.20.4",
+    "@sanity/pkg-utils": "^2.1.1",
     "@sanity/semantic-release-preset": "^2.0.5",
     "@types/expect-puppeteer": "^5.0.2",
     "@types/jest": "^29.2.5",
