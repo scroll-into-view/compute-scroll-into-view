@@ -332,10 +332,7 @@ export let compute = (target: Element, options: Options): ScrollAction[] => {
   // https://bokand.github.io/viewport/index.html
   let viewportWidth = window.visualViewport?.width ?? innerWidth
   let viewportHeight = window.visualViewport?.height ?? innerHeight
-
-  // Newer browsers supports scroll[X|Y], page[X|Y]Offset is
-  let viewportX = window.scrollX ?? pageXOffset
-  let viewportY = window.scrollY ?? pageYOffset
+  let { scrollX, scrollY } = window
 
   let {
     height: targetHeight,
@@ -436,13 +433,13 @@ export let compute = (target: Element, options: Options): ScrollAction[] => {
         blockScroll = targetBlock - viewportHeight
       } else if (block === 'nearest') {
         blockScroll = alignNearest(
-          viewportY,
-          viewportY + viewportHeight,
+          scrollY,
+          scrollY + viewportHeight,
           viewportHeight,
           borderTop,
           borderBottom,
-          viewportY + targetBlock,
-          viewportY + targetBlock + targetHeight,
+          scrollY + targetBlock,
+          scrollY + targetBlock + targetHeight,
           targetHeight
         )
       } else {
@@ -459,24 +456,23 @@ export let compute = (target: Element, options: Options): ScrollAction[] => {
       } else {
         // inline === 'nearest' is the default
         inlineScroll = alignNearest(
-          viewportX,
-          viewportX + viewportWidth,
+          scrollX,
+          scrollX + viewportWidth,
           viewportWidth,
           borderLeft,
           borderRight,
-          viewportX + targetInline,
-          viewportX + targetInline + targetWidth,
+          scrollX + targetInline,
+          scrollX + targetInline + targetWidth,
           targetWidth
         )
       }
 
       // Apply scroll position offsets and ensure they are within bounds
       // @TODO add more test cases to cover this 100%
-      blockScroll = Math.max(0, blockScroll + viewportY)
-      inlineScroll = Math.max(0, inlineScroll + viewportX)
+      blockScroll = Math.max(0, blockScroll + scrollY)
+      inlineScroll = Math.max(0, inlineScroll + scrollX)
     } else {
       // Handle each scrolling frame that might exist between the target and the viewport
-
       if (block === 'start') {
         blockScroll = targetBlock - top - borderTop
       } else if (block === 'end') {
