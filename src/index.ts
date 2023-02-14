@@ -275,7 +275,7 @@ let getParentElement = (element: Node): Element | null => {
 }
 
 /** @public */
-export default (target: Element, options: Options): ScrollAction[] => {
+export let compute = (target: Element, options: Options): ScrollAction[] => {
   if (typeof document === 'undefined') {
     // If there's no DOM we assume it's not in a browser environment
     return []

@@ -31,15 +31,13 @@ npm i compute-scroll-into-view
 You can also use it from a CDN:
 
 ```js
-const { default: compute } = await import(
-  'https://esm.sh/compute-scroll-into-view'
-)
+const { compute } = await import('https://esm.sh/compute-scroll-into-view')
 ```
 
 # Usage
 
 ```js
-import compute from 'compute-scroll-into-view'
+import { compute } from 'compute-scroll-into-view'
 
 const node = document.getElementById('hero')
 
