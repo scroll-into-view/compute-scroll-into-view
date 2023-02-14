@@ -5,6 +5,20 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.0](https://github.com/scroll-into-view/compute-scroll-into-view/compare/v2.0.4...v3.0.0) (2023-02-14)
+
+### ⚠ BREAKING CHANGES
+
+- **refactor:** use `import {compute}` instead of `import compute`
+
+### Features
+
+- **refactor:** use named export instead of default ([8509530](https://github.com/scroll-into-view/compute-scroll-into-view/commit/850953006334264cf2ef9040bf8c4d7ae6700604))
+
+### Bug Fixes
+
+- drop `pageXOffset` and `pageYOffset` ([fc7bd97](https://github.com/scroll-into-view/compute-scroll-into-view/commit/fc7bd976d34f497da462d02772858eae718a75b2))
+
 ## [2.0.4](https://github.com/scroll-into-view/compute-scroll-into-view/compare/v2.0.3...v2.0.4) (2023-01-08)
 
 ### Bug Fixes
