@@ -1,4 +1,4 @@
-import { compute } from '../dist/index.js'
+import { compute } from '../dist/index.mjs'
 window.computeScrollIntoView = compute
 
 window.mapActions = (item) => ({
