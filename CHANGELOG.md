@@ -5,6 +5,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.1](https://github.com/scroll-into-view/compute-scroll-into-view/compare/v3.0.0...v3.0.1) (2023-04-08)
+
+### Bug Fixes
+
+- support `—moduleResolution node16` ([#882](https://github.com/scroll-into-view/compute-scroll-into-view/issues/882)) ([d4ad5e1](https://github.com/scroll-into-view/compute-scroll-into-view/commit/d4ad5e1b53dcb0b1baa7fd6f696d467759c17cbc))
+
 ## [3.0.0](https://github.com/scroll-into-view/compute-scroll-into-view/compare/v2.0.4...v3.0.0) (2023-02-14)
 
 ### ⚠ BREAKING CHANGES

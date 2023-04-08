@@ -1,6 +1,6 @@
 {
   "name": "compute-scroll-into-view",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "The engine that powers scroll-into-view-if-needed",
   "keywords": [
     "if-needed",
