@@ -5,6 +5,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.2](https://github.com/scroll-into-view/compute-scroll-into-view/compare/v3.0.1...v3.0.2) (2023-04-09)
+
+### Bug Fixes
+
+- revert package.json and utils.js [#882](https://github.com/scroll-into-view/compute-scroll-into-view/issues/882) ([#891](https://github.com/scroll-into-view/compute-scroll-into-view/issues/891)) ([1d57298](https://github.com/scroll-into-view/compute-scroll-into-view/commit/1d572980b5451eca90a4510e1864265fad65708f))
+
 ## [3.0.1](https://github.com/scroll-into-view/compute-scroll-into-view/compare/v3.0.0...v3.0.1) (2023-04-08)
 
 ### Bug Fixes
