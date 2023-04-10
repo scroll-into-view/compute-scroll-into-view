@@ -5,6 +5,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.3](https://github.com/scroll-into-view/compute-scroll-into-view/compare/v3.0.2...v3.0.3) (2023-04-10)
+
+### Bug Fixes
+
+- use const replace let ([#889](https://github.com/scroll-into-view/compute-scroll-into-view/issues/889)) ([d6f778d](https://github.com/scroll-into-view/compute-scroll-into-view/commit/d6f778d5a91720f9cb1980b403612d744cfa24bc))
+
 ## [3.0.2](https://github.com/scroll-into-view/compute-scroll-into-view/compare/v3.0.1...v3.0.2) (2023-04-09)
 
 ### Bug Fixes
