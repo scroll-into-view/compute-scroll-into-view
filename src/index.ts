@@ -515,20 +515,26 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
 
       const { scrollLeft, scrollTop } = frame
       // Ensure scroll coordinates are not out of bounds while applying scroll offsets
-      blockScroll = scaleY === 0 ? 0 : Math.max(
-        0,
-        Math.min(
-          scrollTop + blockScroll / scaleY,
-          frame.scrollHeight - height / scaleY + scrollbarHeight
-        )
-      )
-      inlineScroll = scaleX === 0 ? 0 :Math.max(
-        0,
-        Math.min(
-          scrollLeft + inlineScroll / scaleX,
-          frame.scrollWidth - width / scaleX + scrollbarWidth
-        )
-      )
+      blockScroll =
+        scaleY === 0
+          ? 0
+          : Math.max(
+              0,
+              Math.min(
+                scrollTop + blockScroll / scaleY,
+                frame.scrollHeight - height / scaleY + scrollbarHeight
+              )
+            )
+      inlineScroll =
+        scaleX === 0
+          ? 0
+          : Math.max(
+              0,
+              Math.min(
+                scrollLeft + inlineScroll / scaleX,
+                frame.scrollWidth - width / scaleX + scrollbarWidth
+              )
+            )
 
       // Cache the offset so that parent frames can scroll this into view correctly
       targetBlock += scrollTop - blockScroll
