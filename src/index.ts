@@ -352,21 +352,26 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
     bottom: targetBottom,
     left: targetLeft,
   } = target.getBoundingClientRect()
-  const scrollMargins = getScrollMargins(target)
+  const {
+    top: marginTop,
+    right: marginRight,
+    bottom: marginBottom,
+    left: marginLeft,
+  } = getScrollMargins(target)
 
   // These values mutate as we loop through and generate scroll coordinates
   let targetBlock: number =
     block === 'start' || block === 'nearest'
-      ? targetTop - scrollMargins.top
+      ? targetTop - marginTop
       : block === 'end'
-      ? targetBottom + scrollMargins.bottom
-      : targetTop + targetHeight / 2 - scrollMargins.top + scrollMargins.bottom // block === 'center
+      ? targetBottom + marginBottom
+      : targetTop + targetHeight / 2 - marginTop + marginBottom // block === 'center
   let targetInline: number =
     inline === 'center'
-      ? targetLeft + targetWidth / 2 - scrollMargins.left + scrollMargins.right
+      ? targetLeft + targetWidth / 2 - marginLeft + marginRight
       : inline === 'end'
-      ? targetRight + scrollMargins.right
-      : targetLeft - scrollMargins.left // inline === 'start || inline === 'nearest
+      ? targetRight + marginRight
+      : targetLeft - marginLeft // inline === 'start || inline === 'nearest
 
   // Collect new scroll positions
   const computations: ScrollAction[] = []
