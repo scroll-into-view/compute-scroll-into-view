@@ -5,6 +5,16 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.1.0](https://github.com/scroll-into-view/compute-scroll-into-view/compare/v3.0.3...v3.1.0) (2023-09-30)
+
+### Features
+
+- account for scroll margin ([#906](https://github.com/scroll-into-view/compute-scroll-into-view/issues/906)) ([b932154](https://github.com/scroll-into-view/compute-scroll-into-view/commit/b932154473451e92dc71112d2df3e1d674892283))
+
+### Bug Fixes
+
+- scrolling zero-dimension elements ([#901](https://github.com/scroll-into-view/compute-scroll-into-view/issues/901)) ([ffad204](https://github.com/scroll-into-view/compute-scroll-into-view/commit/ffad2040d7b35484e8cdc0332577977164653b62)), closes [#900](https://github.com/scroll-into-view/compute-scroll-into-view/issues/900)
+
 ## [3.0.3](https://github.com/scroll-into-view/compute-scroll-into-view/compare/v3.0.2...v3.0.3) (2023-04-10)
 
 ### Bug Fixes
