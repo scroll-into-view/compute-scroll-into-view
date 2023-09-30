@@ -274,6 +274,16 @@ const getParentElement = (element: Node): Element | null => {
   return parent
 }
 
+const getScrollMargins = (target: Element) => {
+  const computedStyle = window.getComputedStyle(target)
+  return {
+    top: parseFloat(computedStyle.scrollMarginTop) || 0,
+    right: parseFloat(computedStyle.scrollMarginRight) || 0,
+    bottom: parseFloat(computedStyle.scrollMarginBottom) || 0,
+    left: parseFloat(computedStyle.scrollMarginLeft) || 0,
+  }
+}
+
 /** @public */
 export const compute = (target: Element, options: Options): ScrollAction[] => {
   if (typeof document === 'undefined') {
@@ -342,20 +352,26 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
     bottom: targetBottom,
     left: targetLeft,
   } = target.getBoundingClientRect()
+  const {
+    top: marginTop,
+    right: marginRight,
+    bottom: marginBottom,
+    left: marginLeft,
+  } = getScrollMargins(target)
 
   // These values mutate as we loop through and generate scroll coordinates
   let targetBlock: number =
     block === 'start' || block === 'nearest'
-      ? targetTop
+      ? targetTop - marginTop
       : block === 'end'
-      ? targetBottom
-      : targetTop + targetHeight / 2 // block === 'center
+      ? targetBottom + marginBottom
+      : targetTop + targetHeight / 2 - marginTop + marginBottom // block === 'center
   let targetInline: number =
     inline === 'center'
-      ? targetLeft + targetWidth / 2
+      ? targetLeft + targetWidth / 2 - marginLeft + marginRight
       : inline === 'end'
-      ? targetRight
-      : targetLeft // inline === 'start || inline === 'nearest
+      ? targetRight + marginRight
+      : targetLeft - marginLeft // inline === 'start || inline === 'nearest
 
   // Collect new scroll positions
   const computations: ScrollAction[] = []
