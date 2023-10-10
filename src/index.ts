@@ -276,11 +276,13 @@ const getParentElement = (element: Node): Element | null => {
 
 const getScrollMargins = (target: Element) => {
   const computedStyle = window.getComputedStyle(target)
+
+  // Logical properties for scroll-margin are only supported from iOS15, so we fallback to non-logical for iOS14
   return {
-    blockStart: parseFloat(computedStyle.scrollMarginBlockStart) || 0,
-    inlineEnd: parseFloat(computedStyle.scrollMarginInlineEnd) || 0,
-    blockEnd: parseFloat(computedStyle.scrollMarginBlockEnd) || 0,
-    inlineStart: parseFloat(computedStyle.scrollMarginInlineStart) || 0,
+    blockStart: parseFloat(computedStyle.scrollMarginBlockStart || computedStyle.scrollMarginTop) || 0,
+    inlineEnd: parseFloat(computedStyle.scrollMarginInlineEnd || computedStyle.scrollMarginRight) || 0,
+    blockEnd: parseFloat(computedStyle.scrollMarginBlockEnd || computedStyle.scrollMarginBottom) || 0,
+    inlineStart: parseFloat(computedStyle.scrollMarginInlineStart || computedStyle.scrollMarginLeft) || 0,
   }
 }
 
@@ -577,7 +579,7 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
                 frame.scrollWidth - inlineSize / scaleX + scrollbarWidth
               )
             )
-      
+
       // Cache the offset so that parent frames can scroll this into view correctly
       targetBlock += scrollTop - blockScroll
       targetInline += scrollLeft - inlineScroll
