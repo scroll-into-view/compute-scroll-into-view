@@ -36,12 +36,12 @@ export interface Options {
   /**
    * By default there is no boundary. All the parent elements of your target is checked until it reaches the viewport ([`document.scrollingElement`](https://developer.mozilla.org/en-US/docs/Web/API/document/scrollingElement)) when calculating layout and what to scroll.
    * By passing a boundary you can short-circuit this loop depending on your needs:
-   * 
+   *
    * - Prevent the browser window from scrolling.
    * - Scroll elements into view in a list, without scrolling container elements.
-   * 
+   *
    * You can also pass a function to do more dynamic checks to override the scroll scoping:
-   * 
+   *
    * ```js
    * let actions = compute(target, {
    *   boundary: (parent) => {
@@ -277,10 +277,10 @@ const getParentElement = (element: Node): Element | null => {
 const getScrollMargins = (target: Element) => {
   const computedStyle = window.getComputedStyle(target)
   return {
-    top: parseFloat(computedStyle.scrollMarginTop) || 0,
-    right: parseFloat(computedStyle.scrollMarginRight) || 0,
-    bottom: parseFloat(computedStyle.scrollMarginBottom) || 0,
-    left: parseFloat(computedStyle.scrollMarginLeft) || 0,
+    blockStart: parseFloat(computedStyle.scrollMarginBlockStart) || 0,
+    inlineEnd: parseFloat(computedStyle.scrollMarginInlineEnd) || 0,
+    blockEnd: parseFloat(computedStyle.scrollMarginBlockEnd) || 0,
+    inlineStart: parseFloat(computedStyle.scrollMarginInlineStart) || 0,
   }
 }
 
@@ -344,34 +344,42 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
   const viewportHeight = window.visualViewport?.height ?? innerHeight
   const { scrollX, scrollY } = window
 
-  const {
-    height: targetHeight,
-    width: targetWidth,
-    top: targetTop,
-    right: targetRight,
-    bottom: targetBottom,
-    left: targetLeft,
+  let {
+    height: targetBlockSize,
+    width: targetInlineSize,
+    top: targetBlockStart,
+    right: targetInlineEnd,
+    bottom: targetBlockEnd,
+    left: targetInlineStart,
   } = target.getBoundingClientRect()
   const {
-    top: marginTop,
-    right: marginRight,
-    bottom: marginBottom,
-    left: marginLeft,
+    blockStart: marginBlockStart,
+    inlineEnd: marginInlineEnd,
+    blockEnd: marginBlockEnd,
+    inlineStart: marginInlineStart,
   } = getScrollMargins(target)
+
+  // We have to normalize the `getBoundingClientRect` values in RTL context
+  if (document.dir === 'rtl') {
+    const targetInlineStartTemp = targetInlineStart
+
+    targetInlineStart = viewportWidth - targetInlineEnd
+    targetInlineEnd = targetInlineStartTemp - viewportWidth
+  }
 
   // These values mutate as we loop through and generate scroll coordinates
   let targetBlock: number =
     block === 'start' || block === 'nearest'
-      ? targetTop - marginTop
+      ? targetBlockStart - marginBlockStart
       : block === 'end'
-      ? targetBottom + marginBottom
-      : targetTop + targetHeight / 2 - marginTop + marginBottom // block === 'center
+      ? targetBlockEnd + marginBlockEnd
+      : targetBlockStart + targetBlockSize / 2 - marginBlockStart + marginBlockEnd // block === 'center
   let targetInline: number =
     inline === 'center'
-      ? targetLeft + targetWidth / 2 - marginLeft + marginRight
+      ? targetInlineStart + targetInlineSize / 2 - marginInlineStart + marginInlineEnd
       : inline === 'end'
-      ? targetRight + marginRight
-      : targetLeft - marginLeft // inline === 'start || inline === 'nearest
+      ? targetInlineEnd + marginInlineEnd
+      : targetInlineStart - marginInlineStart // inline === 'start || inline === 'nearest
 
   // Collect new scroll positions
   const computations: ScrollAction[] = []
@@ -381,31 +389,45 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
 
     // @TODO add a shouldScroll hook here that allows userland code to take control
 
-    const { height, width, top, right, bottom, left } =
-      frame.getBoundingClientRect()
+    let {
+      height: blockSize,
+      width: inlineSize,
+      top: blockStart,
+      right: inlineEnd,
+      bottom: blockEnd,
+      left: inlineStart
+    } = frame.getBoundingClientRect()
+
+    // We have to normalize the `getBoundingClientRect` values in RTL context
+    if (document.dir === 'rtl') {
+      const inlineStartTemp = inlineStart
+
+      inlineStart = viewportWidth - inlineEnd
+      inlineEnd = inlineStartTemp - viewportWidth
+    }
 
     // If the element is already visible we can end it here
     // @TODO targetBlock and targetInline should be taken into account to be compliant with https://github.com/w3c/csswg-drafts/pull/1805/files#diff-3c17f0e43c20f8ecf89419d49e7ef5e0R1333
     if (
       scrollMode === 'if-needed' &&
-      targetTop >= 0 &&
-      targetLeft >= 0 &&
-      targetBottom <= viewportHeight &&
-      targetRight <= viewportWidth &&
-      targetTop >= top &&
-      targetBottom <= bottom &&
-      targetLeft >= left &&
-      targetRight <= right
+      targetBlockStart >= 0 &&
+      targetInlineStart >= 0 &&
+      targetBlockEnd <= viewportHeight &&
+      targetInlineEnd <= viewportWidth &&
+      targetBlockStart >= blockStart &&
+      targetBlockEnd <= blockEnd &&
+      targetInlineStart >= inlineStart &&
+      targetInlineEnd <= inlineEnd
     ) {
       // Break the loop and return the computations for things that are not fully visible
       return computations
     }
 
     const frameStyle = getComputedStyle(frame)
-    const borderLeft = parseInt(frameStyle.borderLeftWidth as string, 10)
-    const borderTop = parseInt(frameStyle.borderTopWidth as string, 10)
-    const borderRight = parseInt(frameStyle.borderRightWidth as string, 10)
-    const borderBottom = parseInt(frameStyle.borderBottomWidth as string, 10)
+    const borderInlineStart = parseInt(frameStyle.borderInlineStartWidth as string, 10)
+    const borderBlockStart = parseInt(frameStyle.borderBlockStartWidth as string, 10)
+    const borderInlineEnd = parseInt(frameStyle.borderInlineEndWidth as string, 10)
+    const borderBlockEnd = parseInt(frameStyle.borderBlockEndWidth as string, 10)
 
     let blockScroll: number = 0
     let inlineScroll: number = 0
@@ -416,28 +438,28 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
       'offsetWidth' in frame
         ? (frame as HTMLElement).offsetWidth -
           (frame as HTMLElement).clientWidth -
-          borderLeft -
-          borderRight
+          borderInlineStart -
+          borderInlineEnd
         : 0
     const scrollbarHeight =
       'offsetHeight' in frame
         ? (frame as HTMLElement).offsetHeight -
           (frame as HTMLElement).clientHeight -
-          borderTop -
-          borderBottom
+          borderBlockStart -
+          borderBlockEnd
         : 0
 
     const scaleX =
       'offsetWidth' in frame
         ? (frame as HTMLElement).offsetWidth === 0
           ? 0
-          : width / (frame as HTMLElement).offsetWidth
+          : inlineSize / (frame as HTMLElement).offsetWidth
         : 0
     const scaleY =
       'offsetHeight' in frame
         ? (frame as HTMLElement).offsetHeight === 0
           ? 0
-          : height / (frame as HTMLElement).offsetHeight
+          : blockSize / (frame as HTMLElement).offsetHeight
         : 0
 
     if (scrollingElement === frame) {
@@ -452,11 +474,11 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
           scrollY,
           scrollY + viewportHeight,
           viewportHeight,
-          borderTop,
-          borderBottom,
+          borderBlockStart,
+          borderBlockEnd,
           scrollY + targetBlock,
-          scrollY + targetBlock + targetHeight,
-          targetHeight
+          scrollY + targetBlock + targetBlockSize,
+          targetBlockSize
         )
       } else {
         // block === 'center' is the default
@@ -475,11 +497,11 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
           scrollX,
           scrollX + viewportWidth,
           viewportWidth,
-          borderLeft,
-          borderRight,
+          borderInlineStart,
+          borderInlineEnd,
           scrollX + targetInline,
-          scrollX + targetInline + targetWidth,
-          targetWidth
+          scrollX + targetInline + targetInlineSize,
+          targetInlineSize
         )
       }
 
@@ -490,46 +512,50 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
     } else {
       // Handle each scrolling frame that might exist between the target and the viewport
       if (block === 'start') {
-        blockScroll = targetBlock - top - borderTop
+        blockScroll = targetBlock - blockStart - borderBlockStart
       } else if (block === 'end') {
-        blockScroll = targetBlock - bottom + borderBottom + scrollbarHeight
+        blockScroll = targetBlock - blockEnd + borderBlockEnd + scrollbarHeight
       } else if (block === 'nearest') {
         blockScroll = alignNearest(
-          top,
-          bottom,
-          height,
-          borderTop,
-          borderBottom + scrollbarHeight,
+          blockStart,
+          blockEnd,
+          blockSize,
+          borderBlockStart,
+          borderBlockEnd + scrollbarHeight,
           targetBlock,
-          targetBlock + targetHeight,
-          targetHeight
+          targetBlock + targetBlockSize,
+          targetBlockSize
         )
       } else {
         // block === 'center' is the default
-        blockScroll = targetBlock - (top + height / 2) + scrollbarHeight / 2
+        blockScroll = targetBlock - (blockStart + blockSize / 2) + scrollbarHeight / 2
       }
 
       if (inline === 'start') {
-        inlineScroll = targetInline - left - borderLeft
+        inlineScroll = targetInline - inlineStart - borderInlineStart
       } else if (inline === 'center') {
-        inlineScroll = targetInline - (left + width / 2) + scrollbarWidth / 2
+        inlineScroll = targetInline - (inlineStart + inlineSize / 2) + scrollbarWidth / 2
       } else if (inline === 'end') {
-        inlineScroll = targetInline - right + borderRight + scrollbarWidth
+        inlineScroll = targetInline - inlineEnd + borderInlineEnd + scrollbarWidth
       } else {
         // inline === 'nearest' is the default
         inlineScroll = alignNearest(
-          left,
-          right,
-          width,
-          borderLeft,
-          borderRight + scrollbarWidth,
+          inlineStart,
+          inlineEnd,
+          inlineSize,
+          borderInlineStart,
+          borderInlineEnd + scrollbarWidth,
           targetInline,
-          targetInline + targetWidth,
-          targetWidth
+          targetInline + targetInlineSize,
+          targetInlineSize
         )
       }
 
-      const { scrollLeft, scrollTop } = frame
+      let { scrollLeft, scrollTop } = frame
+
+      // When RTL value is negative so we need to normalize
+      scrollLeft = Math.abs(scrollLeft)
+
       // Ensure scroll coordinates are not out of bounds while applying scroll offsets
       blockScroll =
         scaleY === 0
@@ -538,7 +564,7 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
               0,
               Math.min(
                 scrollTop + blockScroll / scaleY,
-                frame.scrollHeight - height / scaleY + scrollbarHeight
+                frame.scrollHeight - blockSize / scaleY + scrollbarHeight
               )
             )
       inlineScroll =
@@ -548,16 +574,16 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
               0,
               Math.min(
                 scrollLeft + inlineScroll / scaleX,
-                frame.scrollWidth - width / scaleX + scrollbarWidth
+                frame.scrollWidth - inlineSize / scaleX + scrollbarWidth
               )
             )
-
+      
       // Cache the offset so that parent frames can scroll this into view correctly
       targetBlock += scrollTop - blockScroll
       targetInline += scrollLeft - inlineScroll
     }
 
-    computations.push({ el: frame, top: blockScroll, left: inlineScroll })
+    computations.push({ el: frame, top: blockScroll, left: document.dir === 'ltr' ? inlineScroll : -inlineScroll })
   }
 
   return computations
