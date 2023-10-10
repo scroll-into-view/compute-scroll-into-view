@@ -366,7 +366,7 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
     const targetInlineStartTemp = targetInlineStart
 
     targetInlineStart = viewportWidth - targetInlineEnd
-    targetInlineEnd = targetInlineStartTemp - viewportWidth
+    targetInlineEnd = viewportWidth - targetInlineStartTemp
   }
 
   // These values mutate as we loop through and generate scroll coordinates
@@ -405,7 +405,7 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
       const inlineStartTemp = inlineStart
 
       inlineStart = viewportWidth - inlineEnd
-      inlineEnd = inlineStartTemp - viewportWidth
+      inlineEnd = viewportWidth - inlineStartTemp
     }
 
     // If the element is already visible we can end it here
