@@ -67,7 +67,7 @@
     "jest-puppeteer": "^8.0.0",
     "prettier": "^2.8.4",
     "prettier-plugin-packagejson": "^2.4.3",
-    "puppeteer": "^19.7.0",
+    "puppeteer": "^21.11.0",
     "rimraf": "^4.1.2",
     "serve": "^14.2.0",
     "typescript": "^5.0.0"
