@@ -392,10 +392,13 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
       targetLeft >= 0 &&
       targetBottom <= viewportHeight &&
       targetRight <= viewportWidth &&
-      targetTop >= top &&
-      targetBottom <= bottom &&
-      targetLeft >= left &&
-      targetRight <= right
+
+      // scrollingElement is added to the frames array even if it's not scrollable, in which case checking its bounds is not required
+      ((frame === scrollingElement && !isScrollable(frame)) ||
+        (targetTop >= top &&
+          targetBottom <= bottom &&
+          targetLeft >= left &&
+          targetRight <= right))
     ) {
       // Break the loop and return the computations for things that are not fully visible
       return computations
