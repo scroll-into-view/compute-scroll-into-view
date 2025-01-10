@@ -5,6 +5,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.1.1](https://github.com/scroll-into-view/compute-scroll-into-view/compare/v3.1.0...v3.1.1) (2025-01-10)
+
+### Bug Fixes
+
+- in if-needed mode, skip bounds checking for non-scrollable scrollingElement ([#915](https://github.com/scroll-into-view/compute-scroll-into-view/issues/915)) ([77ae1e8](https://github.com/scroll-into-view/compute-scroll-into-view/commit/77ae1e878fc897f26f1cef8171ebc9912ba2b187))
+
 ## [3.1.0](https://github.com/scroll-into-view/compute-scroll-into-view/compare/v3.0.3...v3.1.0) (2023-09-30)
 
 ### Features
