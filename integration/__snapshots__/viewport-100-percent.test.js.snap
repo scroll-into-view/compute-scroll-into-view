@@ -1,0 +1,85 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`scrollMode: if-needed (outside the scrollingElement bounding box) horizontal completely in view 1`] = `[]`;
+
+exports[`scrollMode: if-needed (outside the scrollingElement bounding box) horizontal completely overflowing 1`] = `
+[
+  {
+    "el": "html",
+    "left": 100,
+    "top": 0,
+  },
+]
+`;
+
+exports[`scrollMode: if-needed (outside the scrollingElement bounding box) horizontal fully negative overflowing 1`] = `
+[
+  {
+    "el": "html",
+    "left": 800,
+    "top": 0,
+  },
+]
+`;
+
+exports[`scrollMode: if-needed (outside the scrollingElement bounding box) horizontal partially negative overflowing 1`] = `
+[
+  {
+    "el": "html",
+    "left": 800,
+    "top": 0,
+  },
+]
+`;
+
+exports[`scrollMode: if-needed (outside the scrollingElement bounding box) horizontal partially overflowing 1`] = `
+[
+  {
+    "el": "html",
+    "left": 100,
+    "top": 0,
+  },
+]
+`;
+
+exports[`scrollMode: if-needed (outside the scrollingElement bounding box) vertical completely above the fold 1`] = `
+[
+  {
+    "el": "html",
+    "left": 0,
+    "top": 350,
+  },
+]
+`;
+
+exports[`scrollMode: if-needed (outside the scrollingElement bounding box) vertical completely below the fold 1`] = `
+[
+  {
+    "el": "html",
+    "left": 0,
+    "top": 350,
+  },
+]
+`;
+
+exports[`scrollMode: if-needed (outside the scrollingElement bounding box) vertical completely in view 1`] = `[]`;
+
+exports[`scrollMode: if-needed (outside the scrollingElement bounding box) vertical partially above the fold 1`] = `
+[
+  {
+    "el": "html",
+    "left": 0,
+    "top": 350,
+  },
+]
+`;
+
+exports[`scrollMode: if-needed (outside the scrollingElement bounding box) vertical partially below the fold 1`] = `
+[
+  {
+    "el": "html",
+    "left": 0,
+    "top": 350,
+  },
+]
+`;
