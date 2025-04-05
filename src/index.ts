@@ -267,7 +267,9 @@ const alignNearest = (
 }
 
 const getParentElement = (element: Node): Element | null => {
-  const parent = element.parentElement
+  const parent = isElement(element)
+    ? (element.assignedSlot ?? element.parentElement)
+    : element.parentElement
   if (parent == null) {
     return (element.getRootNode() as ShadowRoot).host || null
   }

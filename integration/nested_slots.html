@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<meta charset="utf-8" />
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+/>
+<script type="module" src="./utils.js"></script>
+<style>
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    width: 100vw;
+  }
+  .outer-container {
+    height: 100%;
+    width: 100%;
+    overflow: clip;
+  }
+  .target {
+    background: crimson;
+    height: 100px;
+    width: 100px;
+  }
+</style>
+<div class="outer-container">
+  <template shadowrootmode="open">
+    <style>
+      .outer-container {
+        height: 100%;
+        width: 100%;
+        overflow: clip;
+      }
+      .first-inner-container {
+        height: 100vh;
+        background: whitesmoke;
+        overflow: auto;
+      }
+      .scroller {
+        height: 200vh;
+        width: 90%;
+        padding-top: 100vh;
+        box-sizing: border-box;
+      }
+    </style>
+    <div class="first-inner-container">
+      <div class="scroller">
+        <div class="outer-container">
+          <template shadowrootmode="open">
+            <style>
+              .second-inner-container {
+                height: 100vh;
+                background: whitesmoke;
+                overflow: auto;
+              }
+              .scroller {
+                height: 200vh;
+                width: 90%;
+                padding-top: 100vh;
+                box-sizing: border-box;
+              }
+            </style>
+            <div class="second-inner-container">
+              <div class="scroller">
+                <slot></slot>
+              </div>
+            </div>
+          </template>
+          <slot></slot>
+        </div>
+      </div>
+    </div>
+  </template>
+  <div class="target"></div>
+</div>

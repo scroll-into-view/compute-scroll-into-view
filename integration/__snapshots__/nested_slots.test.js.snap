@@ -1,0 +1,41 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`target in nested slots into scrollable container in shadow DOM block: "nearest" 1`] = `
+[
+  {
+    "el": "div.second-inner-container",
+    "left": 0,
+    "top": 100,
+  },
+  {
+    "el": "div.first-inner-container",
+    "left": 0,
+    "top": 600,
+  },
+  {
+    "el": "html",
+    "left": 0,
+    "top": 0,
+  },
+]
+`;
+
+exports[`target in nested slots into scrollable container in shadow DOM block: "start" 1`] = `
+[
+  {
+    "el": "div.second-inner-container",
+    "left": 0,
+    "top": 600,
+  },
+  {
+    "el": "div.first-inner-container",
+    "left": 0,
+    "top": 600,
+  },
+  {
+    "el": "html",
+    "left": 0,
+    "top": 0,
+  },
+]
+`;

@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`target slotted into scrollable container in shadow DOM block: "nearest" 1`] = `
+[
+  {
+    "el": "div.inner-container",
+    "left": 0,
+    "top": 100,
+  },
+  {
+    "el": "html",
+    "left": 0,
+    "top": 0,
+  },
+]
+`;
+
+exports[`target slotted into scrollable container in shadow DOM block: "start" 1`] = `
+[
+  {
+    "el": "div.inner-container",
+    "left": 0,
+    "top": 600,
+  },
+  {
+    "el": "html",
+    "left": 0,
+    "top": 0,
+  },
+]
+`;
