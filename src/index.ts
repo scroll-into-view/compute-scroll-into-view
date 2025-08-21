@@ -267,6 +267,11 @@ const alignNearest = (
 }
 
 const getParentElement = (element: Node): Element | null => {
+  if (isElement(element)) {
+    const computedStyle = window.getComputedStyle(element)
+    if (computedStyle.position === 'fixed') return null
+    if (computedStyle.position === 'absolute') return (element as HTMLElement).offsetParent
+  }
   const parent = element.parentElement
   if (parent == null) {
     return (element.getRootNode() as ShadowRoot).host || null
