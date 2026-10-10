@@ -102,6 +102,13 @@ const getFrameElement = (el: Element) => {
 }
 
 const isHiddenByFrame = (el: Element): boolean => {
+  // The iframe clips its document viewport, not every overflow-visible descendant.
+  if (
+    el !== el.ownerDocument.documentElement &&
+    el !== el.ownerDocument.scrollingElement
+  ) {
+    return false
+  }
   const frame = getFrameElement(el)
   if (!frame) {
     return false
