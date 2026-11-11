@@ -1,5 +1,11 @@
 <!-- markdownlint-disable --><!-- textlint-disable -->
 
+## 3.2.0
+
+### Minor Changes
+
+- [#923](https://github.com/scroll-into-view/compute-scroll-into-view/pull/923) [`c9096c4`](https://github.com/scroll-into-view/compute-scroll-into-view/commit/c9096c4fd5bf28e3dada76ce4812b091adf6655b) Thanks [@stipsan](https://github.com/stipsan)! - Require Node.js 26 (current LTS) or later, and publish to npm with trusted publishing (OIDC) and provenance
+
 # 📓 Changelog
 
 All notable changes to this project will be documented in this file. See
