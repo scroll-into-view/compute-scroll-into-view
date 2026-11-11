@@ -1,5 +1,7 @@
+import { beforeAll, describe, expect, test } from 'vite-plus/test'
+
 beforeAll(async () => {
-  await page.goto('http://localhost:3000/integration/overflow_auto')
+  await page.goto('/integration/overflow_auto.html')
 })
 
 const ScrollLogicalPosition = ['start', 'center', 'end', 'nearest']

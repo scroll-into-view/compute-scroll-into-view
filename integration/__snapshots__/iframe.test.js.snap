@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`scrollable element is "overflow: visible" but hidden by iframe should scroll to inside iframe 1`] = `
+exports[`scrollable element is "overflow: visible" but hidden by iframe > should scroll to inside iframe 1`] = `
 [
   {
     "el": "html",

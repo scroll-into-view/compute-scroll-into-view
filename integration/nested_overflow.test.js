@@ -1,5 +1,7 @@
+import { beforeAll, describe, expect, test } from 'vite-plus/test'
+
 beforeAll(async () => {
-  await page.goto('http://localhost:3000/integration/nested_overflow')
+  await page.goto('/integration/nested_overflow.html')
 })
 
 describe('scrollMode: if-needed', () => {
