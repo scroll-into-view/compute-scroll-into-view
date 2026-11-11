@@ -47,5 +47,7 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
           cache: true
-      - run: vp exec playwright install --with-deps chromium
+      # GitHub-hosted runners already have Chromium's system libraries, so skip
+      # `--with-deps` (it runs apt-get, which is slow and can fail on mirror outages)
+      - run: vp exec playwright install chromium
       - run: vp test
