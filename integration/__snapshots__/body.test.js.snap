@@ -5,7 +5,7 @@ exports[`document.body !== document.scrollingElement edge cases should not attem
   {
     "el": "html",
     "left": 0,
-    "top": 750,
+    "top": 500,
   },
 ]
 `;

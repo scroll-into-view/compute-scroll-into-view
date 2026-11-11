@@ -34,7 +34,7 @@ describe('scrollMode: if-needed', () => {
         block,
         inline
       )
-      expect(actual).toHaveLength(3)
+      expect(actual).toHaveLength(step === 0 ? 2 : 3)
       expect(actual).toMatchSnapshot()
     })
   })

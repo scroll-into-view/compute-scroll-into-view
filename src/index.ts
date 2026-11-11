@@ -7,7 +7,7 @@
 // For a definition on what is "block flow direction" exactly, check this: https://drafts.csswg.org/css-writing-modes-4/#block-flow-direction
 
 /**
- * This new option is tracked in this PR, which is the most likely candidate at the time: https://github.com/w3c/csswg-drafts/pull/1805
+ * Library extension inspired by the open proposal: https://github.com/w3c/csswg-drafts/pull/5677
  * @public
  */
 export type ScrollMode = 'always' | 'if-needed'
@@ -15,13 +15,12 @@ export type ScrollMode = 'always' | 'if-needed'
 /** @public */
 export interface Options {
   /**
-   * Control the logical scroll position on the y-axis. The spec states that the `block` direction is related to the [writing-mode](https://developer.mozilla.org/en-US/docs/Web/CSS/writing-mode), but this is not implemented yet in this library.
-   * This means that `block: 'start'` aligns to the top edge and `block: 'end'` to the bottom.
+   * Align in the target’s block flow direction, as defined by its CSS writing-mode.
    * @defaultValue 'center'
    */
   block?: ScrollLogicalPosition
   /**
-   * Like `block` this is affected by the [writing-mode](https://developer.mozilla.org/en-US/docs/Web/CSS/writing-mode). In left-to-right pages `inline: 'start'` will align to the left edge. In right-to-left it should be flipped. This will be supported in a future release.
+   * Align in the target’s inline direction, respecting CSS writing-mode and direction.
    * @defaultValue 'nearest'
    */
   inline?: ScrollLogicalPosition
@@ -59,6 +58,12 @@ export interface Options {
    */
   boundary?: Element | ((parent: Element) => boolean) | null
   /**
+   * Scroll all ancestor scrolling boxes or only the nearest one.
+   * Can be combined with the library's boundary option.
+   * @defaultValue 'all'
+   */
+  container?: 'all' | 'nearest'
+  /**
    * New option that skips auto-scrolling all nodes with overflow: hidden set
    * See FF implementation: https://hg.mozilla.org/integration/fx-team/rev/c48c3ec05012#l7.18
    * @defaultValue false
@@ -74,492 +79,302 @@ export interface ScrollAction {
   left: number
 }
 
-// @TODO better shadowdom test, 11 = document fragment
-const isElement = (el: any): el is Element =>
-  typeof el === 'object' && el != null && el.nodeType === 1
+const isElement = (el: unknown): el is Element =>
+  typeof el === 'object' && el != null && (el as Element).nodeType === 1
 
-const canOverflow = (
-  overflow: string | null,
-  skipOverflowHiddenElements?: boolean
+const canOverflow = (overflow: string, skipOverflowHiddenElements = false) =>
+  overflow !== 'visible' &&
+  overflow !== 'clip' &&
+  !(skipOverflowHiddenElements && overflow === 'hidden')
+
+const getParentElement = (element: Element): Element | null =>
+  element.assignedSlot ||
+  element.parentElement ||
+  (element.getRootNode() as ShadowRoot).host ||
+  null
+
+const align = (
+  position: ScrollLogicalPosition,
+  start: number,
+  end: number,
+  targetStart: number,
+  targetEnd: number
 ) => {
-  if (skipOverflowHiddenElements && overflow === 'hidden') {
-    return false
-  }
+  if (position === 'start') return targetStart - start
+  if (position === 'end') return targetEnd - end
+  if (position === 'center') return (targetStart + targetEnd - start - end) / 2
 
-  return overflow !== 'visible' && overflow !== 'clip'
-}
-
-const getFrameElement = (el: Element) => {
-  if (!el.ownerDocument || !el.ownerDocument.defaultView) {
-    return null
-  }
-
-  try {
-    return el.ownerDocument.defaultView.frameElement
-  } catch (e) {
-    return null
-  }
-}
-
-const isHiddenByFrame = (el: Element): boolean => {
-  const frame = getFrameElement(el)
-  if (!frame) {
-    return false
-  }
-
-  return (
-    frame.clientHeight < el.scrollHeight || frame.clientWidth < el.scrollWidth
-  )
-}
-
-const isScrollable = (el: Element, skipOverflowHiddenElements?: boolean) => {
-  if (el.clientHeight < el.scrollHeight || el.clientWidth < el.scrollWidth) {
-    const style = getComputedStyle(el, null)
-    return (
-      canOverflow(style.overflowY, skipOverflowHiddenElements) ||
-      canOverflow(style.overflowX, skipOverflowHiddenElements) ||
-      isHiddenByFrame(el)
-    )
-  }
-
-  return false
-}
-/**
- * Find out which edge to align against when logical scroll position is "nearest"
- * Interesting fact: "nearest" works similarily to "if-needed", if the element is fully visible it will not scroll it
- *
- * Legends:
- * ┌────────┐ ┏ ━ ━ ━ ┓
- * │ target │   frame
- * └────────┘ ┗ ━ ━ ━ ┛
- */
-const alignNearest = (
-  scrollingEdgeStart: number,
-  scrollingEdgeEnd: number,
-  scrollingSize: number,
-  scrollingBorderStart: number,
-  scrollingBorderEnd: number,
-  elementEdgeStart: number,
-  elementEdgeEnd: number,
-  elementSize: number
-) => {
-  /**
-   * If element edge A and element edge B are both outside scrolling box edge A and scrolling box edge B
-   *
-   *          ┌──┐
-   *        ┏━│━━│━┓
-   *          │  │
-   *        ┃ │  │ ┃        do nothing
-   *          │  │
-   *        ┗━│━━│━┛
-   *          └──┘
-   *
-   *  If element edge C and element edge D are both outside scrolling box edge C and scrolling box edge D
-   *
-   *    ┏ ━ ━ ━ ━ ┓
-   *   ┌───────────┐
-   *   │┃         ┃│        do nothing
-   *   └───────────┘
-   *    ┗ ━ ━ ━ ━ ┛
-   */
+  // CSSOM View's nearest-edge rules also cover targets larger than the scrollport.
   if (
-    (elementEdgeStart < scrollingEdgeStart &&
-      elementEdgeEnd > scrollingEdgeEnd) ||
-    (elementEdgeStart > scrollingEdgeStart && elementEdgeEnd < scrollingEdgeEnd)
+    (targetStart >= start && targetEnd <= end) ||
+    (targetStart < start && targetEnd > end)
   ) {
     return 0
   }
-
-  /**
-   * If element edge A is outside scrolling box edge A and element height is less than scrolling box height
-   *
-   *          ┌──┐
-   *        ┏━│━━│━┓         ┏━┌━━┐━┓
-   *          └──┘             │  │
-   *  from  ┃      ┃     to  ┃ └──┘ ┃
-   *
-   *        ┗━ ━━ ━┛         ┗━ ━━ ━┛
-   *
-   * If element edge B is outside scrolling box edge B and element height is greater than scrolling box height
-   *
-   *        ┏━ ━━ ━┓         ┏━┌━━┐━┓
-   *                           │  │
-   *  from  ┃ ┌──┐ ┃     to  ┃ │  │ ┃
-   *          │  │             │  │
-   *        ┗━│━━│━┛         ┗━│━━│━┛
-   *          │  │             └──┘
-   *          │  │
-   *          └──┘
-   *
-   * If element edge C is outside scrolling box edge C and element width is less than scrolling box width
-   *
-   *       from                 to
-   *    ┏ ━ ━ ━ ━ ┓         ┏ ━ ━ ━ ━ ┓
-   *  ┌───┐                 ┌───┐
-   *  │ ┃ │       ┃         ┃   │     ┃
-   *  └───┘                 └───┘
-   *    ┗ ━ ━ ━ ━ ┛         ┗ ━ ━ ━ ━ ┛
-   *
-   * If element edge D is outside scrolling box edge D and element width is greater than scrolling box width
-   *
-   *       from                 to
-   *    ┏ ━ ━ ━ ━ ┓         ┏ ━ ━ ━ ━ ┓
-   *        ┌───────────┐   ┌───────────┐
-   *    ┃   │     ┃     │   ┃         ┃ │
-   *        └───────────┘   └───────────┘
-   *    ┗ ━ ━ ━ ━ ┛         ┗ ━ ━ ━ ━ ┛
-   */
-  if (
-    (elementEdgeStart <= scrollingEdgeStart && elementSize <= scrollingSize) ||
-    (elementEdgeEnd >= scrollingEdgeEnd && elementSize >= scrollingSize)
-  ) {
-    return elementEdgeStart - scrollingEdgeStart - scrollingBorderStart
-  }
-
-  /**
-   * If element edge B is outside scrolling box edge B and element height is less than scrolling box height
-   *
-   *        ┏━ ━━ ━┓         ┏━ ━━ ━┓
-   *
-   *  from  ┃      ┃     to  ┃ ┌──┐ ┃
-   *          ┌──┐             │  │
-   *        ┗━│━━│━┛         ┗━└━━┘━┛
-   *          └──┘
-   *
-   * If element edge A is outside scrolling box edge A and element height is greater than scrolling box height
-   *
-   *          ┌──┐
-   *          │  │
-   *          │  │             ┌──┐
-   *        ┏━│━━│━┓         ┏━│━━│━┓
-   *          │  │             │  │
-   *  from  ┃ └──┘ ┃     to  ┃ │  │ ┃
-   *                           │  │
-   *        ┗━ ━━ ━┛         ┗━└━━┘━┛
-   *
-   * If element edge C is outside scrolling box edge C and element width is greater than scrolling box width
-   *
-   *           from                 to
-   *        ┏ ━ ━ ━ ━ ┓         ┏ ━ ━ ━ ━ ┓
-   *  ┌───────────┐           ┌───────────┐
-   *  │     ┃     │   ┃       │ ┃         ┃
-   *  └───────────┘           └───────────┘
-   *        ┗ ━ ━ ━ ━ ┛         ┗ ━ ━ ━ ━ ┛
-   *
-   * If element edge D is outside scrolling box edge D and element width is less than scrolling box width
-   *
-   *           from                 to
-   *        ┏ ━ ━ ━ ━ ┓         ┏ ━ ━ ━ ━ ┓
-   *                ┌───┐             ┌───┐
-   *        ┃       │ ┃ │       ┃     │   ┃
-   *                └───┘             └───┘
-   *        ┗ ━ ━ ━ ━ ┛         ┗ ━ ━ ━ ━ ┛
-   *
-   */
-  if (
-    (elementEdgeEnd > scrollingEdgeEnd && elementSize < scrollingSize) ||
-    (elementEdgeStart < scrollingEdgeStart && elementSize > scrollingSize)
-  ) {
-    return elementEdgeEnd - scrollingEdgeEnd + scrollingBorderEnd
-  }
-
-  return 0
+  return (targetStart < start && targetEnd - targetStart <= end - start) ||
+    (targetEnd > end && targetEnd - targetStart >= end - start)
+    ? targetStart - start
+    : targetEnd - end
 }
 
-const getParentElement = (element: Node): Element | null => {
-  const parent = element.parentElement
-  if (parent == null) {
-    return (element.getRootNode() as ShadowRoot).host || null
+const reverse = (position: ScrollLogicalPosition): ScrollLogicalPosition =>
+  position === 'start' ? 'end' : position === 'end' ? 'start' : position
+
+// Computed scroll-padding retains percentages and mixed-unit math functions.
+// Resolve them against the scrollport without inserting measurement elements.
+const resolvePadding = (value: string, size: number): number => {
+  const tokens =
+    value
+      .replace(/([\d.e+-]+)%/gi, (_, number) =>
+        String((Number(number) * size) / 100)
+      )
+      .replace(/px/g, '')
+      .match(/[a-z]+|(?:\d*\.)?\d+(?:e[+-]?\d+)?|[^\s]/gi) || []
+  let index = 0
+  function atom(): number {
+    const token = tokens[index++]
+    if (token === '+') return atom()
+    if (token === '-') return -atom()
+    if (token === '(') {
+      const result = sum()
+      index++
+      return result
+    }
+    if (['calc', 'min', 'max', 'clamp'].includes(token)) {
+      index++
+      const values = [sum()]
+      while (tokens[index] === ',') {
+        index++
+        values.push(sum())
+      }
+      index++
+      if (token === 'min') return Math.min(...values)
+      if (token === 'max') return Math.max(...values)
+      if (token === 'clamp')
+        return Math.max(values[0], Math.min(values[1], values[2]))
+      return values[0]
+    }
+    return Number(token)
   }
-  return parent
+  function product(): number {
+    let result = atom()
+    while (tokens[index] === '*' || tokens[index] === '/') {
+      const operator = tokens[index++]
+      const right = atom()
+      result = operator === '*' ? result * right : result / right
+    }
+    return result
+  }
+  function sum(): number {
+    let result = product()
+    while (tokens[index] === '+' || tokens[index] === '-') {
+      const operator = tokens[index++]
+      const right = product()
+      result += operator === '+' ? right : -right
+    }
+    return result
+  }
+  return Math.max(0, sum() || 0)
 }
 
-const getScrollMargins = (target: Element) => {
-  const computedStyle = window.getComputedStyle(target)
-  return {
-    top: parseFloat(computedStyle.scrollMarginTop) || 0,
-    right: parseFloat(computedStyle.scrollMarginRight) || 0,
-    bottom: parseFloat(computedStyle.scrollMarginBottom) || 0,
-    left: parseFloat(computedStyle.scrollMarginLeft) || 0,
-  }
-}
+const clamp = (value: number, max: number, reversed: boolean) =>
+  reversed
+    ? Math.max(-max, Math.min(0, value))
+    : Math.max(0, Math.min(max, value))
 
 /** @public */
 export const compute = (target: Element, options: Options): ScrollAction[] => {
-  if (typeof document === 'undefined') {
-    // If there's no DOM we assume it's not in a browser environment
+  if (typeof document === 'undefined') return []
+  if (!isElement(target)) throw new TypeError('Invalid target')
+
+  const doc = target.ownerDocument
+  const win = doc.defaultView
+  if (!win || !target.isConnected || target.getClientRects().length === 0)
     return []
-  }
 
-  const { scrollMode, block, inline, boundary, skipOverflowHiddenElements } =
-    options
-  // Allow using a callback to check the boundary
-  // The default behavior is to check if the current target matches the boundary element or not
-  // If undefined it'll check that target is never undefined (can happen as we recurse up the tree)
+  const {
+    scrollMode,
+    block = 'center',
+    inline = 'nearest',
+    container = 'all',
+    boundary,
+    skipOverflowHiddenElements,
+  } = options
   const checkBoundary =
-    typeof boundary === 'function' ? boundary : (node: any) => node !== boundary
-
-  if (!isElement(target)) {
-    throw new TypeError('Invalid target')
+    typeof boundary === 'function'
+      ? boundary
+      : (node: Element) => node !== boundary
+  const scrollingElement = doc.scrollingElement || doc.documentElement
+  const styleOf = (element: Element) => win.getComputedStyle(element)
+  const isScrollable = (element: Element) => {
+    const style = styleOf(element)
+    if (element.getClientRects().length === 0) return false
+    return (
+      (canOverflow(style.overflowY, skipOverflowHiddenElements) ||
+        canOverflow(style.overflowX, skipOverflowHiddenElements)) &&
+      (container === 'nearest' ||
+        element.clientHeight < element.scrollHeight ||
+        element.clientWidth < element.scrollWidth)
+    )
   }
 
-  // Used to handle the top most element that can be scrolled
-  const scrollingElement = document.scrollingElement || document.documentElement
-
-  // Collect all the scrolling boxes, as defined in the spec: https://drafts.csswg.org/cssom-view/#scrolling-box
   const frames: Element[] = []
   let cursor: Element | null = target
-  while (isElement(cursor) && checkBoundary(cursor)) {
-    // Move cursor to parent
+  while (cursor && checkBoundary(cursor)) {
     cursor = getParentElement(cursor)
-
-    // Stop when we reach the viewport
+    if (!cursor) break
     if (cursor === scrollingElement) {
       frames.push(cursor)
       break
     }
-
-    // Skip document.body if it's not the scrollingElement and documentElement isn't independently scrollable
+    // The body's overflow normally propagates to the viewport.
     if (
-      cursor != null &&
-      cursor === document.body &&
-      isScrollable(cursor) &&
-      !isScrollable(document.documentElement)
+      cursor === doc.body &&
+      styleOf(doc.documentElement).overflowX === 'visible' &&
+      styleOf(doc.documentElement).overflowY === 'visible'
+    ) {
+      continue
+    }
+    if (isScrollable(cursor)) {
+      frames.push(cursor)
+      if (container === 'nearest') break
+    }
+  }
+
+  const rect = target.getBoundingClientRect()
+  const targetStyle = styleOf(target)
+  const marginTop = parseFloat(targetStyle.scrollMarginTop) || 0
+  const marginRight = parseFloat(targetStyle.scrollMarginRight) || 0
+  const marginBottom = parseFloat(targetStyle.scrollMarginBottom) || 0
+  const marginLeft = parseFloat(targetStyle.scrollMarginLeft) || 0
+  let targetTop = rect.top
+  let targetRight = rect.right
+  let targetBottom = rect.bottom
+  let targetLeft = rect.left
+  const computations: ScrollAction[] = []
+
+  for (const frame of frames) {
+    const style = styleOf(frame)
+    const viewport = frame === scrollingElement
+    const frameRect = frame.getBoundingClientRect()
+    const scaleX =
+      !viewport && 'offsetWidth' in frame && frame.offsetWidth
+        ? frameRect.width / (frame as HTMLElement).offsetWidth
+        : 1
+    const scaleY =
+      !viewport && 'offsetHeight' in frame && frame.offsetHeight
+        ? frameRect.height / (frame as HTMLElement).offsetHeight
+        : 1
+    if (!scaleX || !scaleY) continue
+
+    const layoutWidth = doc.documentElement.clientWidth
+    const layoutHeight = doc.documentElement.clientHeight
+    const width = viewport ? layoutWidth : frame.clientWidth
+    const height = viewport ? layoutHeight : frame.clientHeight
+    const visual = win.visualViewport
+    // clientLeft includes a scrollbar placed on the left (for example in RTL).
+    const left = viewport ? 0 : frameRect.left + frame.clientLeft * scaleX
+    const top = viewport ? 0 : frameRect.top + frame.clientTop * scaleY
+    const paddingLeft = resolvePadding(style.scrollPaddingLeft, width) * scaleX
+    const paddingRight =
+      resolvePadding(style.scrollPaddingRight, width) * scaleX
+    const paddingTop = resolvePadding(style.scrollPaddingTop, height) * scaleY
+    const paddingBottom =
+      resolvePadding(style.scrollPaddingBottom, height) * scaleY
+    // Root scroll padding is relative to the layout viewport, intersected with
+    // the visual viewport when zoomed or when the on-screen keyboard is visible.
+    const portLeft = viewport
+      ? Math.max(paddingLeft, visual?.offsetLeft || 0)
+      : left + paddingLeft
+    const portTop = viewport
+      ? Math.max(paddingTop, visual?.offsetTop || 0)
+      : top + paddingTop
+    const portRight = viewport
+      ? Math.min(
+          width - paddingRight,
+          (visual?.offsetLeft || 0) + (visual?.width ?? width)
+        )
+      : left + width * scaleX - paddingRight
+    const portBottom = viewport
+      ? Math.min(
+          height - paddingBottom,
+          (visual?.offsetTop || 0) + (visual?.height ?? height)
+        )
+      : top + height * scaleY - paddingBottom
+
+    // Scroll Snap defines margin outsets in each scroller's coordinate space,
+    // after finding the target's transformed bounding box in that space.
+    const areaTop = targetTop - marginTop * scaleY
+    const areaRight = targetRight + marginRight * scaleX
+    const areaBottom = targetBottom + marginBottom * scaleY
+    const areaLeft = targetLeft - marginLeft * scaleX
+
+    // Check each ancestor independently. An inner box being visible does not
+    // imply that its outer scrolling boxes are visible as well.
+    if (
+      scrollMode === 'if-needed' &&
+      areaTop >= portTop &&
+      areaBottom <= portBottom &&
+      areaLeft >= portLeft &&
+      areaRight <= portRight
     ) {
       continue
     }
 
-    // Now we check if the element is scrollable, this code only runs if the loop haven't already hit the viewport or a custom boundary
-    if (cursor != null && isScrollable(cursor, skipOverflowHiddenElements)) {
-      frames.push(cursor)
-    }
-  }
+    // Engines resolve logical alignment using the target's writing mode. This
+    // interoperable behavior is tracked against the draft wording in CSSWG #11796.
+    const vertical = /^(vertical|sideways)/.test(targetStyle.writingMode)
+    const rtl = targetStyle.direction === 'rtl'
+    const reverseX = vertical ? targetStyle.writingMode.endsWith('-rl') : rtl
+    const reverseY =
+      vertical && rtl !== (targetStyle.writingMode === 'sideways-lr')
+    // Scroll coordinate origins, however, belong to each scrolling box.
+    const frameVertical = /^(vertical|sideways)/.test(style.writingMode)
+    const frameRTL = style.direction === 'rtl'
+    const negativeX = frameVertical
+      ? style.writingMode.endsWith('-rl')
+      : frameRTL
+    const negativeY =
+      frameVertical && frameRTL !== (style.writingMode === 'sideways-lr')
+    const x = vertical ? block : inline
+    const y = vertical ? inline : block
+    const scrollLeft = viewport ? win.scrollX : frame.scrollLeft
+    const scrollTop = viewport ? win.scrollY : frame.scrollTop
+    const newLeft = clamp(
+      scrollLeft +
+        align(
+          reverseX ? reverse(x) : x,
+          portLeft,
+          portRight,
+          areaLeft,
+          areaRight
+        ) /
+          scaleX,
+      Math.max(0, frame.scrollWidth - width),
+      negativeX
+    )
+    const newTop = clamp(
+      scrollTop +
+        align(
+          reverseY ? reverse(y) : y,
+          portTop,
+          portBottom,
+          areaTop,
+          areaBottom
+        ) /
+          scaleY,
+      Math.max(0, frame.scrollHeight - height),
+      negativeY
+    )
 
-  // Support pinch-zooming properly, making sure elements scroll into the visual viewport
-  // Browsers that don't support visualViewport will report the layout viewport dimensions on document.documentElement.clientWidth/Height
-  // and viewport dimensions on window.innerWidth/Height
-  // https://www.quirksmode.org/mobile/viewports2.html
-  // https://bokand.github.io/viewport/index.html
-  const viewportWidth = window.visualViewport?.width ?? innerWidth
-  const viewportHeight = window.visualViewport?.height ?? innerHeight
-  const { scrollX, scrollY } = window
-
-  const {
-    height: targetHeight,
-    width: targetWidth,
-    top: targetTop,
-    right: targetRight,
-    bottom: targetBottom,
-    left: targetLeft,
-  } = target.getBoundingClientRect()
-  const {
-    top: marginTop,
-    right: marginRight,
-    bottom: marginBottom,
-    left: marginLeft,
-  } = getScrollMargins(target)
-
-  // These values mutate as we loop through and generate scroll coordinates
-  let targetBlock: number =
-    block === 'start' || block === 'nearest'
-      ? targetTop - marginTop
-      : block === 'end'
-      ? targetBottom + marginBottom
-      : targetTop + targetHeight / 2 - marginTop + marginBottom // block === 'center
-  let targetInline: number =
-    inline === 'center'
-      ? targetLeft + targetWidth / 2 - marginLeft + marginRight
-      : inline === 'end'
-      ? targetRight + marginRight
-      : targetLeft - marginLeft // inline === 'start || inline === 'nearest
-
-  // Collect new scroll positions
-  const computations: ScrollAction[] = []
-  // In chrome there's no longer a difference between caching the `frames.length` to a var or not, so we don't in this case (size > speed anyways)
-  for (let index = 0; index < frames.length; index++) {
-    const frame = frames[index]
-
-    // @TODO add a shouldScroll hook here that allows userland code to take control
-
-    const { height, width, top, right, bottom, left } =
-      frame.getBoundingClientRect()
-
-    // If the element is already visible we can end it here
-    // @TODO targetBlock and targetInline should be taken into account to be compliant with https://github.com/w3c/csswg-drafts/pull/1805/files#diff-3c17f0e43c20f8ecf89419d49e7ef5e0R1333
-    if (
-      scrollMode === 'if-needed' &&
-      targetTop >= 0 &&
-      targetLeft >= 0 &&
-      targetBottom <= viewportHeight &&
-      targetRight <= viewportWidth &&
-      // scrollingElement is added to the frames array even if it's not scrollable, in which case checking its bounds is not required
-      ((frame === scrollingElement && !isScrollable(frame)) ||
-        (targetTop >= top &&
-          targetBottom <= bottom &&
-          targetLeft >= left &&
-          targetRight <= right))
-    ) {
-      // Break the loop and return the computations for things that are not fully visible
-      return computations
-    }
-
-    const frameStyle = getComputedStyle(frame)
-    const borderLeft = parseInt(frameStyle.borderLeftWidth as string, 10)
-    const borderTop = parseInt(frameStyle.borderTopWidth as string, 10)
-    const borderRight = parseInt(frameStyle.borderRightWidth as string, 10)
-    const borderBottom = parseInt(frameStyle.borderBottomWidth as string, 10)
-
-    let blockScroll: number = 0
-    let inlineScroll: number = 0
-
-    // The property existance checks for offfset[Width|Height] is because only HTMLElement objects have them, but any Element might pass by here
-    // @TODO find out if the "as HTMLElement" overrides can be dropped
-    const scrollbarWidth =
-      'offsetWidth' in frame
-        ? (frame as HTMLElement).offsetWidth -
-          (frame as HTMLElement).clientWidth -
-          borderLeft -
-          borderRight
-        : 0
-    const scrollbarHeight =
-      'offsetHeight' in frame
-        ? (frame as HTMLElement).offsetHeight -
-          (frame as HTMLElement).clientHeight -
-          borderTop -
-          borderBottom
-        : 0
-
-    const scaleX =
-      'offsetWidth' in frame
-        ? (frame as HTMLElement).offsetWidth === 0
-          ? 0
-          : width / (frame as HTMLElement).offsetWidth
-        : 0
-    const scaleY =
-      'offsetHeight' in frame
-        ? (frame as HTMLElement).offsetHeight === 0
-          ? 0
-          : height / (frame as HTMLElement).offsetHeight
-        : 0
-
-    if (scrollingElement === frame) {
-      // Handle viewport logic (document.documentElement or document.body)
-
-      if (block === 'start') {
-        blockScroll = targetBlock
-      } else if (block === 'end') {
-        blockScroll = targetBlock - viewportHeight
-      } else if (block === 'nearest') {
-        blockScroll = alignNearest(
-          scrollY,
-          scrollY + viewportHeight,
-          viewportHeight,
-          borderTop,
-          borderBottom,
-          scrollY + targetBlock,
-          scrollY + targetBlock + targetHeight,
-          targetHeight
-        )
-      } else {
-        // block === 'center' is the default
-        blockScroll = targetBlock - viewportHeight / 2
-      }
-
-      if (inline === 'start') {
-        inlineScroll = targetInline
-      } else if (inline === 'center') {
-        inlineScroll = targetInline - viewportWidth / 2
-      } else if (inline === 'end') {
-        inlineScroll = targetInline - viewportWidth
-      } else {
-        // inline === 'nearest' is the default
-        inlineScroll = alignNearest(
-          scrollX,
-          scrollX + viewportWidth,
-          viewportWidth,
-          borderLeft,
-          borderRight,
-          scrollX + targetInline,
-          scrollX + targetInline + targetWidth,
-          targetWidth
-        )
-      }
-
-      // Apply scroll position offsets and ensure they are within bounds
-      // @TODO add more test cases to cover this 100%
-      blockScroll = Math.max(0, blockScroll + scrollY)
-      inlineScroll = Math.max(0, inlineScroll + scrollX)
-    } else {
-      // Handle each scrolling frame that might exist between the target and the viewport
-      if (block === 'start') {
-        blockScroll = targetBlock - top - borderTop
-      } else if (block === 'end') {
-        blockScroll = targetBlock - bottom + borderBottom + scrollbarHeight
-      } else if (block === 'nearest') {
-        blockScroll = alignNearest(
-          top,
-          bottom,
-          height,
-          borderTop,
-          borderBottom + scrollbarHeight,
-          targetBlock,
-          targetBlock + targetHeight,
-          targetHeight
-        )
-      } else {
-        // block === 'center' is the default
-        blockScroll = targetBlock - (top + height / 2) + scrollbarHeight / 2
-      }
-
-      if (inline === 'start') {
-        inlineScroll = targetInline - left - borderLeft
-      } else if (inline === 'center') {
-        inlineScroll = targetInline - (left + width / 2) + scrollbarWidth / 2
-      } else if (inline === 'end') {
-        inlineScroll = targetInline - right + borderRight + scrollbarWidth
-      } else {
-        // inline === 'nearest' is the default
-        inlineScroll = alignNearest(
-          left,
-          right,
-          width,
-          borderLeft,
-          borderRight + scrollbarWidth,
-          targetInline,
-          targetInline + targetWidth,
-          targetWidth
-        )
-      }
-
-      const { scrollLeft, scrollTop } = frame
-      // Ensure scroll coordinates are not out of bounds while applying scroll offsets
-      blockScroll =
-        scaleY === 0
-          ? 0
-          : Math.max(
-              0,
-              Math.min(
-                scrollTop + blockScroll / scaleY,
-                frame.scrollHeight - height / scaleY + scrollbarHeight
-              )
-            )
-      inlineScroll =
-        scaleX === 0
-          ? 0
-          : Math.max(
-              0,
-              Math.min(
-                scrollLeft + inlineScroll / scaleX,
-                frame.scrollWidth - width / scaleX + scrollbarWidth
-              )
-            )
-
-      // Cache the offset so that parent frames can scroll this into view correctly
-      targetBlock += scrollTop - blockScroll
-      targetInline += scrollLeft - inlineScroll
-    }
-
-    computations.push({ el: frame, top: blockScroll, left: inlineScroll })
+    // Predict the target's actual position after clamping each inner scroll.
+    const dx = (scrollLeft - newLeft) * scaleX
+    const dy = (scrollTop - newTop) * scaleY
+    targetLeft += dx
+    targetRight += dx
+    targetTop += dy
+    targetBottom += dy
+    computations.push({ el: frame, top: newTop, left: newLeft })
   }
 
   return computations

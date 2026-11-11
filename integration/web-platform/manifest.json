@@ -1,0 +1,24 @@
+{
+  "repository": "https://github.com/web-platform-tests/wpt",
+  "revision": "57bbaa12ff3515848cc0b3d3791791086a563047",
+  "files": [
+    "scrollIntoView-scrollMargin.html",
+    "scrollIntoView-scrollPadding.html",
+    "scrollIntoView-nearest-oversized-element.html",
+    "scrollIntoView-nearest-visible-element.html",
+    "scrollIntoView-scrolling-box-with-large-border.html",
+    "scrollIntoView-container.html",
+    "scrollIntoView-shadow.html",
+    "scrollIntoView-should-treat-slot-as-scroll-container.html",
+    "scrollIntoView-svg-shape.html",
+    "scrollIntoView-horizontal-tb-writing-mode.html",
+    "scrollIntoView-horizontal-tb-writing-mode-and-rtl-direction.html",
+    "scrollIntoView-vertical-lr-writing-mode.html",
+    "scrollIntoView-vertical-lr-writing-mode-and-rtl-direction.html",
+    "scrollIntoView-vertical-rl-writing-mode.html",
+    "scrollIntoView-sideways-lr-writing-mode.html",
+    "scrollIntoView-sideways-lr-writing-mode-and-rtl-direction.html",
+    "scrollIntoView-sideways-rl-writing-mode.html",
+    "scrollIntoView-sideways-rl-writing-mode-and-rtl-direction.html"
+  ]
+}
