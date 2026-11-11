@@ -43,7 +43,8 @@
     "build": "rimraf 'dist' && pkg build --strict",
     "prepublishOnly": "pnpm run build",
     "test": "cross-env JEST_PUPPETEER_CONFIG='jest-puppeteer.config.cjs' jest -c integration/jest.config.cjs",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "release": "pnpm build && changeset publish"
   },
   "browserslist": [
     "> 0.2% and supports es6-module and supports es6-module-dynamic-import and not dead",
