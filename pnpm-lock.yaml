@@ -185,8 +185,8 @@ importers:
         specifier: ^29.5.0
         version: 29.5.0(@types/node@18.15.11)(supports-color@8.1.1)
       jest-junit:
-        specifier: ^15.0.0
-        version: 15.0.0
+        specifier: ^16.0.0
+        version: 16.0.0
       jest-puppeteer:
         specifier: ^11.0.0
         version: 11.0.0(debug@4.3.4(supports-color@8.1.1))(puppeteer@25.16.0(yauzl@2.10.0))(supports-color@8.1.1)(typescript@5.0.4)
@@ -2342,8 +2342,8 @@ packages:
     resolution: {integrity: sha512-IspOPnnBro8YfVYSw6yDRKh/TiCdRngjxeacCps1cQ9cgVN6+10JUcuJ1EabrgYLOATsIAigxA0rLR9x/YlrSA==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
 
-  jest-junit@15.0.0:
-    resolution: {integrity: sha512-Z5sVX0Ag3HZdMUnD5DFlG+1gciIFSy7yIVPhOdGUi8YJaI9iLvvBb530gtQL2CHmv0JJeiwRZenr0VrSR7frvg==}
+  jest-junit@16.0.0:
+    resolution: {integrity: sha512-A94mmw6NfJab4Fg/BlvVOUXzXgF0XIH6EmTgJ5NDPp4xoKq0Kr7sErb+4Xs9nZvu58pJojz5RFGpqnZYJTrRfQ==}
     engines: {node: '>=10.12.0'}
 
   jest-leak-detector@29.5.0:
@@ -5905,7 +5905,7 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.2
 
-  jest-junit@15.0.0:
+  jest-junit@16.0.0:
     dependencies:
       mkdirp: 1.0.4
       strip-ansi: 6.0.1
