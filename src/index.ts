@@ -359,16 +359,20 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
     left: marginLeft,
   } = getScrollMargins(target)
 
+  // Scrolling aligns the target's scroll-margin box, not its border box: https://drafts.csswg.org/css-scroll-snap-1/#scroll-margin
+  const marginBoxHeight = targetHeight + marginTop + marginBottom
+  const marginBoxWidth = targetWidth + marginLeft + marginRight
+
   // These values mutate as we loop through and generate scroll coordinates
   let targetBlock: number =
     block === 'start' || block === 'nearest'
       ? targetTop - marginTop
       : block === 'end'
       ? targetBottom + marginBottom
-      : targetTop + targetHeight / 2 - marginTop + marginBottom // block === 'center
+      : targetTop - marginTop + marginBoxHeight / 2 // block === 'center
   let targetInline: number =
     inline === 'center'
-      ? targetLeft + targetWidth / 2 - marginLeft + marginRight
+      ? targetLeft - marginLeft + marginBoxWidth / 2
       : inline === 'end'
       ? targetRight + marginRight
       : targetLeft - marginLeft // inline === 'start || inline === 'nearest
@@ -457,8 +461,8 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
           borderTop,
           borderBottom,
           scrollY + targetBlock,
-          scrollY + targetBlock + targetHeight,
-          targetHeight
+          scrollY + targetBlock + marginBoxHeight,
+          marginBoxHeight
         )
       } else {
         // block === 'center' is the default
@@ -480,8 +484,8 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
           borderLeft,
           borderRight,
           scrollX + targetInline,
-          scrollX + targetInline + targetWidth,
-          targetWidth
+          scrollX + targetInline + marginBoxWidth,
+          marginBoxWidth
         )
       }
 
@@ -503,8 +507,8 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
           borderTop,
           borderBottom + scrollbarHeight,
           targetBlock,
-          targetBlock + targetHeight,
-          targetHeight
+          targetBlock + marginBoxHeight,
+          marginBoxHeight
         )
       } else {
         // block === 'center' is the default
@@ -526,8 +530,8 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
           borderLeft,
           borderRight + scrollbarWidth,
           targetInline,
-          targetInline + targetWidth,
-          targetWidth
+          targetInline + marginBoxWidth,
+          marginBoxWidth
         )
       }
 

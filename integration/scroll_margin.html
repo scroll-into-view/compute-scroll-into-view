@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<meta charset="utf-8" />
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+/>
+<script type="module" src="./utils.js"></script>
+<style>
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    width: 100vw;
+  }
+  .container {
+    margin: 200px auto;
+    height: 200px;
+    width: 200px;
+    overflow: auto;
+  }
+  .inner {
+    padding: 300px;
+    background: whitesmoke;
+  }
+  .target {
+    background: crimson;
+    height: 100px;
+    width: 100px;
+    scroll-margin: 20px 30px 40px 50px;
+  }
+</style>
+<div class="container">
+  <div class="inner">
+    <div class="target"></div>
+  </div>
+</div>
