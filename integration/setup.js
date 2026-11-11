@@ -8,4 +8,27 @@ globalThis.page = {
   evaluate: (fn, ...args) => commands.evaluateInFixture(fn.toString(), args),
 }
 
-afterAll(() => commands.closeFixture())
+afterAll(async () => {
+  // With `vp test --coverage`, merge the fixture page's coverage into this test file's, which Vitest collects
+  for (const coverage of await commands.closeFixture()) {
+    mergeCoverage(coverage)
+  }
+})
+
+// Adds istanbul coverage counters to `globalThis.__VITEST_COVERAGE__`
+function mergeCoverage(incoming) {
+  globalThis.__VITEST_COVERAGE__ ??= {}
+  const target = globalThis.__VITEST_COVERAGE__
+  for (const [file, data] of Object.entries(incoming)) {
+    const existing = target[file]
+    if (!existing) {
+      target[file] = data
+      continue
+    }
+    for (const id in data.s) existing.s[id] += data.s[id]
+    for (const id in data.f) existing.f[id] += data.f[id]
+    for (const id in data.b) {
+      existing.b[id] = existing.b[id].map((count, i) => count + data.b[id][i])
+    }
+  }
+}
