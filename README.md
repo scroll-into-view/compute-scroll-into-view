@@ -6,7 +6,7 @@
 ![compute-scroll-into-view](https://user-images.githubusercontent.com/81981/43024153-a2cc212c-8c6d-11e8-913b-b4d62efcf105.png)
 
 Lower level API that is used by the [ponyfill](https://ponyfill.com) [scroll-into-view-if-needed](https://github.com/scroll-into-view/scroll-into-view-if-needed) to compute where (if needed) elements should scroll based on [options defined in the spec](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView) and the [`scrollMode: "if-needed"` draft spec proposal](https://github.com/w3c/csswg-drafts/pull/1805).
-Use this if you want the smallest possible bundlesize and is ok with implementing the actual scrolling yourself.
+Use this if you want the smallest possible bundlesize and are ok with implementing the actual scrolling yourself.
 
 Scrolling SVG elements are supported, as well as Shadow DOM elements. The [VisualViewport](https://developer.mozilla.org/en-US/docs/Web/API/VisualViewport) API is also supported, ensuring scrolling works properly on modern devices. Quirksmode is also supported as long as you polyfill [`document.scrollingElement`](https://developer.mozilla.org/en-US/docs/Web/API/document/scrollingElement).
 
@@ -41,6 +41,7 @@ import { compute } from 'compute-scroll-into-view'
 const node = document.getElementById('hero')
 
 // same behavior as Element.scrollIntoView({block: "nearest", inline: "nearest"})
+// only that it is a no-op if `node` is already visible
 // see: https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView
 const actions = compute(node, {
   scrollMode: 'if-needed',
@@ -50,7 +51,7 @@ const actions = compute(node, {
 
 // same behavior as Element.scrollIntoViewIfNeeded(true)
 // see: https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoViewIfNeeded
-const actions = compute(node, {
+const centerActions = compute(node, {
   scrollMode: 'if-needed',
   block: 'center',
   inline: 'center',
@@ -66,6 +67,20 @@ actions.forEach(({ el, top, left }) => {
 # API
 
 ## compute(target, options)
+
+Returns an array of `ScrollAction` objects, one for each scrolling box that needs to be scrolled for `target` to come into view:
+
+```ts
+interface ScrollAction {
+  el: Element // the scrolling box, for example a scrollable parent or document.scrollingElement
+  top: number // the new scrollTop
+  left: number // the new scrollLeft
+}
+```
+
+The array is sorted from the innermost scrolling box (the closest parent of `target`) to the outermost (usually the viewport). It is always an array, even if there's nothing to scroll. When there's no DOM (for example during server-side rendering) an empty array is returned.
+
+The [`scroll-margin`](https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-margin) CSS property on `target` is taken into account when computing the coordinates.
 
 ## options
 
@@ -97,7 +112,7 @@ To be backwards compatible with `Element.scrollIntoViewIfNeeded` if something is
 
 Type: `Element | Function`
 
-By default there is no boundary. All the parent elements of your target is checked until it reaches the viewport ([`document.scrollingElement`](https://developer.mozilla.org/en-US/docs/Web/API/document/scrollingElement)) when calculating layout and what to scroll.
+By default there is no boundary. All the parent elements of your target are checked until it reaches the viewport ([`document.scrollingElement`](https://developer.mozilla.org/en-US/docs/Web/API/document/scrollingElement)) when calculating layout and what to scroll.
 By passing a boundary you can short-circuit this loop depending on your needs:
 
 - Prevent the browser window from scrolling.
@@ -123,7 +138,7 @@ const actions = compute(target, {
 
 Type: `Boolean`<br> Default: `false`
 
-By default the [spec](https://drafts.csswg.org/cssom-view/#scrolling-box) states that `overflow: hidden` elements should be scrollable because it has [been used to allow programatic scrolling](https://drafts.csswg.org/css-overflow-3/#valdef-overflow-hidden). This behavior can sometimes lead to [scrolling issues](https://github.com/scroll-into-view/scroll-into-view-if-needed/pull/225#issue-186419520) when you have a node that is a child of an `overflow: hidden` node.
+By default the [spec](https://drafts.csswg.org/cssom-view/#scrolling-box) states that `overflow: hidden` elements should be scrollable because it has [been used to allow programmatic scrolling](https://drafts.csswg.org/css-overflow-3/#valdef-overflow-hidden). This behavior can sometimes lead to [scrolling issues](https://github.com/scroll-into-view/scroll-into-view-if-needed/pull/225#issue-186419520) when you have a node that is a child of an `overflow: hidden` node.
 
 This package follows the convention [adopted by Firefox](https://hg.mozilla.org/integration/fx-team/rev/c48c3ec05012#l7.18) of setting a boolean option to _not_ scroll all nodes with `overflow: hidden` set.
 
