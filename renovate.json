@@ -1,3 +1,4 @@
 {
-  "extends": ["github>stipsan/renovate-presets:auto"]
+  "extends": ["github>stipsan/renovate-presets:auto"],
+  "gitIgnoredAuthors": ["41898282+github-actions[bot]@users.noreply.github.com"]
 }
