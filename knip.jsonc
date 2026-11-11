@@ -1,0 +1,6 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  // Loaded by the integration/*.html fixtures with <script type="module">,
+  // which Knip doesn't parse
+  "entry": ["integration/utils.js"]
+}
