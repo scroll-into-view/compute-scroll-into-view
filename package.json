@@ -40,10 +40,9 @@
     "src"
   ],
   "scripts": {
-    "prebuild": "npx rimraf 'dist'",
-    "build": "pkg build --strict",
-    "prepublishOnly": "npm run build",
-    "test": "npx cross-env JEST_PUPPETEER_CONFIG='jest-puppeteer.config.cjs' jest -c integration/jest.config.cjs",
+    "build": "rimraf 'dist' && pkg build --strict",
+    "prepublishOnly": "pnpm run build",
+    "test": "cross-env JEST_PUPPETEER_CONFIG='jest-puppeteer.config.cjs' jest -c integration/jest.config.cjs",
     "typecheck": "tsc"
   },
   "browserslist": [
@@ -55,8 +54,9 @@
     "singleQuote": true
   },
   "devDependencies": {
+    "@changesets/changelog-github": "^1.0.1",
+    "@changesets/cli": "^3.0.3",
     "@sanity/pkg-utils": "^2.2.5",
-    "@sanity/semantic-release-preset": "^4.0.0",
     "@types/expect-puppeteer": "^5.0.2",
     "@types/jest": "^29.4.0",
     "@types/jest-environment-puppeteer": "^5.0.3",
@@ -78,5 +78,10 @@
       "maxSize": "3 kB",
       "compression": "none"
     }
-  ]
+  ],
+  "packageManager": "pnpm@12.18.0",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
 }
