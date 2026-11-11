@@ -14,7 +14,7 @@ describe('scrollMode: if-needed', () => {
         })
         .map(window.mapActions)
     })
-    expect(actual).toHaveLength(2)
+    expect(actual).toHaveLength(1)
     expect(actual).toMatchSnapshot()
   })
 })

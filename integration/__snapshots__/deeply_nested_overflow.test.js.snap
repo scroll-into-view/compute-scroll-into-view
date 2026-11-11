@@ -3,14 +3,9 @@
 exports[`scrollMode: if-needed test 0, block start, inline start 1`] = `
 [
   {
-    "el": "div.inner-scroll-container",
-    "left": 56,
-    "top": 56,
-  },
-  {
     "el": "div.outer-scroll-container",
-    "left": 300,
-    "top": 300,
+    "left": 356,
+    "top": 356,
   },
   {
     "el": "html",

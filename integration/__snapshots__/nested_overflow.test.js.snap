@@ -3,11 +3,6 @@
 exports[`scrollMode: if-needed target in view, container out of view 1`] = `
 [
   {
-    "el": "div.container",
-    "left": 250,
-    "top": 250,
-  },
-  {
     "el": "html",
     "left": 1250,
     "top": 1001,

@@ -5,7 +5,7 @@
 
 ![compute-scroll-into-view](https://user-images.githubusercontent.com/81981/43024153-a2cc212c-8c6d-11e8-913b-b4d62efcf105.png)
 
-Lower level API that is used by the [ponyfill](https://ponyfill.com) [scroll-into-view-if-needed](https://github.com/scroll-into-view/scroll-into-view-if-needed) to compute where (if needed) elements should scroll based on [options defined in the spec](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView) and the [`scrollMode: "if-needed"` draft spec proposal](https://github.com/w3c/csswg-drafts/pull/1805).
+Lower level API that is used by the [ponyfill](https://ponyfill.com) [scroll-into-view-if-needed](https://github.com/scroll-into-view/scroll-into-view-if-needed) to compute where (if needed) elements should scroll based on [options defined in the spec](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView) and the [`scrollMode: "if-needed"` draft spec proposal](https://github.com/w3c/csswg-drafts/pull/5677).
 Use this if you want the smallest possible bundlesize and is ok with implementing the actual scrolling yourself.
 
 Scrolling SVG elements are supported, as well as Shadow DOM elements. The [VisualViewport](https://developer.mozilla.org/en-US/docs/Web/API/VisualViewport) API is also supported, ensuring scrolling works properly on modern devices. Quirksmode is also supported as long as you polyfill [`document.scrollingElement`](https://developer.mozilla.org/en-US/docs/Web/API/document/scrollingElement).
@@ -63,6 +63,10 @@ actions.forEach(({ el, top, left }) => {
 })
 ```
 
+CSS `scroll-margin` on the target and `scroll-padding` on each scroller are included in the computed positions, even without scroll snapping. Padding supports lengths, percentages, and computed `calc()`, `min()`, `max()`, and `clamp()` values. Apply the returned coordinates directly; do not subtract margins again.
+
+See [standards status and compatibility](docs/cssom-status.md) for native promises, focus behavior, proposal status, testing, and remaining limits. The engine itself remains synchronous and returns actions.
+
 # API
 
 ## compute(target, options)
@@ -75,23 +79,28 @@ Type: `Object`
 
 Type: `'start' | 'center' | 'end' | 'nearest'`<br> Default: `'center'`
 
-Control the logical scroll position on the y-axis. The spec states that the `block` direction is related to the [writing-mode](https://developer.mozilla.org/en-US/docs/Web/CSS/writing-mode), but this is not implemented yet in this library.
-This means that `block: 'start'` aligns to the top edge and `block: 'end'` to the bottom.
+Align in the target’s block flow direction, respecting CSS `writing-mode`. The low-level engine retains its historical `center` default; pass `block: 'start'` to match native `scrollIntoView()` defaults.
 
 ### [inline](https://scroll-into-view.dev/#scroll-alignment)
 
 Type: `'start' | 'center' | 'end' | 'nearest'`<br> Default: `'nearest'`
 
-Like `block` this is affected by the [writing-mode](https://developer.mozilla.org/en-US/docs/Web/CSS/writing-mode). In left-to-right pages `inline: 'start'` will align to the left edge. In right-to-left it should be flipped. This will be supported in a future release.
+Align in the target’s inline direction, respecting CSS `writing-mode` and `direction`, including RTL and vertical/sideways text.
 
 ### [scrollMode](https://scroll-into-view.dev/#scrolling-if-needed)
 
 Type: `'always' | 'if-needed'`<br> Default: `'always'`
 
-This is a proposed addition to the spec that you can track here: https://github.com/w3c/csswg-drafts/pull/5677
+This library extension is inspired by an open, unmerged proposal. Its current draft uses a member named `scroll`, rather than `scrollMode`: https://github.com/w3c/csswg-drafts/pull/5677
 
-This library will be updated to reflect any changes to the spec and will provide a migration path.
+Visibility is checked against each scrollport after scroll padding, with scroll margins included in the target area. This is library policy; the proposal does not yet define “entirely in view”.
 To be backwards compatible with `Element.scrollIntoViewIfNeeded` if something is not 100% visible it will count as "needs scrolling". If you need a different visibility ratio your best option would be to implement an [Intersection Observer](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API).
+
+### container
+
+Type: `'all' | 'nearest'`<br> Default: `'all'`
+
+The standardized `container: 'nearest'` option limits scrolling to the nearest ancestor scroll container, including one without current overflow. `all` checks ancestors up to the owning document's viewport. It can be combined with the library's `boundary` option.
 
 ### [boundary](https://scroll-into-view.dev/#limit-propagation)
 
@@ -130,3 +139,7 @@ This package follows the convention [adopted by Firefox](https://hg.mozilla.org/
 [gzip-badge]: https://img.shields.io/bundlephobia/minzip/compute-scroll-into-view?label=gzip%20size&style=flat-square
 [size-badge]: https://img.shields.io/bundlephobia/min/compute-scroll-into-view?label=size&style=flat-square
 [unpkg-dist]: https://unpkg.com/compute-scroll-into-view/dist/
+
+## Development tests
+
+Run `pnpm install --frozen-lockfile`, `pnpm typecheck`, `pnpm build`, and `pnpm test`. The browser suite includes a [pinned WPT selection](integration/web-platform/README.md) and native geometry comparisons. Use `PUPPETEER_EXECUTABLE_PATH` for a local browser and, where required by the environment, `PUPPETEER_NO_SANDBOX=1`.
