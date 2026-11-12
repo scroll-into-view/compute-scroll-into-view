@@ -28,19 +28,39 @@ function getFixture(context: BrowserCommandContext): Fixture {
   return fixture
 }
 
+// Istanbul coverage counters of fixture pages that were closed, by test file
+const closedCoverage = new Map<string, CoverageMap[]>()
+
+async function close(context: BrowserCommandContext): Promise<void> {
+  const fixture = fixtures.get(key(context))
+  if (!fixture) return
+  fixtures.delete(key(context))
+  // With `vp test --coverage`, src/index.ts runs instrumented in the fixture page, which Vitest doesn't collect
+  // from. Keep its counters so the test file can merge them into its own
+  const coverage = await fixture.page.evaluate(() => window.__VITEST_COVERAGE__)
+  if (coverage) {
+    closedCoverage.set(key(context), [
+      ...(closedCoverage.get(key(context)) ?? []),
+      coverage,
+    ])
+  }
+  await fixture.page.close()
+}
+
 export async function closeFixture(
   context: BrowserCommandContext
-): Promise<void> {
-  const fixture = fixtures.get(key(context))
-  fixtures.delete(key(context))
-  await fixture?.page.close()
+): Promise<CoverageMap[]> {
+  await close(context)
+  const coverage = closedCoverage.get(key(context)) ?? []
+  closedCoverage.delete(key(context))
+  return coverage
 }
 
 export async function gotoFixture(
   context: BrowserCommandContext,
   path: string
 ): Promise<void> {
-  await closeFixture(context)
+  await close(context)
   const page = await context.context.newPage()
   const fixture: Fixture = { page, errors: [] }
   page.on('pageerror', (error) => fixture.errors.push(error))
@@ -77,8 +97,12 @@ export async function evaluateInFixture(
   return result
 }
 
+// Istanbul's per-file coverage data, keyed by file path
+type CoverageMap = Record<string, unknown>
+
 declare global {
   interface Window {
     computeScrollIntoView?: unknown
+    __VITEST_COVERAGE__?: CoverageMap
   }
 }
