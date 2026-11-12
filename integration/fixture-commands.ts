@@ -2,8 +2,8 @@
 // fixture in a separate top-level page with the 800x600 viewport the tests were
 // written for. The tests can't use the iframe that Vitest runs them in, because
 // `compute` treats elements inside a frame differently from a top-level page.
+/// <reference types="vite-plus/test/browser-playwright" />
 import type { Page } from 'playwright'
-import type {} from 'vite-plus/test/browser-playwright'
 import type { BrowserCommandContext } from 'vite-plus/test/node'
 
 interface Fixture {

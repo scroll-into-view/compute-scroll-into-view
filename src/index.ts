@@ -8,21 +8,19 @@
 
 /**
  * This new option is tracked in this PR, which is the most likely candidate at the time: https://github.com/w3c/csswg-drafts/pull/1805
- * @public
  */
 export type ScrollMode = 'always' | 'if-needed'
 
-/** @public */
 export interface Options {
   /**
    * Control the logical scroll position on the y-axis. The spec states that the `block` direction is related to the [writing-mode](https://developer.mozilla.org/en-US/docs/Web/CSS/writing-mode), but this is not implemented yet in this library.
    * This means that `block: 'start'` aligns to the top edge and `block: 'end'` to the bottom.
-   * @defaultValue 'center'
+   * @default 'center'
    */
   block?: ScrollLogicalPosition
   /**
    * Like `block` this is affected by the [writing-mode](https://developer.mozilla.org/en-US/docs/Web/CSS/writing-mode). In left-to-right pages `inline: 'start'` will align to the left edge. In right-to-left it should be flipped. This will be supported in a future release.
-   * @defaultValue 'nearest'
+   * @default 'nearest'
    */
   inline?: ScrollLogicalPosition
   /**
@@ -30,7 +28,7 @@ export interface Options {
    *
    * This library will be updated to reflect any changes to the spec and will provide a migration path.
    * To be backwards compatible with `Element.scrollIntoViewIfNeeded` if something is not 100% visible it will count as "needs scrolling". If you need a different visibility ratio your best option would be to implement an [Intersection Observer](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API).
-   * @defaultValue 'always'
+   * @default 'always'
    */
   scrollMode?: ScrollMode
   /**
@@ -55,19 +53,17 @@ export interface Options {
    *   },
    * })
    * ```
-   * @defaultValue null
+   * @default null
    */
   boundary?: Element | ((parent: Element) => boolean) | null
   /**
    * New option that skips auto-scrolling all nodes with overflow: hidden set
    * See FF implementation: https://hg.mozilla.org/integration/fx-team/rev/c48c3ec05012#l7.18
-   * @defaultValue false
-   * @public
+   * @default false
    */
   skipOverflowHiddenElements?: boolean
 }
 
-/** @public */
 export interface ScrollAction {
   el: Element
   top: number
@@ -266,10 +262,18 @@ const alignNearest = (
   return 0
 }
 
+// Only HTMLElement objects have offset[Width|Height], but any Element might pass by here. `instanceof HTMLElement`
+// would miss elements from other frames, which have their own HTMLElement, so check for the properties instead
+const hasOffsetWidth = (el: Element): el is HTMLElement => 'offsetWidth' in el
+const hasOffsetHeight = (el: Element): el is HTMLElement => 'offsetHeight' in el
+
+const isShadowRoot = (node: Node): node is ShadowRoot => 'host' in node
+
 const getParentElement = (element: Node): Element | null => {
   const parent = element.parentElement
   if (parent == null) {
-    return (element.getRootNode() as ShadowRoot).host || null
+    const root = element.getRootNode()
+    return isShadowRoot(root) ? root.host || null : null
   }
   return parent
 }
@@ -284,7 +288,6 @@ const getScrollMargins = (target: Element) => {
   }
 }
 
-/** @public */
 export const compute = (target: Element, options: Options): ScrollAction[] => {
   if (typeof document === 'undefined') {
     // If there's no DOM we assume it's not in a browser environment
@@ -404,43 +407,31 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
     }
 
     const frameStyle = getComputedStyle(frame)
-    const borderLeft = parseInt(frameStyle.borderLeftWidth as string, 10)
-    const borderTop = parseInt(frameStyle.borderTopWidth as string, 10)
-    const borderRight = parseInt(frameStyle.borderRightWidth as string, 10)
-    const borderBottom = parseInt(frameStyle.borderBottomWidth as string, 10)
+    const borderLeft = parseInt(frameStyle.borderLeftWidth, 10)
+    const borderTop = parseInt(frameStyle.borderTopWidth, 10)
+    const borderRight = parseInt(frameStyle.borderRightWidth, 10)
+    const borderBottom = parseInt(frameStyle.borderBottomWidth, 10)
 
     let blockScroll: number = 0
     let inlineScroll: number = 0
 
-    // The property existance checks for offfset[Width|Height] is because only HTMLElement objects have them, but any Element might pass by here
-    // @TODO find out if the "as HTMLElement" overrides can be dropped
-    const scrollbarWidth =
-      'offsetWidth' in frame
-        ? (frame as HTMLElement).offsetWidth -
-          (frame as HTMLElement).clientWidth -
-          borderLeft -
-          borderRight
-        : 0
-    const scrollbarHeight =
-      'offsetHeight' in frame
-        ? (frame as HTMLElement).offsetHeight -
-          (frame as HTMLElement).clientHeight -
-          borderTop -
-          borderBottom
-        : 0
+    const scrollbarWidth = hasOffsetWidth(frame)
+      ? frame.offsetWidth - frame.clientWidth - borderLeft - borderRight
+      : 0
+    const scrollbarHeight = hasOffsetHeight(frame)
+      ? frame.offsetHeight - frame.clientHeight - borderTop - borderBottom
+      : 0
 
-    const scaleX =
-      'offsetWidth' in frame
-        ? (frame as HTMLElement).offsetWidth === 0
-          ? 0
-          : width / (frame as HTMLElement).offsetWidth
-        : 0
-    const scaleY =
-      'offsetHeight' in frame
-        ? (frame as HTMLElement).offsetHeight === 0
-          ? 0
-          : height / (frame as HTMLElement).offsetHeight
-        : 0
+    const scaleX = hasOffsetWidth(frame)
+      ? frame.offsetWidth === 0
+        ? 0
+        : width / frame.offsetWidth
+      : 0
+    const scaleY = hasOffsetHeight(frame)
+      ? frame.offsetHeight === 0
+        ? 0
+        : height / frame.offsetHeight
+      : 0
 
     if (scrollingElement === frame) {
       // Handle viewport logic (document.documentElement or document.body)

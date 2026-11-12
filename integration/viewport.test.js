@@ -35,7 +35,7 @@ describe('scrollMode: always', () => {
 
         // The 'nearest' cases can have diff behavior depending on the current scroll position
         if (block === 'nearest' || inline === 'nearest') {
-          const expected = await page.evaluate(
+          const expectedFromEnd = await page.evaluate(
             (options) => {
               window.scrollTo(window.innerWidth * 3, window.innerHeight * 3)
               document.querySelector('.target').scrollIntoView(options)
@@ -44,7 +44,7 @@ describe('scrollMode: always', () => {
             },
             { block, inline }
           )
-          const actual = await page.evaluate(
+          const actualFromEnd = await page.evaluate(
             (options) => {
               window.scrollTo(window.innerWidth * 3, window.innerHeight * 3)
               const [{ left, top }] = window.computeScrollIntoView(
@@ -55,8 +55,8 @@ describe('scrollMode: always', () => {
             },
             { block, inline }
           )
-          expect(expected).toEqual(actual)
-          expect(actual).toMatchSnapshot()
+          expect(expectedFromEnd).toEqual(actualFromEnd)
+          expect(actualFromEnd).toMatchSnapshot()
         }
       })
     })
