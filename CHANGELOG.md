@@ -1,5 +1,11 @@
 # compute-scroll-into-view
 
+## 3.2.1
+
+### Patch Changes
+
+- [#940](https://github.com/scroll-into-view/compute-scroll-into-view/pull/940) [`1ba1f96`](https://github.com/scroll-into-view/compute-scroll-into-view/commit/1ba1f96f3316ba488eb98383c0a06912bb98da16) Thanks [@tembo](https://github.com/apps/tembo)! - Remove the `engines.node` requirement added in the previous release. Requiring Node.js 26 was unintentionally breaking for consumers on older Node.js versions, and as a browser library this package has no Node.js runtime requirement ([compute-scroll-into-view#928](https://github.com/scroll-into-view/compute-scroll-into-view/issues/928))
+
 ## 3.2.0
 
 ### Minor Changes
