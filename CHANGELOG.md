@@ -1,5 +1,11 @@
 # compute-scroll-into-view
 
+## 3.2.2
+
+### Patch Changes
+
+- [#942](https://github.com/scroll-into-view/compute-scroll-into-view/pull/942) [`9fe791e`](https://github.com/scroll-into-view/compute-scroll-into-view/commit/9fe791e5db4c039eba0f04fbfd3aa21d0616f5ee) Thanks [@tembo](https://github.com/apps/tembo)! - Compile the published bundles to ES2019 syntax again. Releases 3.2.0 and 3.2.1 shipped optional chaining (`?.`) and nullish coalescing (`??`) because the browserslist targets drifted, which broke Webpack 4 and other older toolchains ([scroll-into-view-if-needed#1235](https://github.com/scroll-into-view/scroll-into-view-if-needed/issues/1235)). The build targets are now pinned and the build fails if the output isn't ES2019-compatible.
+
 ## 3.2.1
 
 ### Patch Changes
