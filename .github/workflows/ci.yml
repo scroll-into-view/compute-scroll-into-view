@@ -23,6 +23,8 @@ jobs:
           node-version: lts
           cache: true
       - run: vp check
+      # Unused files, exports, and dependencies
+      - run: vp exec knip
       - run: vp pack
 
   test:

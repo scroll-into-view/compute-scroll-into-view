@@ -1,7 +1,11 @@
 import { defineConfig } from 'vite-plus'
 import { playwright } from 'vite-plus/test/browser-playwright'
 
-import * as fixtureCommands from './integration/fixture-commands.js'
+import {
+  closeFixture,
+  evaluateInFixture,
+  gotoFixture,
+} from './integration/fixture-commands.js'
 
 export default defineConfig({
   staged: {
@@ -46,7 +50,7 @@ export default defineConfig({
       provider: playwright(),
       headless: true,
       instances: [{ browser: 'chromium' }],
-      commands: fixtureCommands,
+      commands: { closeFixture, evaluateInFixture, gotoFixture },
     },
   },
   fmt: {
