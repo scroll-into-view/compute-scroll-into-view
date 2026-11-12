@@ -63,7 +63,7 @@
   "devDependencies": {
     "@changesets/changelog-github": "^1.0.1",
     "@changesets/cli": "^3.0.3",
-    "@sanity/pkg-utils": "^2.2.5",
+    "@sanity/pkg-utils": "^4.4.4",
     "@types/jest": "^29.4.0",
     "cross-env": "^7.0.3",
     "es-check": "^9.8.1",
