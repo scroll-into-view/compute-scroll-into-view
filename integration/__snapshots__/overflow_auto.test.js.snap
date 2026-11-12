@@ -1,167 +1,167 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`scrollMode: always block: center, inline: center 1`] = `
+exports[`scrollMode: always > block: center, inline: center 1`] = `
 {
   "left": 250,
   "top": 250,
 }
 `;
 
-exports[`scrollMode: always block: center, inline: end 1`] = `
+exports[`scrollMode: always > block: center, inline: end 1`] = `
 {
   "left": 200,
   "top": 250,
 }
 `;
 
-exports[`scrollMode: always block: center, inline: nearest 1`] = `
+exports[`scrollMode: always > block: center, inline: nearest 1`] = `
 {
   "left": 200,
   "top": 250,
 }
 `;
 
-exports[`scrollMode: always block: center, inline: nearest 2`] = `
+exports[`scrollMode: always > block: center, inline: nearest 2`] = `
 {
   "left": 300,
   "top": 250,
 }
 `;
 
-exports[`scrollMode: always block: center, inline: start 1`] = `
+exports[`scrollMode: always > block: center, inline: start 1`] = `
 {
   "left": 300,
   "top": 250,
 }
 `;
 
-exports[`scrollMode: always block: end, inline: center 1`] = `
+exports[`scrollMode: always > block: end, inline: center 1`] = `
 {
   "left": 250,
   "top": 200,
 }
 `;
 
-exports[`scrollMode: always block: end, inline: end 1`] = `
+exports[`scrollMode: always > block: end, inline: end 1`] = `
 {
   "left": 200,
   "top": 200,
 }
 `;
 
-exports[`scrollMode: always block: end, inline: nearest 1`] = `
+exports[`scrollMode: always > block: end, inline: nearest 1`] = `
 {
   "left": 200,
   "top": 200,
 }
 `;
 
-exports[`scrollMode: always block: end, inline: nearest 2`] = `
+exports[`scrollMode: always > block: end, inline: nearest 2`] = `
 {
   "left": 300,
   "top": 200,
 }
 `;
 
-exports[`scrollMode: always block: end, inline: start 1`] = `
+exports[`scrollMode: always > block: end, inline: start 1`] = `
 {
   "left": 300,
   "top": 200,
 }
 `;
 
-exports[`scrollMode: always block: nearest, inline: center 1`] = `
+exports[`scrollMode: always > block: nearest, inline: center 1`] = `
 {
   "left": 250,
   "top": 200,
 }
 `;
 
-exports[`scrollMode: always block: nearest, inline: center 2`] = `
+exports[`scrollMode: always > block: nearest, inline: center 2`] = `
 {
   "left": 250,
   "top": 300,
 }
 `;
 
-exports[`scrollMode: always block: nearest, inline: end 1`] = `
+exports[`scrollMode: always > block: nearest, inline: end 1`] = `
 {
   "left": 200,
   "top": 200,
 }
 `;
 
-exports[`scrollMode: always block: nearest, inline: end 2`] = `
+exports[`scrollMode: always > block: nearest, inline: end 2`] = `
 {
   "left": 200,
   "top": 300,
 }
 `;
 
-exports[`scrollMode: always block: nearest, inline: nearest 1`] = `
+exports[`scrollMode: always > block: nearest, inline: nearest 1`] = `
 {
   "left": 200,
   "top": 200,
 }
 `;
 
-exports[`scrollMode: always block: nearest, inline: nearest 2`] = `
+exports[`scrollMode: always > block: nearest, inline: nearest 2`] = `
 {
   "left": 300,
   "top": 300,
 }
 `;
 
-exports[`scrollMode: always block: nearest, inline: start 1`] = `
+exports[`scrollMode: always > block: nearest, inline: start 1`] = `
 {
   "left": 300,
   "top": 200,
 }
 `;
 
-exports[`scrollMode: always block: nearest, inline: start 2`] = `
+exports[`scrollMode: always > block: nearest, inline: start 2`] = `
 {
   "left": 300,
   "top": 300,
 }
 `;
 
-exports[`scrollMode: always block: start, inline: center 1`] = `
+exports[`scrollMode: always > block: start, inline: center 1`] = `
 {
   "left": 250,
   "top": 300,
 }
 `;
 
-exports[`scrollMode: always block: start, inline: end 1`] = `
+exports[`scrollMode: always > block: start, inline: end 1`] = `
 {
   "left": 200,
   "top": 300,
 }
 `;
 
-exports[`scrollMode: always block: start, inline: nearest 1`] = `
+exports[`scrollMode: always > block: start, inline: nearest 1`] = `
 {
   "left": 200,
   "top": 300,
 }
 `;
 
-exports[`scrollMode: always block: start, inline: nearest 2`] = `
+exports[`scrollMode: always > block: start, inline: nearest 2`] = `
 {
   "left": 300,
   "top": 300,
 }
 `;
 
-exports[`scrollMode: always block: start, inline: start 1`] = `
+exports[`scrollMode: always > block: start, inline: start 1`] = `
 {
   "left": 300,
   "top": 300,
 }
 `;
 
-exports[`scrollMode: if-needed horizontal completely overflowing 1`] = `
+exports[`scrollMode: if-needed > horizontal > completely overflowing 1`] = `
 [
   {
     "el": "div.container",
@@ -171,7 +171,7 @@ exports[`scrollMode: if-needed horizontal completely overflowing 1`] = `
 ]
 `;
 
-exports[`scrollMode: if-needed horizontal partially overflowing 1`] = `
+exports[`scrollMode: if-needed > horizontal > partially overflowing 1`] = `
 [
   {
     "el": "div.container",
@@ -181,7 +181,7 @@ exports[`scrollMode: if-needed horizontal partially overflowing 1`] = `
 ]
 `;
 
-exports[`scrollMode: if-needed vertical completely below the fold 1`] = `
+exports[`scrollMode: if-needed > vertical > completely below the fold 1`] = `
 [
   {
     "el": {},
@@ -191,7 +191,7 @@ exports[`scrollMode: if-needed vertical completely below the fold 1`] = `
 ]
 `;
 
-exports[`scrollMode: if-needed vertical partially below the fold 1`] = `
+exports[`scrollMode: if-needed > vertical > partially below the fold 1`] = `
 [
   {
     "el": "div.container",

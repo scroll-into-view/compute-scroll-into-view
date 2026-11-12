@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`the "nearest" option works with target and frame having equal dimensions block: "nearest" 1`] = `
+exports[`the "nearest" option works with target and frame having equal dimensions > block: "nearest" 1`] = `
 [
   {
     "el": "div.container",

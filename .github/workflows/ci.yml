@@ -14,30 +14,28 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v7
+      - uses: voidzero-dev/setup-vp@v1.22.0
         with:
-          cache: pnpm
-          node-version: lts/*
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm typecheck
-      - run: pnpm build
+          node-version: lts
+          cache: true
+      - run: vp check
+      - run: vp pack
 
   test:
-    needs: build
+    needs: check
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
-        node: [lts/*]
+        node: [lts]
         include:
           - os: ubuntu-latest
-            node: current
+            node: latest
     steps:
       - name: Set git to use LF
         if: matrix.os == 'windows-latest'
@@ -45,11 +43,11 @@ jobs:
           git config --global core.autocrlf false
           git config --global core.eol lf
       - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v7
+      - uses: voidzero-dev/setup-vp@v1.22.0
         with:
-          cache: pnpm
           node-version: ${{ matrix.node }}
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm build
-      - run: pnpm test
+          cache: true
+      # GitHub-hosted runners already have Chromium's system libraries, so skip
+      # `--with-deps` (it runs apt-get, which is slow and can fail on mirror outages)
+      - run: vp exec playwright install chromium
+      - run: vp test

@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`scrollMode: if-needed test 0, block start, inline start 1`] = `
+exports[`scrollMode: if-needed > test 0, block start, inline start 1`] = `
 [
   {
     "el": "div.inner-scroll-container",
@@ -20,7 +20,7 @@ exports[`scrollMode: if-needed test 0, block start, inline start 1`] = `
 ]
 `;
 
-exports[`scrollMode: if-needed test 1, block start, inline center 1`] = `
+exports[`scrollMode: if-needed > test 1, block start, inline center 1`] = `
 [
   {
     "el": "div.inner-scroll-container",
@@ -40,7 +40,7 @@ exports[`scrollMode: if-needed test 1, block start, inline center 1`] = `
 ]
 `;
 
-exports[`scrollMode: if-needed test 2, block start, inline end 1`] = `
+exports[`scrollMode: if-needed > test 2, block start, inline end 1`] = `
 [
   {
     "el": "div.inner-scroll-container",
@@ -60,7 +60,7 @@ exports[`scrollMode: if-needed test 2, block start, inline end 1`] = `
 ]
 `;
 
-exports[`scrollMode: if-needed test 3, block center, inline start 1`] = `
+exports[`scrollMode: if-needed > test 3, block center, inline start 1`] = `
 [
   {
     "el": "div.inner-scroll-container",
@@ -80,7 +80,7 @@ exports[`scrollMode: if-needed test 3, block center, inline start 1`] = `
 ]
 `;
 
-exports[`scrollMode: if-needed test 4, block center, inline center 1`] = `
+exports[`scrollMode: if-needed > test 4, block center, inline center 1`] = `
 [
   {
     "el": "div.inner-scroll-container",
@@ -100,7 +100,7 @@ exports[`scrollMode: if-needed test 4, block center, inline center 1`] = `
 ]
 `;
 
-exports[`scrollMode: if-needed test 5, block center, inline end 1`] = `
+exports[`scrollMode: if-needed > test 5, block center, inline end 1`] = `
 [
   {
     "el": "div.inner-scroll-container",
@@ -120,7 +120,7 @@ exports[`scrollMode: if-needed test 5, block center, inline end 1`] = `
 ]
 `;
 
-exports[`scrollMode: if-needed test 6, block end, inline start 1`] = `
+exports[`scrollMode: if-needed > test 6, block end, inline start 1`] = `
 [
   {
     "el": "div.inner-scroll-container",
@@ -140,7 +140,7 @@ exports[`scrollMode: if-needed test 6, block end, inline start 1`] = `
 ]
 `;
 
-exports[`scrollMode: if-needed test 7, block end, inline center 1`] = `
+exports[`scrollMode: if-needed > test 7, block end, inline center 1`] = `
 [
   {
     "el": "div.inner-scroll-container",
@@ -160,7 +160,7 @@ exports[`scrollMode: if-needed test 7, block end, inline center 1`] = `
 ]
 `;
 
-exports[`scrollMode: if-needed test 8, block end, inline end 1`] = `
+exports[`scrollMode: if-needed > test 8, block end, inline end 1`] = `
 [
   {
     "el": "div.inner-scroll-container",
