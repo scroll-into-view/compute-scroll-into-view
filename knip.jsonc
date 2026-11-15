@@ -9,4 +9,7 @@
   ],
   // Loaded by `vp pack` (tsdown) for its `publint` and `attw` checks
   "ignoreDependencies": ["@arethetypeswrong/core", "publint"],
+  // `pnpm change` is a built-in pnpm command (used in renovate-changeset.yml),
+  // not a binary from a dependency
+  "ignoreBinaries": ["change"],
 }
