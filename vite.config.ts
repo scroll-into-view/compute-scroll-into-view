@@ -6,12 +6,17 @@ import {
   evaluateInFixture,
   gotoFixture,
 } from './integration/fixture-commands.js'
+import { runWebPlatformTest } from './integration/wpt-commands.js'
+
+// Vendored, unmodified web-platform-tests. scripts/sync-wpt.ts replaces them
+const vendoredWpt = 'integration/wpt/upstream/**'
 
 export default defineConfig({
   staged: {
     '*': 'vp check --fix',
   },
   lint: {
+    ignorePatterns: [vendoredWpt],
     jsPlugins: [{ name: 'vite-plus', specifier: 'vite-plus/oxlint-plugin' }],
     // Listing plugins replaces Oxlint's defaults (eslint, typescript, unicorn, oxc), so they're repeated here
     plugins: [
@@ -94,7 +99,12 @@ export default defineConfig({
       provider: playwright(),
       headless: true,
       instances: [{ browser: 'chromium' }],
-      commands: { closeFixture, evaluateInFixture, gotoFixture },
+      commands: {
+        closeFixture,
+        evaluateInFixture,
+        gotoFixture,
+        runWebPlatformTest,
+      },
     },
   },
   fmt: {
@@ -103,6 +113,6 @@ export default defineConfig({
     trailingComma: 'es5',
     printWidth: 80,
     sortPackageJson: false,
-    ignorePatterns: [],
+    ignorePatterns: [vendoredWpt],
   },
 })

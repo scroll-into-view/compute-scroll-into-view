@@ -1,0 +1,18 @@
+{
+  "repository": "https://github.com/web-platform-tests/wpt",
+  "revision": "81999813d59bc596c8029aba931bb550ab9f5a28",
+  "include": [
+    "css/cssom-view/*scrollIntoView*.html",
+    "css/cssom-view/scroll-behavior-scrollintoview-*.html",
+    "css/css-scroll-snap/*.html",
+    "css/css-overflow/single-axis-scroll-into-view*.html",
+    "css/css-viewport/zoom/scroll-*.html",
+    "css/css-position/sticky/*scrollIntoView*.html",
+    "css/css-contain/content-visibility/*scrollIntoView*.html",
+    "css/css-images/*scroll-into-view*.html",
+    "css/css-inline/empty-span-*.html",
+    "dom/events/scrolling/*scrollIntoView*.html",
+    "focus/focus-centers-element.html"
+  ],
+  "exclude": {}
+}
