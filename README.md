@@ -20,6 +20,7 @@ Scrolling SVG elements are supported, as well as Shadow DOM elements. The [Visua
     - [scrollMode](#scrollmode)
     - [boundary](#boundary)
     - [skipOverflowHiddenElements](#skipoverflowhiddenelements)
+- [Development](#development)
 
 # Install
 
@@ -136,10 +137,15 @@ By default the [spec](https://drafts.csswg.org/cssom-view/#scrolling-box) states
 
 This package follows the convention [adopted by Firefox](https://hg.mozilla.org/integration/fx-team/rev/c48c3ec05012#l7.18) of setting a boolean option to _not_ scroll all nodes with `overflow: hidden` set.
 
+# Development
+
+This project uses [Vite+](https://viteplus.dev). With the [`vp` CLI](https://viteplus.dev/guide/) installed (or through `pnpm exec vp`):
+
+- `vp dev` serves the integration fixtures. Open `/integration/` for a list of them. They run `src/index.ts` directly and reload when it changes, and the DevTools console has `computeScrollIntoView` and `mapActions` for experiments.
+- `vp test` runs the integration tests in Chromium with Playwright (run `vp exec playwright install chromium` once first). They include a [pinned web-platform-tests selection](integration/web-platform/README.md) and comparisons with native `scrollIntoView` geometry.
+- `vp check` formats, lints, and type checks, and `vp exec knip` reports unused files, exports, and dependencies.
+- `vp pack` builds the package into `dist`.
+
 [gzip-badge]: https://img.shields.io/bundlephobia/minzip/compute-scroll-into-view?label=gzip%20size&style=flat-square
 [size-badge]: https://img.shields.io/bundlephobia/min/compute-scroll-into-view?label=size&style=flat-square
 [unpkg-dist]: https://unpkg.com/compute-scroll-into-view/dist/
-
-## Development tests
-
-Run `pnpm install --frozen-lockfile`, `pnpm typecheck`, `pnpm build`, and `pnpm test`. The browser suite includes a [pinned WPT selection](integration/web-platform/README.md) and native geometry comparisons. Use `PUPPETEER_EXECUTABLE_PATH` for a local browser and, where required by the environment, `PUPPETEER_NO_SANDBOX=1`.

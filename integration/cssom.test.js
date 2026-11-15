@@ -1,16 +1,18 @@
+import { beforeEach, expect, test } from 'vite-plus/test'
+
 beforeEach(async () => {
-  await page.goto('http://localhost:3000/integration/overflow_auto')
+  await page.goto('/integration/overflow_auto.html')
 })
 
-const positions = ['start', 'center', 'end', 'nearest']
-for (const padding of [
+const alignments = ['start', 'center', 'end', 'nearest']
+for (const scrollPadding of [
   '4px 8px 12px 16px',
   '10% 15% 20% 5%',
   'calc(10% + 4px) 8px 12px 16px',
   'min(20%, 30px) max(5%, 12px) clamp(5px, 10%, 40px) 16px',
 ]) {
-  test(`margins and padding together: ${padding}`, async () => {
-    const differences = await page.evaluate((padding) => {
+  test(`margins and padding together: ${scrollPadding}`, async () => {
+    const mismatches = await page.evaluate((padding) => {
       document.body.innerHTML = `<div id="scroller" style="overflow:scroll;width:200px;height:200px;border:7px solid;scroll-padding:${padding}">
         <div style="width:800px;height:800px"><div id="target" style="position:relative;top:300px;left:300px;width:80px;height:60px;scroll-margin:4px 8px 12px 16px"></div></div></div>`
       const scroller = document.querySelector('#scroller')
@@ -41,21 +43,21 @@ for (const padding of [
         }
       }
       return differences
-    }, padding)
-    expect(differences).toEqual([])
+    }, scrollPadding)
+    expect(mismatches).toEqual([])
   })
 }
 
-for (const writingMode of [
+for (const mode of [
   'horizontal-tb',
   'vertical-rl',
   'vertical-lr',
   'sideways-rl',
   'sideways-lr',
 ]) {
-  for (const direction of ['ltr', 'rtl']) {
-    test(`nested scaled scrolling: ${writingMode} ${direction}`, async () => {
-      const differences = await page.evaluate(
+  for (const dir of ['ltr', 'rtl']) {
+    test(`nested scaled scrolling: ${mode} ${dir}`, async () => {
+      const mismatches = await page.evaluate(
         ({ writingMode, direction, positions }) => {
           document.body.innerHTML = `<div id="outer" style="width:250px;height:250px;overflow:scroll;scroll-padding:10px;border:3px solid;transform:scale(0.75);transform-origin:top left">
           <div style="width:1500px;height:1500px;padding:300px;box-sizing:border-box">
@@ -99,9 +101,9 @@ for (const writingMode of [
             }
           return differences
         },
-        { writingMode, direction, positions }
+        { writingMode: mode, direction: dir, positions: alignments }
       )
-      expect(differences).toEqual([])
+      expect(mismatches).toEqual([])
     })
   }
 }

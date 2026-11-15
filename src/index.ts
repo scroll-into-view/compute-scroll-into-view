@@ -8,20 +8,18 @@
 
 /**
  * Library extension inspired by the open proposal: https://github.com/w3c/csswg-drafts/pull/5677
- * @public
  */
 export type ScrollMode = 'always' | 'if-needed'
 
-/** @public */
 export interface Options {
   /**
    * Align in the target’s block flow direction, as defined by its CSS writing-mode.
-   * @defaultValue 'center'
+   * @default 'center'
    */
   block?: ScrollLogicalPosition
   /**
    * Align in the target’s inline direction, respecting CSS writing-mode and direction.
-   * @defaultValue 'nearest'
+   * @default 'nearest'
    */
   inline?: ScrollLogicalPosition
   /**
@@ -29,7 +27,7 @@ export interface Options {
    *
    * This library will be updated to reflect any changes to the spec and will provide a migration path.
    * To be backwards compatible with `Element.scrollIntoViewIfNeeded` if something is not 100% visible it will count as "needs scrolling". If you need a different visibility ratio your best option would be to implement an [Intersection Observer](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API).
-   * @defaultValue 'always'
+   * @default 'always'
    */
   scrollMode?: ScrollMode
   /**
@@ -54,44 +52,51 @@ export interface Options {
    *   },
    * })
    * ```
-   * @defaultValue null
+   * @default null
    */
   boundary?: Element | ((parent: Element) => boolean) | null
   /**
    * Scroll all ancestor scrolling boxes or only the nearest one.
    * Can be combined with the library's boundary option.
-   * @defaultValue 'all'
+   * @default 'all'
    */
   container?: 'all' | 'nearest'
   /**
    * New option that skips auto-scrolling all nodes with overflow: hidden set
    * See FF implementation: https://hg.mozilla.org/integration/fx-team/rev/c48c3ec05012#l7.18
-   * @defaultValue false
-   * @public
+   * @default false
    */
   skipOverflowHiddenElements?: boolean
 }
 
-/** @public */
 export interface ScrollAction {
   el: Element
   top: number
   left: number
 }
 
-const isElement = (el: unknown): el is Element =>
-  typeof el === 'object' && el != null && (el as Element).nodeType === 1
+const isElement = (el: any): el is Element =>
+  typeof el === 'object' && el != null && el.nodeType === 1
+
+// Only HTMLElement objects have offset[Width|Height], but any Element might pass by here. `instanceof HTMLElement`
+// would miss elements from other frames, which have their own HTMLElement, so check for the properties instead
+const hasOffsetWidth = (el: Element): el is HTMLElement => 'offsetWidth' in el
+const hasOffsetHeight = (el: Element): el is HTMLElement => 'offsetHeight' in el
+
+const isShadowRoot = (node: Node): node is ShadowRoot => 'host' in node
 
 const canOverflow = (overflow: string, skipOverflowHiddenElements = false) =>
   overflow !== 'visible' &&
   overflow !== 'clip' &&
   !(skipOverflowHiddenElements && overflow === 'hidden')
 
-const getParentElement = (element: Element): Element | null =>
-  element.assignedSlot ||
-  element.parentElement ||
-  (element.getRootNode() as ShadowRoot).host ||
-  null
+const getParentElement = (element: Element): Element | null => {
+  if (element.assignedSlot || element.parentElement) {
+    return element.assignedSlot || element.parentElement
+  }
+  const root = element.getRootNode()
+  return isShadowRoot(root) ? root.host || null : null
+}
 
 const align = (
   position: ScrollLogicalPosition,
@@ -182,7 +187,6 @@ const clamp = (value: number, max: number, reversed: boolean) =>
     ? Math.max(-max, Math.min(0, value))
     : Math.max(0, Math.min(max, value))
 
-/** @public */
 export const compute = (target: Element, options: Options): ScrollAction[] => {
   if (typeof document === 'undefined') return []
   if (!isElement(target)) throw new TypeError('Invalid target')
@@ -258,12 +262,12 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
     const viewport = frame === scrollingElement
     const frameRect = frame.getBoundingClientRect()
     const scaleX =
-      !viewport && 'offsetWidth' in frame && frame.offsetWidth
-        ? frameRect.width / (frame as HTMLElement).offsetWidth
+      !viewport && hasOffsetWidth(frame) && frame.offsetWidth
+        ? frameRect.width / frame.offsetWidth
         : 1
     const scaleY =
-      !viewport && 'offsetHeight' in frame && frame.offsetHeight
-        ? frameRect.height / (frame as HTMLElement).offsetHeight
+      !viewport && hasOffsetHeight(frame) && frame.offsetHeight
+        ? frameRect.height / frame.offsetHeight
         : 1
     if (!scaleX || !scaleY) continue
 

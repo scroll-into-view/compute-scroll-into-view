@@ -25,11 +25,13 @@ const downloads = await Promise.all(
     return [local, await response.text()]
   })
 )
-for (const [local, content] of downloads) {
-  const destination = new URL(local, root)
-  await mkdir(new URL('.', destination), { recursive: true })
-  await writeFile(destination, content)
-}
+await Promise.all(
+  downloads.map(async ([local, content]) => {
+    const destination = new URL(local, root)
+    await mkdir(new URL('.', destination), { recursive: true })
+    await writeFile(destination, content)
+  })
+)
 await writeFile(
   new URL('manifest.json', root),
   JSON.stringify({ ...manifest, revision }, null, 2) + '\n'

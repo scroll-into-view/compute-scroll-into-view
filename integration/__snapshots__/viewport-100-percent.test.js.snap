@@ -1,8 +1,8 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`scrollMode: if-needed (outside the scrollingElement bounding box) horizontal completely in view 1`] = `[]`;
+exports[`scrollMode: if-needed (outside the scrollingElement bounding box) > horizontal > completely in view 1`] = `[]`;
 
-exports[`scrollMode: if-needed (outside the scrollingElement bounding box) horizontal completely overflowing 1`] = `
+exports[`scrollMode: if-needed (outside the scrollingElement bounding box) > horizontal > completely overflowing 1`] = `
 [
   {
     "el": "html",
@@ -12,7 +12,7 @@ exports[`scrollMode: if-needed (outside the scrollingElement bounding box) horiz
 ]
 `;
 
-exports[`scrollMode: if-needed (outside the scrollingElement bounding box) horizontal fully negative overflowing 1`] = `
+exports[`scrollMode: if-needed (outside the scrollingElement bounding box) > horizontal > fully negative overflowing 1`] = `
 [
   {
     "el": "html",
@@ -22,7 +22,7 @@ exports[`scrollMode: if-needed (outside the scrollingElement bounding box) horiz
 ]
 `;
 
-exports[`scrollMode: if-needed (outside the scrollingElement bounding box) horizontal partially negative overflowing 1`] = `
+exports[`scrollMode: if-needed (outside the scrollingElement bounding box) > horizontal > partially negative overflowing 1`] = `
 [
   {
     "el": "html",
@@ -32,7 +32,7 @@ exports[`scrollMode: if-needed (outside the scrollingElement bounding box) horiz
 ]
 `;
 
-exports[`scrollMode: if-needed (outside the scrollingElement bounding box) horizontal partially overflowing 1`] = `
+exports[`scrollMode: if-needed (outside the scrollingElement bounding box) > horizontal > partially overflowing 1`] = `
 [
   {
     "el": "html",
@@ -42,7 +42,7 @@ exports[`scrollMode: if-needed (outside the scrollingElement bounding box) horiz
 ]
 `;
 
-exports[`scrollMode: if-needed (outside the scrollingElement bounding box) vertical completely above the fold 1`] = `
+exports[`scrollMode: if-needed (outside the scrollingElement bounding box) > vertical > completely above the fold 1`] = `
 [
   {
     "el": "html",
@@ -52,7 +52,7 @@ exports[`scrollMode: if-needed (outside the scrollingElement bounding box) verti
 ]
 `;
 
-exports[`scrollMode: if-needed (outside the scrollingElement bounding box) vertical completely below the fold 1`] = `
+exports[`scrollMode: if-needed (outside the scrollingElement bounding box) > vertical > completely below the fold 1`] = `
 [
   {
     "el": "html",
@@ -62,9 +62,9 @@ exports[`scrollMode: if-needed (outside the scrollingElement bounding box) verti
 ]
 `;
 
-exports[`scrollMode: if-needed (outside the scrollingElement bounding box) vertical completely in view 1`] = `[]`;
+exports[`scrollMode: if-needed (outside the scrollingElement bounding box) > vertical > completely in view 1`] = `[]`;
 
-exports[`scrollMode: if-needed (outside the scrollingElement bounding box) vertical partially above the fold 1`] = `
+exports[`scrollMode: if-needed (outside the scrollingElement bounding box) > vertical > partially above the fold 1`] = `
 [
   {
     "el": "html",
@@ -74,7 +74,7 @@ exports[`scrollMode: if-needed (outside the scrollingElement bounding box) verti
 ]
 `;
 
-exports[`scrollMode: if-needed (outside the scrollingElement bounding box) vertical partially below the fold 1`] = `
+exports[`scrollMode: if-needed (outside the scrollingElement bounding box) > vertical > partially below the fold 1`] = `
 [
   {
     "el": "html",

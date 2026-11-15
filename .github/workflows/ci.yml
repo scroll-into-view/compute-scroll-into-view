@@ -14,30 +14,33 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v7
+      - uses: voidzero-dev/setup-vp@v1.22.0
         with:
-          cache: pnpm
-          node-version: lts/*
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm typecheck
-      - run: pnpm build
+          node-version: lts
+          cache: true
+      # Fails when Vite+, its Vite core alias, and the Vitest pins drift apart (e.g. in a Renovate PR).
+      # Fix it by running `vp migrate` and committing the result
+      - run: vp migrate --no-interactive && git diff --exit-code
+      - run: vp check
+      # Unused files, exports, and dependencies
+      - run: vp exec knip
+      - run: vp run build # vp pack + es-check (ES2019 guard)
 
   test:
-    needs: build
+    needs: check
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
-        node: [lts/*]
+        node: [lts]
         include:
           - os: ubuntu-latest
-            node: current
+            node: latest
     steps:
       - name: Set git to use LF
         if: matrix.os == 'windows-latest'
@@ -45,14 +48,11 @@ jobs:
           git config --global core.autocrlf false
           git config --global core.eol lf
       - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v7
+      - uses: voidzero-dev/setup-vp@v1.22.0
         with:
-          cache: pnpm
           node-version: ${{ matrix.node }}
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm build
-      - run: pnpm test
-        env:
-          # Ubuntu runners restrict the user namespaces Chrome's sandbox needs.
-          PUPPETEER_NO_SANDBOX: ${{ runner.os == 'Linux' && '1' || '' }}
+          cache: true
+      # GitHub-hosted runners already have Chromium's system libraries, so skip
+      # `--with-deps` (it runs apt-get, which is slow and can fail on mirror outages)
+      - run: vp exec playwright install chromium
+      - run: vp test --coverage
