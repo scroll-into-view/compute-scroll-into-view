@@ -53,9 +53,7 @@ export default defineConfig({
   },
   pack: {
     entry: ['src/index.ts'],
-    // Emit dist/index.js (ESM) and dist/index.cjs (CJS) to match package.json exports.
-    // package.json points both conditions at dist/index.d.ts, so skip an unused index.d.cts.
-    format: { esm: {}, cjs: { dts: false } },
+    format: 'esm',
     platform: 'neutral',
     // Pinned to ES2019-level targets so the published bundles keep compiling away
     // optional chaining and nullish coalescing for Webpack 4 and other older toolchains
@@ -74,8 +72,11 @@ export default defineConfig({
     dts: { generator: 'oxc', sourcemap: true },
     sourcemap: true,
     minify: true,
-    // Keep the "use strict" directive that the previous CommonJS output had
-    outputOptions: { strict: true },
+    // tsdown writes `exports`, plus `main`, `module` and `types` for tools that predate `exports`
+    exports: { legacy: true },
+    // Fail the build on package.json/exports and type-resolution problems
+    publint: true,
+    attw: { profile: 'esm-only' },
   },
   test: {
     include: ['integration/**/*.test.js'],

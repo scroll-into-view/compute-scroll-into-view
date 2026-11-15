@@ -1,6 +1,12 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
-  // Loaded by the integration/*.html fixtures with <script type="module">,
-  // which Knip doesn't parse
-  "entry": ["integration/utils.js"],
+  "entry": [
+    // The package entry, which `vp pack` builds into dist/
+    "src/index.ts",
+    // Loaded by the integration/*.html fixtures with <script type="module">,
+    // which Knip doesn't parse
+    "integration/utils.js",
+  ],
+  // Loaded by `vp pack` (tsdown) for its `publint` and `attw` checks
+  "ignoreDependencies": ["@arethetypeswrong/core", "publint"],
 }

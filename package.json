@@ -22,32 +22,26 @@
   "sideEffects": false,
   "type": "module",
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "source": "./src/index.ts",
-      "require": "./dist/index.cjs",
-      "import": "./dist/index.js",
-      "default": "./dist/index.js"
-    },
+    ".": "./dist/index.js",
     "./package.json": "./package.json"
   },
-  "main": "./dist/index.cjs",
+  "main": "./dist/index.js",
   "module": "./dist/index.js",
-  "source": "./src/index.ts",
-  "typings": "./dist/index.d.ts",
+  "types": "./dist/index.d.ts",
   "files": [
     "dist",
     "src"
   ],
   "scripts": {
     "build": "vp pack && pnpm run check:es",
-    "check:es": "es-check es2019 dist/index.cjs && es-check es2019 --module dist/index.js",
+    "check:es": "es-check es2019 --module dist/index.js",
     "prepublishOnly": "pnpm run build",
     "test": "vp test",
     "release": "pnpm run build && changeset publish",
     "prepare": "vp config"
   },
   "devDependencies": {
+    "@arethetypeswrong/core": "^0.18.5",
     "@changesets/changelog-github": "^1.0.1",
     "@changesets/cli": "^3.0.3",
     "@vitest/browser-playwright": "catalog:",
@@ -55,6 +49,7 @@
     "es-check": "^9.8.1",
     "knip": "^6.45.0",
     "playwright": "*",
+    "publint": "^0.3.25",
     "vite-plus": "catalog:",
     "vitest": "catalog:"
   },
