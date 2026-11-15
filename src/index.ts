@@ -27,7 +27,7 @@ export interface Options {
    * This is a proposed addition to the spec that you can track here: https://github.com/w3c/csswg-drafts/pull/5677
    *
    * This library will be updated to reflect any changes to the spec and will provide a migration path.
-   * To be backwards compatible with `Element.scrollIntoViewIfNeeded` if something is not 100% visible it will count as "needs scrolling". If you need a different visibility ratio your best option would be to implement an [Intersection Observer](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API).
+   * To be backwards compatible with `Element.scrollIntoViewIfNeeded` if something is not 100% visible it will count as "needs scrolling". The target's `scroll-margin` and the `scroll-padding` of the scroll containers and the viewport are taken into account. If you need a different visibility ratio your best option would be to implement an [Intersection Observer](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API).
    * @default 'always'
    */
   scrollMode?: ScrollMode
@@ -132,13 +132,12 @@ const isScrollable = (el: Element, skipOverflowHiddenElements?: boolean) => {
 const alignNearest = (
   scrollingEdgeStart: number,
   scrollingEdgeEnd: number,
-  scrollingSize: number,
-  scrollingBorderStart: number,
-  scrollingBorderEnd: number,
   elementEdgeStart: number,
-  elementEdgeEnd: number,
-  elementSize: number
+  elementEdgeEnd: number
 ) => {
+  const scrollingSize = scrollingEdgeEnd - scrollingEdgeStart
+  const elementSize = elementEdgeEnd - elementEdgeStart
+
   /**
    * If element edge A and element edge B are both outside scrolling box edge A and scrolling box edge B
    *
@@ -209,7 +208,7 @@ const alignNearest = (
     (elementEdgeStart <= scrollingEdgeStart && elementSize <= scrollingSize) ||
     (elementEdgeEnd >= scrollingEdgeEnd && elementSize >= scrollingSize)
   ) {
-    return elementEdgeStart - scrollingEdgeStart - scrollingBorderStart
+    return elementEdgeStart - scrollingEdgeStart
   }
 
   /**
@@ -256,11 +255,51 @@ const alignNearest = (
     (elementEdgeEnd > scrollingEdgeEnd && elementSize < scrollingSize) ||
     (elementEdgeStart < scrollingEdgeStart && elementSize > scrollingSize)
   ) {
-    return elementEdgeEnd - scrollingEdgeEnd + scrollingBorderEnd
+    return elementEdgeEnd - scrollingEdgeEnd
   }
 
   return 0
 }
+
+const alignAxis = (
+  position: ScrollLogicalPosition,
+  scrollingEdgeStart: number,
+  scrollingEdgeEnd: number,
+  elementEdgeStart: number,
+  elementEdgeEnd: number
+) => {
+  if (position === 'start') {
+    return elementEdgeStart - scrollingEdgeStart
+  }
+  if (position === 'end') {
+    return elementEdgeEnd - scrollingEdgeEnd
+  }
+  if (position === 'nearest') {
+    return alignNearest(
+      scrollingEdgeStart,
+      scrollingEdgeEnd,
+      elementEdgeStart,
+      elementEdgeEnd
+    )
+  }
+  // position === 'center'
+  return (
+    (elementEdgeStart + elementEdgeEnd) / 2 -
+    (scrollingEdgeStart + scrollingEdgeEnd) / 2
+  )
+}
+
+const isVisible = (
+  region: Region,
+  top: number,
+  right: number,
+  bottom: number,
+  left: number
+) =>
+  top >= region.top &&
+  right <= region.right &&
+  bottom <= region.bottom &&
+  left >= region.left
 
 // Only HTMLElement objects have offset[Width|Height], but any Element might pass by here. `instanceof HTMLElement`
 // would miss elements from other frames, which have their own HTMLElement, so check for the properties instead
@@ -332,6 +371,42 @@ const clampScroll = (
   startIsBottomOrRight
     ? Math.min(0, Math.max(offset, -max))
     : Math.max(0, Math.min(offset, max))
+
+// `scroll-padding` is `auto` (resolved to 0) or a length or percentage, relative to the size of the scrollport
+const resolvePadding = (value: string, scrollportSize: number, scale: number) =>
+  (value.endsWith('%')
+    ? (parseFloat(value) / 100) * scrollportSize
+    : parseFloat(value) * scale) || 0
+
+// The optimal viewing region is the scrollport, inset by `scroll-padding`, in viewport coordinates
+interface Region {
+  top: number
+  right: number
+  bottom: number
+  left: number
+}
+
+const getRegion = (
+  style: CSSStyleDeclaration,
+  scrollport: Region,
+  scaleX: number,
+  scaleY: number
+): Region => {
+  const width = scrollport.right - scrollport.left
+  const height = scrollport.bottom - scrollport.top
+  return {
+    top:
+      scrollport.top + resolvePadding(style.scrollPaddingTop, height, scaleY),
+    right:
+      scrollport.right -
+      resolvePadding(style.scrollPaddingRight, width, scaleX),
+    bottom:
+      scrollport.bottom -
+      resolvePadding(style.scrollPaddingBottom, height, scaleY),
+    left:
+      scrollport.left + resolvePadding(style.scrollPaddingLeft, width, scaleX),
+  }
+}
 
 export const compute = (target: Element, options: Options): ScrollAction[] => {
   if (typeof document === 'undefined') {
@@ -410,9 +485,15 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
     targetFlow.xStartIsRight
   )
 
+  // The viewport's scroll-padding is set on the root element, also when the scrolling element is the body
+  const viewportRegion = getRegion(
+    getComputedStyle(document.documentElement),
+    { top: 0, right: viewportWidth, bottom: viewportHeight, left: 0 },
+    1,
+    1
+  )
+
   const {
-    height: targetHeight,
-    width: targetWidth,
     top: targetTop,
     right: targetRight,
     bottom: targetBottom,
@@ -425,19 +506,15 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
     left: marginLeft,
   } = getScrollMargins(target)
 
-  // These values mutate as we loop through and generate scroll coordinates
-  let targetBlock: number =
-    alignY === 'start' || alignY === 'nearest'
-      ? targetTop - marginTop
-      : alignY === 'end'
-        ? targetBottom + marginBottom
-        : targetTop + targetHeight / 2 - marginTop + marginBottom // alignY === 'center'
-  let targetInline: number =
-    alignX === 'center'
-      ? targetLeft + targetWidth / 2 - marginLeft + marginRight
-      : alignX === 'end'
-        ? targetRight + marginRight
-        : targetLeft - marginLeft // alignX === 'start' || alignX === 'nearest'
+  // The scroll-margin box of the target is what gets aligned, these values mutate as we loop through and generate scroll coordinates
+  const visibleTop = targetTop - marginTop
+  const visibleRight = targetRight + marginRight
+  const visibleBottom = targetBottom + marginBottom
+  const visibleLeft = targetLeft - marginLeft
+  let targetBlockStart = visibleTop
+  let targetBlockEnd = visibleBottom
+  let targetInlineStart = visibleLeft
+  let targetInlineEnd = visibleRight
 
   // Collect new scroll positions
   const computations: ScrollAction[] = []
@@ -450,43 +527,19 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
     const { height, width, top, right, bottom, left } =
       frame.getBoundingClientRect()
 
-    // If the element is already visible we can end it here
-    // @TODO targetBlock and targetInline should be taken into account to be compliant with https://github.com/w3c/csswg-drafts/pull/1805/files#diff-3c17f0e43c20f8ecf89419d49e7ef5e0R1333
-    if (
-      scrollMode === 'if-needed' &&
-      targetTop >= 0 &&
-      targetLeft >= 0 &&
-      targetBottom <= viewportHeight &&
-      targetRight <= viewportWidth &&
-      // scrollingElement is added to the frames array even if it's not scrollable, in which case checking its bounds is not required
-      ((frame === scrollingElement && !isScrollable(frame)) ||
-        (targetTop >= top &&
-          targetBottom <= bottom &&
-          targetLeft >= left &&
-          targetRight <= right))
-    ) {
-      // Break the loop and return the computations for things that are not fully visible
-      return computations
-    }
-
     const frameStyle = getComputedStyle(frame)
     const borderLeft = parseInt(frameStyle.borderLeftWidth, 10)
     const borderTop = parseInt(frameStyle.borderTopWidth, 10)
-    const borderRight = parseInt(frameStyle.borderRightWidth, 10)
-    const borderBottom = parseInt(frameStyle.borderBottomWidth, 10)
-
-    let blockScroll: number = 0
-    let inlineScroll: number = 0
 
     // Borders, plus the scrollbar on whichever side it is, like the left in right-to-left scroll containers
     const insetLeft = hasOffsetWidth(frame) ? frame.clientLeft : borderLeft
     const insetRight = hasOffsetWidth(frame)
       ? frame.offsetWidth - frame.clientLeft - frame.clientWidth
-      : borderRight
+      : parseInt(frameStyle.borderRightWidth, 10)
     const insetTop = hasOffsetHeight(frame) ? frame.clientTop : borderTop
     const insetBottom = hasOffsetHeight(frame)
       ? frame.offsetHeight - frame.clientTop - frame.clientHeight
-      : borderBottom
+      : parseInt(frameStyle.borderBottomWidth, 10)
 
     const scaleX = hasOffsetWidth(frame)
       ? frame.offsetWidth === 0
@@ -499,49 +552,55 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
         : height / frame.offsetHeight
       : 0
 
-    if (scrollingElement === frame) {
-      // Handle viewport logic (document.documentElement or document.body)
-
-      if (alignY === 'start') {
-        blockScroll = targetBlock
-      } else if (alignY === 'end') {
-        blockScroll = targetBlock - viewportHeight
-      } else if (alignY === 'nearest') {
-        blockScroll = alignNearest(
-          scrollY,
-          scrollY + viewportHeight,
-          viewportHeight,
-          borderTop,
-          borderBottom,
-          scrollY + targetBlock,
-          scrollY + targetBlock + targetHeight,
-          targetHeight
+    const isViewport = scrollingElement === frame
+    // The optimal viewing region of the frame, which is its scrollport inset by its scroll-padding
+    const region = isViewport
+      ? viewportRegion
+      : getRegion(
+          frameStyle,
+          {
+            top: top + insetTop * scaleY,
+            right: right - insetRight * scaleX,
+            bottom: bottom - insetBottom * scaleY,
+            left: left + insetLeft * scaleX,
+          },
+          scaleX,
+          scaleY
         )
-      } else {
-        // alignY === 'center' is the default
-        blockScroll = targetBlock - viewportHeight / 2
-      }
 
-      if (alignX === 'start') {
-        inlineScroll = targetInline
-      } else if (alignX === 'center') {
-        inlineScroll = targetInline - viewportWidth / 2
-      } else if (alignX === 'end') {
-        inlineScroll = targetInline - viewportWidth
-      } else {
-        // alignX === 'nearest' is the default
-        inlineScroll = alignNearest(
-          scrollX,
-          scrollX + viewportWidth,
-          viewportWidth,
-          borderLeft,
-          borderRight,
-          scrollX + targetInline,
-          scrollX + targetInline + targetWidth,
-          targetWidth
-        )
-      }
+    // If the element is already visible we can end it here
+    if (
+      scrollMode === 'if-needed' &&
+      // The target has to be visible in the viewport too, which isn't implied by it being visible in an inner frame
+      isVisible(
+        viewportRegion,
+        visibleTop,
+        visibleRight,
+        visibleBottom,
+        visibleLeft
+      ) &&
+      isVisible(region, visibleTop, visibleRight, visibleBottom, visibleLeft)
+    ) {
+      // Break the loop and return the computations for things that are not fully visible
+      return computations
+    }
 
+    let blockScroll: number = alignAxis(
+      alignY,
+      region.top,
+      region.bottom,
+      targetBlockStart,
+      targetBlockEnd
+    )
+    let inlineScroll: number = alignAxis(
+      alignX,
+      region.left,
+      region.right,
+      targetInlineStart,
+      targetInlineEnd
+    )
+
+    if (isViewport) {
       // Apply scroll position offsets and ensure they are within bounds, which are negative when the root's writing
       // mode and direction make it overflow to the left or top
       // @TODO add more test cases to cover this 100%
@@ -559,49 +618,6 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
         rootFlow.xStartIsRight
       )
     } else {
-      // Handle each scrolling frame that might exist between the target and the viewport
-      if (alignY === 'start') {
-        blockScroll = targetBlock - top - insetTop
-      } else if (alignY === 'end') {
-        blockScroll = targetBlock - bottom + insetBottom
-      } else if (alignY === 'nearest') {
-        blockScroll = alignNearest(
-          top,
-          bottom,
-          height,
-          insetTop,
-          insetBottom,
-          targetBlock,
-          targetBlock + targetHeight,
-          targetHeight
-        )
-      } else {
-        // alignY === 'center' is the default
-        blockScroll =
-          targetBlock - (top + height / 2) - (insetTop - insetBottom) / 2
-      }
-
-      if (alignX === 'start') {
-        inlineScroll = targetInline - left - insetLeft
-      } else if (alignX === 'center') {
-        inlineScroll =
-          targetInline - (left + width / 2) - (insetLeft - insetRight) / 2
-      } else if (alignX === 'end') {
-        inlineScroll = targetInline - right + insetRight
-      } else {
-        // alignX === 'nearest' is the default
-        inlineScroll = alignNearest(
-          left,
-          right,
-          width,
-          insetLeft,
-          insetRight,
-          targetInline,
-          targetInline + targetWidth,
-          targetWidth
-        )
-      }
-
       const { scrollLeft, scrollTop } = frame
       // Ensure scroll coordinates are not out of bounds while applying scroll offsets. The offsets are negative on
       // axes where the scroll container's own writing mode and direction make it overflow to the left or top
@@ -624,8 +640,12 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
             )
 
       // Cache the offset so that parent frames can scroll this into view correctly
-      targetBlock += scrollTop - blockScroll
-      targetInline += scrollLeft - inlineScroll
+      const blockShift = scrollTop - blockScroll
+      const inlineShift = scrollLeft - inlineScroll
+      targetBlockStart += blockShift
+      targetBlockEnd += blockShift
+      targetInlineStart += inlineShift
+      targetInlineEnd += inlineShift
     }
 
     computations.push({ el: frame, top: blockScroll, left: inlineScroll })
