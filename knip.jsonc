@@ -6,7 +6,11 @@
     // Loaded by the integration/*.html fixtures with <script type="module">,
     // which Knip doesn't parse
     "integration/utils.js",
+    // Run with vpx, see integration/wpt/README.md
+    "scripts/*.ts",
   ],
+  // Vendored, unmodified web-platform-tests
+  "ignore": ["integration/wpt/upstream/**"],
   // Loaded by `vp pack` (tsdown) for its `publint` and `attw` checks
   "ignoreDependencies": ["@arethetypeswrong/core", "publint"],
 }
