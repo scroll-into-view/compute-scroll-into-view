@@ -110,15 +110,15 @@
   "css/cssom-view/scrollIntoView-horizontal-tb-writing-mode-and-rtl-direction.html": {
     "status": "OK",
     "subtests": {
-      "scrollIntoView({\"block\":\"start\",\"inline\":\"start\"})": "FAIL",
-      "scrollIntoView({\"block\":\"start\",\"inline\":\"center\"})": "FAIL",
-      "scrollIntoView({\"block\":\"start\",\"inline\":\"end\"})": "FAIL",
-      "scrollIntoView({\"block\":\"center\",\"inline\":\"start\"})": "FAIL",
-      "scrollIntoView({\"block\":\"center\",\"inline\":\"center\"})": "FAIL",
-      "scrollIntoView({\"block\":\"center\",\"inline\":\"end\"})": "FAIL",
-      "scrollIntoView({\"block\":\"end\",\"inline\":\"start\"})": "FAIL",
-      "scrollIntoView({\"block\":\"end\",\"inline\":\"center\"})": "FAIL",
-      "scrollIntoView({\"block\":\"end\",\"inline\":\"end\"})": "FAIL"
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"start\"})": "PASS",
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"center\"})": "PASS",
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"end\"})": "PASS",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"start\"})": "PASS",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"center\"})": "PASS",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"end\"})": "PASS",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"start\"})": "PASS",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"center\"})": "PASS",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"end\"})": "PASS"
     }
   },
   "css/cssom-view/scrollIntoView-horizontal-tb-writing-mode.html": {
@@ -225,56 +225,56 @@
     "status": "OK",
     "subtests": {
       "scrollIntoView({\"block\":\"start\",\"inline\":\"start\"})": "PASS",
-      "scrollIntoView({\"block\":\"start\",\"inline\":\"center\"})": "FAIL",
-      "scrollIntoView({\"block\":\"start\",\"inline\":\"end\"})": "FAIL",
-      "scrollIntoView({\"block\":\"center\",\"inline\":\"start\"})": "FAIL",
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"center\"})": "PASS",
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"end\"})": "PASS",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"start\"})": "PASS",
       "scrollIntoView({\"block\":\"center\",\"inline\":\"center\"})": "PASS",
-      "scrollIntoView({\"block\":\"center\",\"inline\":\"end\"})": "FAIL",
-      "scrollIntoView({\"block\":\"end\",\"inline\":\"start\"})": "FAIL",
-      "scrollIntoView({\"block\":\"end\",\"inline\":\"center\"})": "FAIL",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"end\"})": "PASS",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"start\"})": "PASS",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"center\"})": "PASS",
       "scrollIntoView({\"block\":\"end\",\"inline\":\"end\"})": "PASS"
     }
   },
   "css/cssom-view/scrollIntoView-sideways-lr-writing-mode.html": {
     "status": "OK",
     "subtests": {
-      "scrollIntoView({\"block\":\"start\",\"inline\":\"start\"})": "FAIL",
-      "scrollIntoView({\"block\":\"start\",\"inline\":\"center\"})": "FAIL",
-      "scrollIntoView({\"block\":\"start\",\"inline\":\"end\"})": "FAIL",
-      "scrollIntoView({\"block\":\"center\",\"inline\":\"start\"})": "FAIL",
-      "scrollIntoView({\"block\":\"center\",\"inline\":\"center\"})": "FAIL",
-      "scrollIntoView({\"block\":\"center\",\"inline\":\"end\"})": "FAIL",
-      "scrollIntoView({\"block\":\"end\",\"inline\":\"start\"})": "FAIL",
-      "scrollIntoView({\"block\":\"end\",\"inline\":\"center\"})": "FAIL",
-      "scrollIntoView({\"block\":\"end\",\"inline\":\"end\"})": "FAIL"
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"start\"})": "PASS",
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"center\"})": "PASS",
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"end\"})": "PASS",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"start\"})": "PASS",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"center\"})": "PASS",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"end\"})": "PASS",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"start\"})": "PASS",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"center\"})": "PASS",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"end\"})": "PASS"
     }
   },
   "css/cssom-view/scrollIntoView-sideways-rl-writing-mode-and-rtl-direction.html": {
     "status": "OK",
     "subtests": {
-      "scrollIntoView({\"block\":\"start\",\"inline\":\"start\"})": "FAIL",
-      "scrollIntoView({\"block\":\"start\",\"inline\":\"center\"})": "FAIL",
-      "scrollIntoView({\"block\":\"start\",\"inline\":\"end\"})": "FAIL",
-      "scrollIntoView({\"block\":\"center\",\"inline\":\"start\"})": "FAIL",
-      "scrollIntoView({\"block\":\"center\",\"inline\":\"center\"})": "FAIL",
-      "scrollIntoView({\"block\":\"center\",\"inline\":\"end\"})": "FAIL",
-      "scrollIntoView({\"block\":\"end\",\"inline\":\"start\"})": "FAIL",
-      "scrollIntoView({\"block\":\"end\",\"inline\":\"center\"})": "FAIL",
-      "scrollIntoView({\"block\":\"end\",\"inline\":\"end\"})": "FAIL"
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"start\"})": "PASS",
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"center\"})": "PASS",
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"end\"})": "PASS",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"start\"})": "PASS",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"center\"})": "PASS",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"end\"})": "PASS",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"start\"})": "PASS",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"center\"})": "PASS",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"end\"})": "PASS"
     }
   },
   "css/cssom-view/scrollIntoView-sideways-rl-writing-mode.html": {
     "status": "OK",
     "subtests": {
-      "scrollIntoView({\"block\":\"start\",\"inline\":\"start\"})": "FAIL",
-      "scrollIntoView({\"block\":\"start\",\"inline\":\"center\"})": "FAIL",
-      "scrollIntoView({\"block\":\"start\",\"inline\":\"end\"})": "FAIL",
-      "scrollIntoView({\"block\":\"center\",\"inline\":\"start\"})": "FAIL",
-      "scrollIntoView({\"block\":\"center\",\"inline\":\"center\"})": "FAIL",
-      "scrollIntoView({\"block\":\"center\",\"inline\":\"end\"})": "FAIL",
-      "scrollIntoView({\"block\":\"end\",\"inline\":\"start\"})": "FAIL",
-      "scrollIntoView({\"block\":\"end\",\"inline\":\"center\"})": "FAIL",
-      "scrollIntoView({\"block\":\"end\",\"inline\":\"end\"})": "FAIL"
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"start\"})": "PASS",
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"center\"})": "PASS",
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"end\"})": "PASS",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"start\"})": "PASS",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"center\"})": "PASS",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"end\"})": "PASS",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"start\"})": "PASS",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"center\"})": "PASS",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"end\"})": "PASS"
     }
   },
   "css/cssom-view/scrollIntoView-smooth.html": {
@@ -322,43 +322,43 @@
   "css/cssom-view/scrollIntoView-vertical-lr-writing-mode-and-rtl-direction.html": {
     "status": "OK",
     "subtests": {
-      "scrollIntoView({\"block\":\"start\",\"inline\":\"start\"})": "FAIL",
-      "scrollIntoView({\"block\":\"start\",\"inline\":\"center\"})": "FAIL",
-      "scrollIntoView({\"block\":\"start\",\"inline\":\"end\"})": "FAIL",
-      "scrollIntoView({\"block\":\"center\",\"inline\":\"start\"})": "FAIL",
-      "scrollIntoView({\"block\":\"center\",\"inline\":\"center\"})": "FAIL",
-      "scrollIntoView({\"block\":\"center\",\"inline\":\"end\"})": "FAIL",
-      "scrollIntoView({\"block\":\"end\",\"inline\":\"start\"})": "FAIL",
-      "scrollIntoView({\"block\":\"end\",\"inline\":\"center\"})": "FAIL",
-      "scrollIntoView({\"block\":\"end\",\"inline\":\"end\"})": "FAIL"
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"start\"})": "PASS",
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"center\"})": "PASS",
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"end\"})": "PASS",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"start\"})": "PASS",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"center\"})": "PASS",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"end\"})": "PASS",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"start\"})": "PASS",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"center\"})": "PASS",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"end\"})": "PASS"
     }
   },
   "css/cssom-view/scrollIntoView-vertical-lr-writing-mode.html": {
     "status": "OK",
     "subtests": {
       "scrollIntoView({\"block\":\"start\",\"inline\":\"start\"})": "PASS",
-      "scrollIntoView({\"block\":\"start\",\"inline\":\"center\"})": "FAIL",
-      "scrollIntoView({\"block\":\"start\",\"inline\":\"end\"})": "FAIL",
-      "scrollIntoView({\"block\":\"center\",\"inline\":\"start\"})": "FAIL",
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"center\"})": "PASS",
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"end\"})": "PASS",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"start\"})": "PASS",
       "scrollIntoView({\"block\":\"center\",\"inline\":\"center\"})": "PASS",
-      "scrollIntoView({\"block\":\"center\",\"inline\":\"end\"})": "FAIL",
-      "scrollIntoView({\"block\":\"end\",\"inline\":\"start\"})": "FAIL",
-      "scrollIntoView({\"block\":\"end\",\"inline\":\"center\"})": "FAIL",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"end\"})": "PASS",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"start\"})": "PASS",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"center\"})": "PASS",
       "scrollIntoView({\"block\":\"end\",\"inline\":\"end\"})": "PASS"
     }
   },
   "css/cssom-view/scrollIntoView-vertical-rl-writing-mode.html": {
     "status": "OK",
     "subtests": {
-      "scrollIntoView({\"block\":\"start\",\"inline\":\"start\"})": "FAIL",
-      "scrollIntoView({\"block\":\"start\",\"inline\":\"center\"})": "FAIL",
-      "scrollIntoView({\"block\":\"start\",\"inline\":\"end\"})": "FAIL",
-      "scrollIntoView({\"block\":\"center\",\"inline\":\"start\"})": "FAIL",
-      "scrollIntoView({\"block\":\"center\",\"inline\":\"center\"})": "FAIL",
-      "scrollIntoView({\"block\":\"center\",\"inline\":\"end\"})": "FAIL",
-      "scrollIntoView({\"block\":\"end\",\"inline\":\"start\"})": "FAIL",
-      "scrollIntoView({\"block\":\"end\",\"inline\":\"center\"})": "FAIL",
-      "scrollIntoView({\"block\":\"end\",\"inline\":\"end\"})": "FAIL"
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"start\"})": "PASS",
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"center\"})": "PASS",
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"end\"})": "PASS",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"start\"})": "PASS",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"center\"})": "PASS",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"end\"})": "PASS",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"start\"})": "PASS",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"center\"})": "PASS",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"end\"})": "PASS"
     }
   },
   "css/cssom-view/scrollintoview-containingblock-chain.html": {

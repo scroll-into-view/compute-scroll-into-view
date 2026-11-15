@@ -157,7 +157,7 @@ describe('issues', () => {
     expect(computed).toEqual(native)
   })
 
-  test.fails('#821, #907: right-to-left scroll containers get negative scrollLeft', async () => {
+  test('#821, #907: right-to-left scroll containers get negative scrollLeft', async () => {
     const { native, computed } = await page
       .evaluate(() => {
         document.body.innerHTML = `

@@ -13,13 +13,13 @@ export type ScrollMode = 'always' | 'if-needed'
 
 export interface Options {
   /**
-   * Control the logical scroll position on the y-axis. The spec states that the `block` direction is related to the [writing-mode](https://developer.mozilla.org/en-US/docs/Web/CSS/writing-mode), but this is not implemented yet in this library.
-   * This means that `block: 'start'` aligns to the top edge and `block: 'end'` to the bottom.
+   * Control the scroll position in the block direction of the target's [writing-mode](https://developer.mozilla.org/en-US/docs/Web/CSS/writing-mode).
+   * In `horizontal-tb` (the default) `block: 'start'` aligns to the top edge and `block: 'end'` to the bottom, in `vertical-rl` they align to the right and left edges.
    * @default 'center'
    */
   block?: ScrollLogicalPosition
   /**
-   * Like `block` this is affected by the [writing-mode](https://developer.mozilla.org/en-US/docs/Web/CSS/writing-mode). In left-to-right pages `inline: 'start'` will align to the left edge. In right-to-left it should be flipped. This will be supported in a future release.
+   * Control the scroll position in the inline direction of the target's [writing-mode](https://developer.mozilla.org/en-US/docs/Web/CSS/writing-mode) and [direction](https://developer.mozilla.org/en-US/docs/Web/CSS/direction). In left-to-right text `inline: 'start'` aligns to the left edge, in right-to-left text to the right edge. Scroll containers that overflow to the left or top get negative `left` or `top` values, like `scrollLeft` in right-to-left scroll containers.
    * @default 'nearest'
    */
   inline?: ScrollLogicalPosition
@@ -288,14 +288,64 @@ const getScrollMargins = (target: Element) => {
   }
 }
 
+/**
+ * Which axis is the block axis, and whether the start edge of each physical axis is its right or bottom edge, for a
+ * box with this writing mode and direction: https://drafts.csswg.org/css-writing-modes-4/#logical-to-physical
+ * A scroll container whose start edge is on the right or bottom has negative scroll offsets on that axis
+ */
+const getFlowDirections = (style: CSSStyleDeclaration) => {
+  const { writingMode, direction } = style
+  const rtl = direction === 'rtl'
+  // Also matches the legacy `tb`, `tb-rl` values
+  const vertical = /^(vertical|sideways|tb)/.test(writingMode)
+  if (!vertical) {
+    return { vertical, xStartIsRight: rtl, yStartIsBottom: false }
+  }
+  return {
+    vertical,
+    xStartIsRight: !writingMode.endsWith('lr'),
+    // Lines in sideways-lr run bottom to top
+    yStartIsBottom: writingMode === 'sideways-lr' ? !rtl : rtl,
+  }
+}
+
+// `start` and `end` of a physical axis, where `start` is the top or left edge
+const toPhysical = (
+  position: ScrollLogicalPosition,
+  startIsBottomOrRight: boolean
+): ScrollLogicalPosition =>
+  !startIsBottomOrRight
+    ? position
+    : position === 'start'
+      ? 'end'
+      : position === 'end'
+        ? 'start'
+        : position
+
+// Keeps a scroll offset within the scroll container's range, which is negative when its start edge is the right or
+// bottom one
+const clampScroll = (
+  offset: number,
+  max: number,
+  startIsBottomOrRight: boolean
+) =>
+  startIsBottomOrRight
+    ? Math.min(0, Math.max(offset, -max))
+    : Math.max(0, Math.min(offset, max))
+
 export const compute = (target: Element, options: Options): ScrollAction[] => {
   if (typeof document === 'undefined') {
     // If there's no DOM we assume it's not in a browser environment
     return []
   }
 
-  const { scrollMode, block, inline, boundary, skipOverflowHiddenElements } =
-    options
+  const {
+    scrollMode,
+    block: logicalBlock = 'center',
+    inline: logicalInline = 'nearest',
+    boundary,
+    skipOverflowHiddenElements,
+  } = options
   // Allow using a callback to check the boundary
   // The default behavior is to check if the current target matches the boundary element or not
   // If undefined it'll check that target is never undefined (can happen as we recurse up the tree)
@@ -347,6 +397,19 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
   const viewportHeight = window.visualViewport?.height ?? innerHeight
   const { scrollX, scrollY } = window
 
+  // Alignment follows the target's writing mode and direction in every scroll container, like browsers do, rather
+  // than each scroll container's own as the spec says: https://github.com/w3c/csswg-drafts/issues/11796
+  // From here on `start` means the top or left edge
+  const targetFlow = getFlowDirections(getComputedStyle(target))
+  const alignY = toPhysical(
+    targetFlow.vertical ? logicalInline : logicalBlock,
+    targetFlow.yStartIsBottom
+  )
+  const alignX = toPhysical(
+    targetFlow.vertical ? logicalBlock : logicalInline,
+    targetFlow.xStartIsRight
+  )
+
   const {
     height: targetHeight,
     width: targetWidth,
@@ -364,17 +427,17 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
 
   // These values mutate as we loop through and generate scroll coordinates
   let targetBlock: number =
-    block === 'start' || block === 'nearest'
+    alignY === 'start' || alignY === 'nearest'
       ? targetTop - marginTop
-      : block === 'end'
+      : alignY === 'end'
         ? targetBottom + marginBottom
-        : targetTop + targetHeight / 2 - marginTop + marginBottom // block === 'center
+        : targetTop + targetHeight / 2 - marginTop + marginBottom // alignY === 'center'
   let targetInline: number =
-    inline === 'center'
+    alignX === 'center'
       ? targetLeft + targetWidth / 2 - marginLeft + marginRight
-      : inline === 'end'
+      : alignX === 'end'
         ? targetRight + marginRight
-        : targetLeft - marginLeft // inline === 'start || inline === 'nearest
+        : targetLeft - marginLeft // alignX === 'start' || alignX === 'nearest'
 
   // Collect new scroll positions
   const computations: ScrollAction[] = []
@@ -415,12 +478,15 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
     let blockScroll: number = 0
     let inlineScroll: number = 0
 
-    const scrollbarWidth = hasOffsetWidth(frame)
-      ? frame.offsetWidth - frame.clientWidth - borderLeft - borderRight
-      : 0
-    const scrollbarHeight = hasOffsetHeight(frame)
-      ? frame.offsetHeight - frame.clientHeight - borderTop - borderBottom
-      : 0
+    // Borders, plus the scrollbar on whichever side it is, like the left in right-to-left scroll containers
+    const insetLeft = hasOffsetWidth(frame) ? frame.clientLeft : borderLeft
+    const insetRight = hasOffsetWidth(frame)
+      ? frame.offsetWidth - frame.clientLeft - frame.clientWidth
+      : borderRight
+    const insetTop = hasOffsetHeight(frame) ? frame.clientTop : borderTop
+    const insetBottom = hasOffsetHeight(frame)
+      ? frame.offsetHeight - frame.clientTop - frame.clientHeight
+      : borderBottom
 
     const scaleX = hasOffsetWidth(frame)
       ? frame.offsetWidth === 0
@@ -436,11 +502,11 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
     if (scrollingElement === frame) {
       // Handle viewport logic (document.documentElement or document.body)
 
-      if (block === 'start') {
+      if (alignY === 'start') {
         blockScroll = targetBlock
-      } else if (block === 'end') {
+      } else if (alignY === 'end') {
         blockScroll = targetBlock - viewportHeight
-      } else if (block === 'nearest') {
+      } else if (alignY === 'nearest') {
         blockScroll = alignNearest(
           scrollY,
           scrollY + viewportHeight,
@@ -452,18 +518,18 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
           targetHeight
         )
       } else {
-        // block === 'center' is the default
+        // alignY === 'center' is the default
         blockScroll = targetBlock - viewportHeight / 2
       }
 
-      if (inline === 'start') {
+      if (alignX === 'start') {
         inlineScroll = targetInline
-      } else if (inline === 'center') {
+      } else if (alignX === 'center') {
         inlineScroll = targetInline - viewportWidth / 2
-      } else if (inline === 'end') {
+      } else if (alignX === 'end') {
         inlineScroll = targetInline - viewportWidth
       } else {
-        // inline === 'nearest' is the default
+        // alignX === 'nearest' is the default
         inlineScroll = alignNearest(
           scrollX,
           scrollX + viewportWidth,
@@ -476,46 +542,60 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
         )
       }
 
-      // Apply scroll position offsets and ensure they are within bounds
+      // Apply scroll position offsets and ensure they are within bounds, which are negative when the root's writing
+      // mode and direction make it overflow to the left or top
       // @TODO add more test cases to cover this 100%
-      blockScroll = Math.max(0, blockScroll + scrollY)
-      inlineScroll = Math.max(0, inlineScroll + scrollX)
+      const rootFlow = getFlowDirections(
+        getComputedStyle(document.documentElement)
+      )
+      blockScroll = clampScroll(
+        blockScroll + scrollY,
+        Infinity,
+        rootFlow.yStartIsBottom
+      )
+      inlineScroll = clampScroll(
+        inlineScroll + scrollX,
+        Infinity,
+        rootFlow.xStartIsRight
+      )
     } else {
       // Handle each scrolling frame that might exist between the target and the viewport
-      if (block === 'start') {
-        blockScroll = targetBlock - top - borderTop
-      } else if (block === 'end') {
-        blockScroll = targetBlock - bottom + borderBottom + scrollbarHeight
-      } else if (block === 'nearest') {
+      if (alignY === 'start') {
+        blockScroll = targetBlock - top - insetTop
+      } else if (alignY === 'end') {
+        blockScroll = targetBlock - bottom + insetBottom
+      } else if (alignY === 'nearest') {
         blockScroll = alignNearest(
           top,
           bottom,
           height,
-          borderTop,
-          borderBottom + scrollbarHeight,
+          insetTop,
+          insetBottom,
           targetBlock,
           targetBlock + targetHeight,
           targetHeight
         )
       } else {
-        // block === 'center' is the default
-        blockScroll = targetBlock - (top + height / 2) + scrollbarHeight / 2
+        // alignY === 'center' is the default
+        blockScroll =
+          targetBlock - (top + height / 2) - (insetTop - insetBottom) / 2
       }
 
-      if (inline === 'start') {
-        inlineScroll = targetInline - left - borderLeft
-      } else if (inline === 'center') {
-        inlineScroll = targetInline - (left + width / 2) + scrollbarWidth / 2
-      } else if (inline === 'end') {
-        inlineScroll = targetInline - right + borderRight + scrollbarWidth
+      if (alignX === 'start') {
+        inlineScroll = targetInline - left - insetLeft
+      } else if (alignX === 'center') {
+        inlineScroll =
+          targetInline - (left + width / 2) - (insetLeft - insetRight) / 2
+      } else if (alignX === 'end') {
+        inlineScroll = targetInline - right + insetRight
       } else {
-        // inline === 'nearest' is the default
+        // alignX === 'nearest' is the default
         inlineScroll = alignNearest(
           left,
           right,
           width,
-          borderLeft,
-          borderRight + scrollbarWidth,
+          insetLeft,
+          insetRight,
           targetInline,
           targetInline + targetWidth,
           targetWidth
@@ -523,26 +603,24 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
       }
 
       const { scrollLeft, scrollTop } = frame
-      // Ensure scroll coordinates are not out of bounds while applying scroll offsets
+      // Ensure scroll coordinates are not out of bounds while applying scroll offsets. The offsets are negative on
+      // axes where the scroll container's own writing mode and direction make it overflow to the left or top
+      const frameFlow = getFlowDirections(frameStyle)
       blockScroll =
         scaleY === 0
           ? 0
-          : Math.max(
-              0,
-              Math.min(
-                scrollTop + blockScroll / scaleY,
-                frame.scrollHeight - height / scaleY + scrollbarHeight
-              )
+          : clampScroll(
+              scrollTop + blockScroll / scaleY,
+              frame.scrollHeight - frame.clientHeight,
+              frameFlow.yStartIsBottom
             )
       inlineScroll =
         scaleX === 0
           ? 0
-          : Math.max(
-              0,
-              Math.min(
-                scrollLeft + inlineScroll / scaleX,
-                frame.scrollWidth - width / scaleX + scrollbarWidth
-              )
+          : clampScroll(
+              scrollLeft + inlineScroll / scaleX,
+              frame.scrollWidth - frame.clientWidth,
+              frameFlow.xStartIsRight
             )
 
       // Cache the offset so that parent frames can scroll this into view correctly
