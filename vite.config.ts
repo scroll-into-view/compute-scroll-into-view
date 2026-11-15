@@ -119,7 +119,11 @@ export default defineConfig({
     },
     browser: {
       enabled: true,
-      provider: playwright(),
+      // Chromium turns smooth scrolling off when the OS has animations off, like on GitHub's Windows runners, which
+      // makes the web-platform-tests for `behavior: 'smooth'` fail there
+      provider: playwright({
+        launchOptions: { args: ['--enable-smooth-scrolling'] },
+      }),
       headless: true,
       instances: [{ browser: 'chromium' }],
       commands: {
