@@ -1,0 +1,434 @@
+{
+  "css/css-contain/content-visibility/content-visibility-vs-scrollIntoView-003.html": {
+    "status": "TIMEOUT",
+    "subtests": {
+      "ContentVisibilityAutoStateChange fires trece when `scrollIntoView` a descendant of `content-visibility:auto` which is hidden after scrolling": "TIMEOUT"
+    }
+  },
+  "css/css-images/object-fit-svg-scroll-into-view.html": {
+    "status": "OK",
+    "subtests": {
+      "scrollIntoView scrolls to the position of the element in the fitted SVG document": "FAIL"
+    }
+  },
+  "css/css-overflow/single-axis-scroll-into-view-rtl.html": {
+    "status": "OK",
+    "subtests": {
+      "scrollIntoView() respects single-axis limits independently on each ancestor in RTL": "FAIL"
+    }
+  },
+  "css/css-overflow/single-axis-scroll-into-view.html": {
+    "status": "OK",
+    "subtests": {
+      "scrollIntoView() respects single-axis limits independently on each ancestor": "FAIL"
+    }
+  },
+  "css/css-position/sticky/position-sticky-scrollIntoView.html": {
+    "status": "OK",
+    "subtests": {
+      "scrolling a sticky element into view should use its unshifted position": "FAIL"
+    }
+  },
+  "css/css-scroll-snap/nested-scrollIntoView-snaps.html": {
+    "status": "OK",
+    "subtests": {
+      "All the scrollers affected by scrollIntoView should land on a snap position if one exists. Otherwise, land according to the specified alignment": "FAIL"
+    }
+  },
+  "css/css-scroll-snap/scroll-margin-overflow-ancestor.html": {
+    "status": "OK",
+    "subtests": {
+      "scroll-margin is respected when overflowing an overflow: visible container": "PASS",
+      "scroll-margin is respected when overflowing an overflow: clip container": "PASS",
+      "scroll-margin is respected when overflowing an overflow: auto container": "FAIL",
+      "scroll-margin and scroll-padding are respected when overflowing an overflow: auto container": "FAIL"
+    }
+  },
+  "css/css-scroll-snap/scroll-padding-and-margin.html": {
+    "status": "OK",
+    "subtests": {
+      "scroll-padding-and-margin": "FAIL",
+      "scroll-padding-and-margin 1": "FAIL"
+    }
+  },
+  "css/css-scroll-snap/scroll-target-margin-006.html": {
+    "status": "OK",
+    "subtests": {
+      "scroll-margin is taken into account when scrolling an inline element into view": "PASS"
+    }
+  },
+  "css/css-scroll-snap/snap-to-empty-sized-element.html": {
+    "status": "OK",
+    "subtests": {
+      "Resnap to empty sized element": "PASS"
+    }
+  },
+  "css/cssom-view/scroll-behavior-scrollintoview-nested.html": {
+    "status": "OK",
+    "subtests": {
+      "Make sure the page is ready for animation.": "PASS",
+      "scrollIntoView with nested elements with different scroll-behavior": "PASS"
+    }
+  },
+  "css/cssom-view/scrollIntoView-align-scrollport-covering-child.html": {
+    "status": "OK",
+    "subtests": {
+      "scrollIntoView scrolls scrollport-covering child in both axes": "PASS"
+    }
+  },
+  "css/cssom-view/scrollIntoView-container.html": {
+    "status": "OK",
+    "subtests": {
+      "scrollIntoView() defaults to scrolling ancestors": "PASS",
+      "scrollIntoView({container: 'all'}) scrolls ancestors": "PASS",
+      "scrollIntoView({container: 'nearest'}) only scrolls nearest scroll container": "FAIL",
+      "scrollIntoView({container: 'nearest'}) doesn't stop at itself": "PASS",
+      "scrollIntoView({container: 'nearest'}) doesn't propagate to outer frames": "PASS"
+    }
+  },
+  "css/cssom-view/scrollIntoView-fixed-outside-of-viewport.html": {
+    "status": "OK",
+    "subtests": {
+      "Element.scrollIntoView doesn't scroll a position:fixed element outside of the layout viewport": "PASS"
+    }
+  },
+  "css/cssom-view/scrollIntoView-fixed.html": {
+    "status": "OK",
+    "subtests": {
+      "[Box A] scrollIntoView from unscrollable position:fixed": "FAIL",
+      "[Box B] scrollIntoView from unscrollable position:fixed in iframe": "FAIL",
+      "[Box C] scrollIntoView from scrollable position:fixed": "FAIL",
+      "[Box D] scrollIntoView from scrollable position:fixed in iframe": "FAIL"
+    }
+  },
+  "css/cssom-view/scrollIntoView-horizontal-partially-visible.html": {
+    "status": "OK",
+    "subtests": {
+      "scrollIntoView scrolls partially-visible child in both axes": "PASS"
+    }
+  },
+  "css/cssom-view/scrollIntoView-horizontal-tb-writing-mode-and-rtl-direction.html": {
+    "status": "OK",
+    "subtests": {
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"start\"})": "FAIL",
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"center\"})": "FAIL",
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"end\"})": "FAIL",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"start\"})": "FAIL",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"center\"})": "FAIL",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"end\"})": "FAIL",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"start\"})": "FAIL",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"center\"})": "FAIL",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"end\"})": "FAIL"
+    }
+  },
+  "css/cssom-view/scrollIntoView-horizontal-tb-writing-mode.html": {
+    "status": "OK",
+    "subtests": {
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"start\"})": "PASS",
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"center\"})": "PASS",
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"end\"})": "PASS",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"start\"})": "PASS",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"center\"})": "PASS",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"end\"})": "PASS",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"start\"})": "PASS",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"center\"})": "PASS",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"end\"})": "PASS"
+    }
+  },
+  "css/cssom-view/scrollIntoView-iframes.html": {
+    "status": "OK",
+    "subtests": {
+      "scrollIntoView in same-origin iframe can scroll in inner window": "PASS",
+      "scrollIntoView in same-origin iframe can scroll in parent window": "FAIL",
+      "scrollIntoView in cross-origin iframe can scroll in inner window": "PASS",
+      "scrollIntoView in cross-origin iframe can't scroll in parent window": "PASS"
+    }
+  },
+  "css/cssom-view/scrollIntoView-inline-image.html": {
+    "status": "OK",
+    "subtests": {
+      "Scrolling an inline element with a large line height uses the bounding rect": "PASS"
+    }
+  },
+  "css/cssom-view/scrollIntoView-multiple-nested.html": {
+    "status": "OK",
+    "subtests": {
+      "Simultaneous smooth scrollIntoViews run to completion": "PASS",
+      "Simultaneous smooth,instant scrollIntoViews run to completion": "PASS",
+      "Simultaneous instant,smooth scrollIntoViews run to completion": "PASS",
+      "Simultaneous instant scrollIntoViews run to completion": "PASS"
+    }
+  },
+  "css/cssom-view/scrollIntoView-multiple.html": {
+    "status": "OK",
+    "subtests": {
+      "Simultaneous smooth scrollIntoViews run to completion": "PASS",
+      "Simultaneous smooth,instant scrollIntoViews run to completion": "PASS",
+      "Simultaneous instant,smooth scrollIntoViews run to completion": "PASS",
+      "Simultaneous instant scrollIntoViews run to completion": "PASS"
+    }
+  },
+  "css/cssom-view/scrollIntoView-nearest-oversized-element.html": {
+    "status": "OK",
+    "subtests": {
+      "scrollIntoView nearest aligns an oversized target before the scrollport to its closest (right/bottom) edge": "PASS"
+    }
+  },
+  "css/cssom-view/scrollIntoView-nearest-visible-element.html": {
+    "status": "OK",
+    "subtests": {
+      "scrollIntoView with `nearest` block and inline option shouldn't scroll a completely visible element": "PASS"
+    }
+  },
+  "css/cssom-view/scrollIntoView-root-overflow-clip.html": {
+    "status": "OK",
+    "subtests": {
+      "scrollIntoView scrolls the viewport when overflow-x: clip is applied to the root element": "PASS",
+      "scrollIntoView scrolls the viewport when overflow-y: clip is applied to the root element": "PASS"
+    }
+  },
+  "css/cssom-view/scrollIntoView-scrollMargin.html": {
+    "status": "OK",
+    "subtests": {
+      "scrollIntoView({block: \"center\", inline: \"center\"})": "FAIL",
+      "scrollIntoView({block: \"start\", inline: \"start\"})": "PASS",
+      "scrollIntoView({block: \"end\", inline: \"end\"})": "PASS"
+    }
+  },
+  "css/cssom-view/scrollIntoView-scrollPadding.html": {
+    "status": "OK",
+    "subtests": {
+      "scrollIntoView({block: \"center\", inline: \"center\"})": "FAIL",
+      "scrollIntoView({block: \"start\", inline: \"start\"})": "FAIL",
+      "scrollIntoView({block: \"end\", inline: \"end\"})": "FAIL"
+    }
+  },
+  "css/cssom-view/scrollIntoView-scrolling-box-with-large-border.html": {
+    "status": "OK",
+    "subtests": {
+      "scrollIntoView takes into account the border of the scroller": "PASS"
+    }
+  },
+  "css/cssom-view/scrollIntoView-scrolling-container.html": {
+    "status": "OK",
+    "subtests": {
+      "scrollIntoView on a scrolling container should scroll its outer scrollers into view but not scroll itself.": "PASS"
+    }
+  },
+  "css/cssom-view/scrollIntoView-shadow.html": {
+    "status": "OK",
+    "subtests": {
+      "scrollIntoView should behave correctly if applies to shadow dom elements": "PASS"
+    }
+  },
+  "css/cssom-view/scrollIntoView-sideways-lr-writing-mode-and-rtl-direction.html": {
+    "status": "OK",
+    "subtests": {
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"start\"})": "PASS",
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"center\"})": "FAIL",
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"end\"})": "FAIL",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"start\"})": "FAIL",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"center\"})": "PASS",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"end\"})": "FAIL",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"start\"})": "FAIL",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"center\"})": "FAIL",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"end\"})": "PASS"
+    }
+  },
+  "css/cssom-view/scrollIntoView-sideways-lr-writing-mode.html": {
+    "status": "OK",
+    "subtests": {
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"start\"})": "FAIL",
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"center\"})": "FAIL",
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"end\"})": "FAIL",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"start\"})": "FAIL",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"center\"})": "FAIL",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"end\"})": "FAIL",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"start\"})": "FAIL",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"center\"})": "FAIL",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"end\"})": "FAIL"
+    }
+  },
+  "css/cssom-view/scrollIntoView-sideways-rl-writing-mode-and-rtl-direction.html": {
+    "status": "OK",
+    "subtests": {
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"start\"})": "FAIL",
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"center\"})": "FAIL",
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"end\"})": "FAIL",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"start\"})": "FAIL",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"center\"})": "FAIL",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"end\"})": "FAIL",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"start\"})": "FAIL",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"center\"})": "FAIL",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"end\"})": "FAIL"
+    }
+  },
+  "css/cssom-view/scrollIntoView-sideways-rl-writing-mode.html": {
+    "status": "OK",
+    "subtests": {
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"start\"})": "FAIL",
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"center\"})": "FAIL",
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"end\"})": "FAIL",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"start\"})": "FAIL",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"center\"})": "FAIL",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"end\"})": "FAIL",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"start\"})": "FAIL",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"center\"})": "FAIL",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"end\"})": "FAIL"
+    }
+  },
+  "css/cssom-view/scrollIntoView-smooth.html": {
+    "status": "OK",
+    "subtests": {
+      "Smooth scrollIntoView should scroll the element to the 'nearest' position": "PASS",
+      "Smooth scrollIntoView should scroll the element to the 'start' position": "PASS",
+      "Smooth scrollIntoView should scroll the element to the 'center' position": "PASS",
+      "Smooth scrollIntoView should scroll the element to the 'end' position": "PASS"
+    }
+  },
+  "css/cssom-view/scrollIntoView-stuck.tentative.html": {
+    "status": "OK",
+    "subtests": {
+      "CSSOM View - scrollIntoView doesn't consider scroll-padding when target is stuck": "PASS"
+    }
+  },
+  "css/cssom-view/scrollIntoView-svg-container.html": {
+    "status": "OK",
+    "subtests": {
+      "scrollIntoView on an SVG container element, group": "PASS",
+      "scrollIntoView on an SVG container element, group, nearest on a fully visible element": "PASS",
+      "scrollIntoView on an SVG container element, translated": "PASS",
+      "scrollIntoView on an SVG container element, translated, nearest on a fully visible element": "PASS",
+      "scrollIntoView on an SVG container element, nested": "PASS",
+      "scrollIntoView on an SVG container element, nested, nearest on a fully visible element": "PASS",
+      "scrollIntoView on an SVG container element, use": "PASS",
+      "scrollIntoView on an SVG container element, use, nearest on a fully visible element": "PASS"
+    }
+  },
+  "css/cssom-view/scrollIntoView-svg-shape.html": {
+    "status": "OK",
+    "subtests": {
+      "scrollIntoView on an SVG shape element, geometry": "PASS",
+      "scrollIntoView on an SVG shape element, translated": "PASS",
+      "scrollIntoView on an SVG shape element, rotated": "PASS"
+    }
+  },
+  "css/cssom-view/scrollIntoView-then-scrollBy.html": {
+    "status": "OK",
+    "subtests": {
+      "scrollIntoView() followed by a deferred scrollBy() preserves the scroll correction": "FAIL"
+    }
+  },
+  "css/cssom-view/scrollIntoView-vertical-lr-writing-mode-and-rtl-direction.html": {
+    "status": "OK",
+    "subtests": {
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"start\"})": "FAIL",
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"center\"})": "FAIL",
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"end\"})": "FAIL",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"start\"})": "FAIL",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"center\"})": "FAIL",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"end\"})": "FAIL",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"start\"})": "FAIL",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"center\"})": "FAIL",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"end\"})": "FAIL"
+    }
+  },
+  "css/cssom-view/scrollIntoView-vertical-lr-writing-mode.html": {
+    "status": "OK",
+    "subtests": {
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"start\"})": "PASS",
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"center\"})": "FAIL",
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"end\"})": "FAIL",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"start\"})": "FAIL",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"center\"})": "PASS",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"end\"})": "FAIL",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"start\"})": "FAIL",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"center\"})": "FAIL",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"end\"})": "PASS"
+    }
+  },
+  "css/cssom-view/scrollIntoView-vertical-rl-writing-mode.html": {
+    "status": "OK",
+    "subtests": {
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"start\"})": "FAIL",
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"center\"})": "FAIL",
+      "scrollIntoView({\"block\":\"start\",\"inline\":\"end\"})": "FAIL",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"start\"})": "FAIL",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"center\"})": "FAIL",
+      "scrollIntoView({\"block\":\"center\",\"inline\":\"end\"})": "FAIL",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"start\"})": "FAIL",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"center\"})": "FAIL",
+      "scrollIntoView({\"block\":\"end\",\"inline\":\"end\"})": "FAIL"
+    }
+  },
+  "css/cssom-view/scrollintoview-containingblock-chain.html": {
+    "status": "OK",
+    "subtests": {
+      "scrollIntoView should not scroll ancestor overflow:scroll elements that are not containing block ancestors": "FAIL"
+    }
+  },
+  "css/cssom-view/scrollintoview-zero-height-item.html": {
+    "status": "OK",
+    "subtests": {
+      "scrollIntoView on zero height item": "PASS"
+    }
+  },
+  "css/cssom-view/scrollintoview.html": {
+    "status": "OK",
+    "subtests": {
+      "scrollIntoView() starting at left,top": "PASS",
+      "scrollIntoView() starting at left,bottom": "PASS",
+      "scrollIntoView() starting at right,top": "PASS",
+      "scrollIntoView() starting at right,bottom": "PASS",
+      "scrollIntoView(true) starting at left,top": "PASS",
+      "scrollIntoView(true) starting at left,bottom": "PASS",
+      "scrollIntoView(true) starting at right,top": "PASS",
+      "scrollIntoView(true) starting at right,bottom": "PASS",
+      "scrollIntoView(false) starting at left,top": "PASS",
+      "scrollIntoView(false) starting at left,bottom": "PASS",
+      "scrollIntoView(false) starting at right,top": "PASS",
+      "scrollIntoView(false) starting at right,bottom": "PASS",
+      "scrollIntoView(undefined) starting at left,top": "PASS",
+      "scrollIntoView(undefined) starting at left,bottom": "PASS",
+      "scrollIntoView(undefined) starting at right,top": "PASS",
+      "scrollIntoView(undefined) starting at right,bottom": "PASS",
+      "scrollIntoView(null) starting at left,top": "PASS",
+      "scrollIntoView(null) starting at left,bottom": "PASS",
+      "scrollIntoView(null) starting at right,top": "PASS",
+      "scrollIntoView(null) starting at right,bottom": "PASS",
+      "scrollIntoView({}) starting at left,top": "PASS",
+      "scrollIntoView({}) starting at left,bottom": "PASS",
+      "scrollIntoView({}) starting at right,top": "PASS",
+      "scrollIntoView({}) starting at right,bottom": "PASS",
+      "scrollIntoView({block: \"center\", inline: \"center\"}) starting at left,top": "PASS",
+      "scrollIntoView({block: \"center\", inline: \"center\"}) starting at left,bottom": "PASS",
+      "scrollIntoView({block: \"center\", inline: \"center\"}) starting at right,top": "PASS",
+      "scrollIntoView({block: \"center\", inline: \"center\"}) starting at right,bottom": "PASS",
+      "scrollIntoView({block: \"start\", inline: \"start\"}) starting at left,top": "PASS",
+      "scrollIntoView({block: \"start\", inline: \"start\"}) starting at left,bottom": "PASS",
+      "scrollIntoView({block: \"start\", inline: \"start\"}) starting at right,top": "PASS",
+      "scrollIntoView({block: \"start\", inline: \"start\"}) starting at right,bottom": "PASS",
+      "scrollIntoView({block: \"end\", inline: \"end\"}) starting at left,top": "PASS",
+      "scrollIntoView({block: \"end\", inline: \"end\"}) starting at left,bottom": "PASS",
+      "scrollIntoView({block: \"end\", inline: \"end\"}) starting at right,top": "PASS",
+      "scrollIntoView({block: \"end\", inline: \"end\"}) starting at right,bottom": "PASS",
+      "scrollIntoView({block: \"nearest\", inline: \"nearest\"}) starting at left,top": "PASS",
+      "scrollIntoView({block: \"nearest\", inline: \"nearest\"}) starting at left,bottom": "PASS",
+      "scrollIntoView({block: \"nearest\", inline: \"nearest\"}) starting at right,top": "PASS",
+      "scrollIntoView({block: \"nearest\", inline: \"nearest\"}) starting at right,bottom": "PASS"
+    }
+  },
+  "css/cssom-view/smooth-scrollIntoView-with-smooth-fragment-scroll.html": {
+    "status": "OK",
+    "subtests": {
+      "Smooth scroll to hash fragment (on pageload) alongside smooth scrollIntoView runs to completion.": "PASS",
+      "Smooth scroll to hash fragment (on click) alongside smooth scrollIntoView runs to completion.": "PASS"
+    }
+  },
+  "focus/focus-centers-element.html": {
+    "status": "OK",
+    "subtests": {
+      "Element.focus() center in both directions": "PASS"
+    }
+  }
+}

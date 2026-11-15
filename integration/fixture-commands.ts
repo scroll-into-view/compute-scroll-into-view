@@ -56,17 +56,25 @@ export async function closeFixture(
   return coverage
 }
 
+/** Replaces the test file's fixture page with a new, blank one */
+export async function openFixturePage(
+  context: BrowserCommandContext,
+  { trackErrors = true } = {}
+): Promise<Page> {
+  await close(context)
+  const page = await context.context.newPage()
+  const fixture: Fixture = { page, errors: [] }
+  if (trackErrors) page.on('pageerror', (error) => fixture.errors.push(error))
+  fixtures.set(key(context), fixture)
+  await page.setViewportSize({ width: 800, height: 600 })
+  return page
+}
+
 export async function gotoFixture(
   context: BrowserCommandContext,
   path: string
 ): Promise<void> {
-  await close(context)
-  const page = await context.context.newPage()
-  const fixture: Fixture = { page, errors: [] }
-  page.on('pageerror', (error) => fixture.errors.push(error))
-  fixtures.set(key(context), fixture)
-
-  await page.setViewportSize({ width: 800, height: 600 })
+  const page = await openFixturePage(context)
   const response = await page.goto(new URL(path, context.page.url()).href)
   if (!response?.ok()) {
     throw new Error(`Failed to load ${path}: HTTP ${response?.status()}`)
