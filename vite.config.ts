@@ -41,7 +41,6 @@ export default defineConfig({
         // separate tests would rename the existing snapshot keys
         files: [
           'integration/overflow_auto.test.js',
-          'integration/scroll_margin.test.js',
           'integration/viewport.test.js',
         ],
         rules: {
