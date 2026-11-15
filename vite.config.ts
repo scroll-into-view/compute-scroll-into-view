@@ -13,7 +13,37 @@ export default defineConfig({
   },
   lint: {
     jsPlugins: [{ name: 'vite-plus', specifier: 'vite-plus/oxlint-plugin' }],
-    rules: { 'vite-plus/prefer-vite-plus-imports': 'error' },
+    // Listing plugins replaces Oxlint's defaults (eslint, typescript, unicorn, oxc), so they're repeated here
+    plugins: [
+      'eslint',
+      'typescript',
+      'unicorn',
+      'oxc',
+      'import',
+      'promise',
+      'vitest',
+      'jsdoc',
+    ],
+    // Whole categories, so rules that new Vite+/Oxlint releases add to them apply automatically
+    categories: { correctness: 'error', suspicious: 'error', perf: 'error' },
+    rules: {
+      'vite-plus/prefer-vite-plus-imports': 'error',
+      'typescript/switch-exhaustiveness-check': 'error',
+    },
+    overrides: [
+      {
+        // These tests snapshot the 'nearest' cases a second time from another scroll position. Snapshot hints or
+        // separate tests would rename the existing snapshot keys
+        files: [
+          'integration/overflow_auto.test.js',
+          'integration/viewport.test.js',
+        ],
+        rules: {
+          'vitest/no-conditional-expect': 'off',
+          'vitest/prefer-snapshot-hint': 'off',
+        },
+      },
+    ],
     options: { typeAware: true, typeCheck: true },
   },
   pack: {
