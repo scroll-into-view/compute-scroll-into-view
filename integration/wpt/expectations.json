@@ -47,8 +47,8 @@
   "css/css-scroll-snap/scroll-padding-and-margin.html": {
     "status": "OK",
     "subtests": {
-      "scroll-padding-and-margin": "FAIL",
-      "scroll-padding-and-margin 1": "FAIL"
+      "scroll-padding-and-margin": "PASS",
+      "scroll-padding-and-margin 1": "PASS"
     }
   },
   "css/css-scroll-snap/scroll-target-margin-006.html": {
@@ -190,7 +190,7 @@
   "css/cssom-view/scrollIntoView-scrollMargin.html": {
     "status": "OK",
     "subtests": {
-      "scrollIntoView({block: \"center\", inline: \"center\"})": "FAIL",
+      "scrollIntoView({block: \"center\", inline: \"center\"})": "PASS",
       "scrollIntoView({block: \"start\", inline: \"start\"})": "PASS",
       "scrollIntoView({block: \"end\", inline: \"end\"})": "PASS"
     }
@@ -198,9 +198,9 @@
   "css/cssom-view/scrollIntoView-scrollPadding.html": {
     "status": "OK",
     "subtests": {
-      "scrollIntoView({block: \"center\", inline: \"center\"})": "FAIL",
-      "scrollIntoView({block: \"start\", inline: \"start\"})": "FAIL",
-      "scrollIntoView({block: \"end\", inline: \"end\"})": "FAIL"
+      "scrollIntoView({block: \"center\", inline: \"center\"})": "PASS",
+      "scrollIntoView({block: \"start\", inline: \"start\"})": "PASS",
+      "scrollIntoView({block: \"end\", inline: \"end\"})": "PASS"
     }
   },
   "css/cssom-view/scrollIntoView-scrolling-box-with-large-border.html": {

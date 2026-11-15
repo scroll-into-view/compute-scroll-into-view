@@ -67,7 +67,7 @@ describe('issues', () => {
     expect(computed).toEqual(native)
   })
 
-  test.fails('#831: scroll-padding on the scroll container is respected', async () => {
+  test('#831: scroll-padding on the scroll container is respected', async () => {
     const { native, computed } = await page
       .evaluate(() => {
         document.body.innerHTML = `
@@ -88,7 +88,7 @@ describe('issues', () => {
     expect(computed).toEqual(native)
   })
 
-  test.fails('#817: scroll-padding (a fixed header) is part of the visibility check of scrollMode: "if-needed"', async () => {
+  test('#817: scroll-padding (a fixed header) is part of the visibility check of scrollMode: "if-needed"', async () => {
     const { native, computed } = await page.evaluate(() => {
       document.documentElement.style.scrollPaddingTop = '70px'
       document.body.innerHTML = `
@@ -108,7 +108,7 @@ describe('issues', () => {
     expect(computed).toEqual(native)
   })
 
-  test.fails('#933: scroll-margin is applied correctly with block: "center"', async () => {
+  test('#933: scroll-margin is applied correctly with block: "center"', async () => {
     const { native, computed } = await page.evaluate(() => {
       document.body.innerHTML = `
           <div id="scroller" style="height: 200px; width: 200px; overflow: auto">
@@ -124,7 +124,7 @@ describe('issues', () => {
     expect(computed).toEqual(native)
   })
 
-  test.fails('#933: scroll-margin is applied correctly with block: "nearest"', async () => {
+  test('#933: scroll-margin is applied correctly with block: "nearest"', async () => {
     const { native, computed } = await page.evaluate(() => {
       document.body.innerHTML = `
           <div id="scroller" style="height: 200px; width: 200px; overflow: auto">
