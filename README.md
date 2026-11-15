@@ -78,14 +78,14 @@ Type: `Object`
 
 Type: `'start' | 'center' | 'end' | 'nearest'`<br> Default: `'center'`
 
-Control the logical scroll position on the y-axis. The spec states that the `block` direction is related to the [writing-mode](https://developer.mozilla.org/en-US/docs/Web/CSS/writing-mode), but this is not implemented yet in this library.
-This means that `block: 'start'` aligns to the top edge and `block: 'end'` to the bottom.
+Control the scroll position in the block direction of the target's [writing-mode](https://developer.mozilla.org/en-US/docs/Web/CSS/writing-mode).
+In `horizontal-tb` (the default) `block: 'start'` aligns to the top edge and `block: 'end'` to the bottom, in `vertical-rl` they align to the right and left edges.
 
 ### [inline](https://scroll-into-view.dev/#scroll-alignment)
 
 Type: `'start' | 'center' | 'end' | 'nearest'`<br> Default: `'nearest'`
 
-Like `block` this is affected by the [writing-mode](https://developer.mozilla.org/en-US/docs/Web/CSS/writing-mode). In left-to-right pages `inline: 'start'` will align to the left edge. In right-to-left it should be flipped. This will be supported in a future release.
+Control the scroll position in the inline direction of the target's [writing-mode](https://developer.mozilla.org/en-US/docs/Web/CSS/writing-mode) and [direction](https://developer.mozilla.org/en-US/docs/Web/CSS/direction). In left-to-right text `inline: 'start'` aligns to the left edge, in right-to-left text to the right edge. Scroll containers that overflow to the left or top get negative `left` or `top` values, like `scrollLeft` in right-to-left scroll containers.
 
 ### [scrollMode](https://scroll-into-view.dev/#scrolling-if-needed)
 
