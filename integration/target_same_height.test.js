@@ -1,5 +1,7 @@
+import { beforeAll, describe, expect, test } from 'vite-plus/test'
+
 beforeAll(async () => {
-  await page.goto('http://localhost:3000/integration/target_same_height')
+  await page.goto('/integration/target_same_height.html')
 })
 
 describe('the "nearest" option works with target and frame having equal dimensions', () => {

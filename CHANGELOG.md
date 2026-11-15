@@ -1,5 +1,23 @@
 # compute-scroll-into-view
 
+## 3.2.2
+
+### Patch Changes
+
+- [#942](https://github.com/scroll-into-view/compute-scroll-into-view/pull/942) [`9fe791e`](https://github.com/scroll-into-view/compute-scroll-into-view/commit/9fe791e5db4c039eba0f04fbfd3aa21d0616f5ee) Thanks [@tembo](https://github.com/apps/tembo)! - Compile the published bundles to ES2019 syntax again. Releases 3.2.0 and 3.2.1 shipped optional chaining (`?.`) and nullish coalescing (`??`) because the browserslist targets drifted, which broke Webpack 4 and other older toolchains ([scroll-into-view-if-needed#1235](https://github.com/scroll-into-view/scroll-into-view-if-needed/issues/1235)). The build targets are now pinned and the build fails if the output isn't ES2019-compatible.
+
+## 3.2.1
+
+### Patch Changes
+
+- [#940](https://github.com/scroll-into-view/compute-scroll-into-view/pull/940) [`1ba1f96`](https://github.com/scroll-into-view/compute-scroll-into-view/commit/1ba1f96f3316ba488eb98383c0a06912bb98da16) Thanks [@tembo](https://github.com/apps/tembo)! - Remove the `engines.node` requirement added in the previous release. Requiring Node.js 26 was unintentionally breaking for consumers on older Node.js versions, and as a browser library this package has no Node.js runtime requirement ([compute-scroll-into-view#928](https://github.com/scroll-into-view/compute-scroll-into-view/issues/928))
+
+## 3.2.0
+
+### Minor Changes
+
+- [#923](https://github.com/scroll-into-view/compute-scroll-into-view/pull/923) [`c9096c4`](https://github.com/scroll-into-view/compute-scroll-into-view/commit/c9096c4fd5bf28e3dada76ce4812b091adf6655b) Thanks [@stipsan](https://github.com/stipsan)! - Require Node.js 26 (current LTS) or later, and publish to npm with trusted publishing (OIDC) and provenance
+
 ## [3.1.1](https://github.com/scroll-into-view/compute-scroll-into-view/compare/v3.1.0...v3.1.1) (2025-01-10)
 
 ### Bug Fixes

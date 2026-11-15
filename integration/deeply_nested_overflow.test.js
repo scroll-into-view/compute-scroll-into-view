@@ -1,5 +1,7 @@
+import { beforeAll, describe, expect, test } from 'vite-plus/test'
+
 beforeAll(async () => {
-  await page.goto('http://localhost:3000/integration/deeply_nested_overflow')
+  await page.goto('/integration/deeply_nested_overflow.html')
 })
 
 describe('scrollMode: if-needed', () => {
@@ -17,15 +19,15 @@ describe('scrollMode: if-needed', () => {
   instructions.forEach(([step, block, inline]) => {
     test(`test ${step}, block ${block}, inline ${inline}`, async () => {
       const actual = await page.evaluate(
-        (i, block, inline) => {
+        (i, blockOption, inlineOption) => {
           window.scrollTo(0, 0)
           return window
             .computeScrollIntoView(
               document.querySelectorAll('.scroll-tile')[i],
               {
                 scrollMode: 'if-needed',
-                block,
-                inline,
+                block: blockOption,
+                inline: inlineOption,
               }
             )
             .map(window.mapActions)

@@ -1,5 +1,7 @@
+import { beforeAll, describe, expect, test } from 'vite-plus/test'
+
 beforeAll(async () => {
-  await page.goto('http://localhost:3000/integration/iframe')
+  await page.goto('/integration/iframe.html')
 })
 
 describe('scrollable element is "overflow: visible" but hidden by iframe', () => {
