@@ -1,5 +1,7 @@
+import { beforeAll, describe, expect, test } from 'vite-plus/test'
+
 beforeAll(async () => {
-  await page.goto('http://localhost:3000/integration/viewport-100-percent')
+  await page.goto('/integration/viewport-100-percent.html')
 })
 
 describe('scrollMode: if-needed (outside the scrollingElement bounding box)', () => {

@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`scrollMode: if-needed target in view, container out of view 1`] = `
+exports[`scrollMode: if-needed > target in view, container out of view 1`] = `
 [
   {
     "el": "div.container",

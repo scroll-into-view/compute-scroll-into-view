@@ -96,7 +96,7 @@ const getFrameElement = (el: Element) => {
 
   try {
     return el.ownerDocument.defaultView.frameElement
-  } catch (e) {
+  } catch {
     return null
   }
 }
@@ -364,14 +364,14 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
     block === 'start' || block === 'nearest'
       ? targetTop - marginTop
       : block === 'end'
-      ? targetBottom + marginBottom
-      : targetTop + targetHeight / 2 - marginTop + marginBottom // block === 'center
+        ? targetBottom + marginBottom
+        : targetTop + targetHeight / 2 - marginTop + marginBottom // block === 'center
   let targetInline: number =
     inline === 'center'
       ? targetLeft + targetWidth / 2 - marginLeft + marginRight
       : inline === 'end'
-      ? targetRight + marginRight
-      : targetLeft - marginLeft // inline === 'start || inline === 'nearest
+        ? targetRight + marginRight
+        : targetLeft - marginLeft // inline === 'start || inline === 'nearest
 
   // Collect new scroll positions
   const computations: ScrollAction[] = []
