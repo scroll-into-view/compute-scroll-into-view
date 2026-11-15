@@ -4,7 +4,7 @@
 // `compute` treats elements inside a frame differently from a top-level page.
 /// <reference types="vite-plus/test/browser-playwright" />
 import type { Page } from 'playwright'
-import { build } from 'vite-plus'
+import { Rolldown } from 'vite-plus/pack'
 import type { BrowserCommandContext } from 'vite-plus/test/node'
 
 interface Fixture {
@@ -121,30 +121,34 @@ declare global {
   }
 }
 
-// The engine as a classic script that defines `computeScrollIntoViewEngine`, built once per test run
+// The engine as a classic script that defines `computeScrollIntoViewEngine`, built once per test run. It bundles the
+// module the Vite server serves to the other fixtures, which `vp test --coverage` instruments, so the
+// web-platform-tests count towards coverage too
 let engine: Promise<string> | undefined
 
-function bundleEngine(root: string): Promise<string> {
-  engine ??= build({
-    configFile: false,
-    logLevel: 'silent',
-    root,
-    build: {
-      write: false,
-      minify: false,
-      lib: {
-        entry: `${root}/src/index.ts`,
-        formats: ['iife'],
-        name: 'computeScrollIntoViewEngine',
-      },
-    },
-  }).then((result) => {
-    const [output] = Array.isArray(result) ? result : [result]
-    if (!output || !('output' in output)) {
-      throw new Error('Expected the engine build to return its output')
+function bundleEngine(origin: string): Promise<string> {
+  engine ??= (async () => {
+    const response = await fetch(`${origin}/src/index.ts`)
+    if (!response.ok) {
+      throw new Error(`Failed to load src/index.ts: HTTP ${response.status}`)
     }
-    return output.output[0].code
-  })
+    const source = await response.text()
+    const { output } = await Rolldown.build({
+      input: 'engine',
+      write: false,
+      platform: 'browser',
+      plugins: [
+        {
+          name: 'engine',
+          resolveId: (id) => (id === 'engine' ? id : null),
+          load: (id) =>
+            id === 'engine' ? { code: source, moduleType: 'js' } : null,
+        },
+      ],
+      output: { format: 'iife', name: 'computeScrollIntoViewEngine' },
+    })
+    return output[0].code
+  })()
   return engine
 }
 
@@ -167,7 +171,7 @@ export async function gotoWebPlatformFixture(
 ): Promise<void> {
   const page = await open(context)
   await page.addInitScript(`(() => {
-    ${await bundleEngine(context.project.config.root)}
+    ${await bundleEngine(new URL(context.page.url()).origin)}
     Element.prototype.scrollIntoView = function (options) {
       const normalized = options === false ? { block: 'end' } : typeof options === 'object' ? options : {}
       const actions = computeScrollIntoViewEngine.compute(this, { block: 'start', inline: 'nearest', ...normalized })

@@ -142,3 +142,59 @@ test('nearest stops at an unoverflowing scroll container', async () => {
   })
   expect(result).toEqual(['inner'])
 })
+
+test('detached targets have nothing to scroll and non-elements are rejected', async () => {
+  const result = await page.evaluate(() => {
+    let error = null
+    try {
+      window.computeScrollIntoView({}, {})
+    } catch (caught) {
+      error = caught.name
+    }
+    return {
+      detached: window.computeScrollIntoView(document.createElement('div'), {}),
+      error,
+    }
+  })
+  expect(result).toEqual({ detached: [], error: 'TypeError' })
+})
+
+test('scroll-padding math that other engines serialize unsimplified', async () => {
+  const result = await page.evaluate(() => {
+    document.body.innerHTML = `<div id="scroller" style="overflow:scroll;width:200px;height:200px;scroll-padding:calc(10% + 8px) 0 0 12px">
+      <div style="width:800px;height:800px"><div id="target" style="position:relative;top:300px;left:300px;width:80px;height:60px"></div></div></div>`
+    const target = document.querySelector('#target')
+    const run = () =>
+      window
+        .computeScrollIntoView(target, {
+          block: 'start',
+          inline: 'start',
+          container: 'nearest',
+        })
+        .map(({ top, left }) => ({ top, left }))
+    // Chromium simplifies the computed values to `calc(10% + 8px)` and `12px`
+    const simplified = run()
+    // Report the same lengths the way an engine that keeps the authored math would
+    const unsimplified = {
+      scrollPaddingTop: 'calc((5% + 4px) * 2)',
+      scrollPaddingLeft: 'calc(-12px + 48px / 2)',
+    }
+    const getStyle = window.getComputedStyle.bind(window)
+    window.getComputedStyle = (element, pseudo) => {
+      const style = getStyle(element, pseudo)
+      return element.id === 'scroller'
+        ? new Proxy(style, {
+            get: (styles, property) =>
+              unsimplified[property] ?? Reflect.get(styles, property),
+          })
+        : style
+    }
+    try {
+      return { simplified, unsimplified: run() }
+    } finally {
+      window.getComputedStyle = getStyle
+    }
+  })
+  expect(result.simplified).toEqual([{ top: 272, left: 288 }])
+  expect(result.unsimplified).toEqual(result.simplified)
+})
