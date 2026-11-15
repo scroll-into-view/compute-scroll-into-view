@@ -52,6 +52,7 @@
     "@changesets/cli": "^3.0.3",
     "@vitest/browser-playwright": "catalog:",
     "es-check": "^9.8.1",
+    "knip": "^6.45.0",
     "playwright": "*",
     "vite-plus": "catalog:",
     "vitest": "catalog:"
