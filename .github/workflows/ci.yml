@@ -28,7 +28,7 @@ jobs:
       - run: vp check
       # Unused files, exports, and dependencies
       - run: vp exec knip
-      - run: vp pack
+      - run: vp run build # vp pack + es-check (ES2019 guard)
 
   test:
     needs: check
