@@ -11,6 +11,11 @@
  */
 export type ScrollMode = 'always' | 'if-needed'
 
+/**
+ * Which scroll containers to scroll: https://drafts.csswg.org/cssom-view/#enumdef-scrollintoviewcontainer
+ */
+export type ScrollIntoViewContainer = 'all' | 'nearest'
+
 export interface Options {
   /**
    * Control the scroll position in the block direction of the target's [writing-mode](https://developer.mozilla.org/en-US/docs/Web/CSS/writing-mode).
@@ -23,6 +28,13 @@ export interface Options {
    * @default 'nearest'
    */
   inline?: ScrollLogicalPosition
+  /**
+   * Like the [`container`](https://drafts.csswg.org/cssom-view/#dom-scrollintoviewoptions-container) option of
+   * `Element.scrollIntoView()`. `'all'` scrolls every scroll container of the target, up to and including the
+   * viewport. `'nearest'` only scrolls the target's nearest scroll container, or the viewport if it has none.
+   * @default 'all'
+   */
+  container?: ScrollIntoViewContainer
   /**
    * This is a proposed addition to the spec that you can track here: https://github.com/w3c/csswg-drafts/pull/5677
    *
@@ -418,6 +430,7 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
     scrollMode,
     block: logicalBlock = 'center',
     inline: logicalInline = 'nearest',
+    container = 'all',
     boundary,
     skipOverflowHiddenElements,
   } = options
@@ -649,6 +662,12 @@ export const compute = (target: Element, options: Options): ScrollAction[] => {
     }
 
     computations.push({ el: frame, top: blockScroll, left: inlineScroll })
+
+    // `scrollIntoView()` passes the target itself as the container for 'nearest', and every scroll container of the
+    // target is its ancestor, so the loop stops after the first one
+    if (container === 'nearest') {
+      break
+    }
   }
 
   return computations
