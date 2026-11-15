@@ -22,17 +22,17 @@ export default defineConfig({
     // package.json points both conditions at dist/index.d.ts, so skip an unused index.d.cts.
     format: { esm: {}, cjs: { dts: false } },
     platform: 'neutral',
-    // The targets that @sanity/pkg-utils resolved from the former package.json `browserslist`
-    // query ("> 0.2% and supports es6-module and supports es6-module-dynamic-import and not dead",
-    // "maintained node versions")
+    // Pinned to ES2019-level targets so the published bundles keep compiling away
+    // optional chaining and nullish coalescing for Webpack 4 and other older toolchains
+    // (scroll-into-view/scroll-into-view-if-needed#1235). `pnpm build` runs es-check to enforce it.
     target: [
-      'chrome109',
-      'edge154',
-      'firefox157',
-      'ios16',
-      'node22',
-      'opera136',
-      'safari17',
+      'chrome79',
+      'edge79',
+      'firefox72',
+      'ios13',
+      'node12',
+      'opera66',
+      'safari13',
     ],
     // Declarations come from Oxc, which tsconfig.json's isolatedDeclarations keeps possible.
     // Their maps point at the published src/index.ts
