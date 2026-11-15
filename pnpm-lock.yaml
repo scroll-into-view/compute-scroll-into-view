@@ -200,6 +200,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
         version: 5.1.0(vitest@5.1.0)
+      browserslist:
+        specifier: ^4.29.5
+        version: 4.29.5
       es-check:
         specifier: ^9.8.1
         version: 9.9.0
@@ -1352,11 +1355,6 @@ packages:
 
   acorn@8.19.0:
     resolution: {integrity: sha512-oJlA3XiRm7Cyk6qFD2Jn8ak9B7jSy0qy00ADO3+8dpT0LSjFihQYv4C02LFCSYJV3Q37xYwwRy5m+IpIiUzqWw==}
-    engines: {node: '>=0.4.0'}
-    hasBin: true
-
-  acorn@8.8.2:
-    resolution: {integrity: sha512-xjIYgE8HBrkpd/sJqOGNspf8uHG+NOHGOw6a/Urj8taM2EXfdNAH2oFcPeIFfsv3+kz/mJrS5VuMqbNLjCa2vw==}
     engines: {node: '>=0.4.0'}
     hasBin: true
 
@@ -2844,9 +2842,6 @@ snapshots:
 
   acorn@8.19.0: {}
 
-  acorn@8.8.2:
-    optional: true
-
   ansi-regex@5.0.1: {}
 
   ansi-styles@3.2.1:
@@ -3333,7 +3328,7 @@ snapshots:
   terser@5.16.8:
     dependencies:
       '@jridgewell/source-map': 0.3.3
-      acorn: 8.8.2
+      acorn: 8.19.0
       commander: 2.20.3
       source-map-support: 0.5.21
     optional: true
