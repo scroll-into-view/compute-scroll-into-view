@@ -1,5 +1,7 @@
+import { beforeAll, describe, expect, test } from 'vite-plus/test'
+
 beforeAll(async () => {
-  await page.goto('http://localhost:3000/integration/scroll_margin')
+  await page.goto('/integration/scroll_margin.html')
 })
 
 const ScrollLogicalPosition = ['start', 'center', 'end', 'nearest']
@@ -35,7 +37,7 @@ describe('scrollMode: always', () => {
 
         // The 'nearest' cases can have diff behavior depending on the current scroll position
         if (block === 'nearest' || inline === 'nearest') {
-          const expected = await page.evaluate(
+          const expectedFromEnd = await page.evaluate(
             (options) => {
               const container = document.querySelector('.container')
               container.scrollTo(
@@ -48,7 +50,7 @@ describe('scrollMode: always', () => {
             },
             { block, inline }
           )
-          const actual = await page.evaluate(
+          const actualFromEnd = await page.evaluate(
             (options) => {
               const container = document.querySelector('.container')
               container.scrollTo(
@@ -63,8 +65,8 @@ describe('scrollMode: always', () => {
             },
             { block, inline }
           )
-          expect(expected).toEqual(actual)
-          expect(actual).toMatchSnapshot()
+          expect(expectedFromEnd).toEqual(actualFromEnd)
+          expect(actualFromEnd).toMatchSnapshot()
         }
       })
     })
