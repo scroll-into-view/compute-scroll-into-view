@@ -23,7 +23,7 @@ jobs:
           node-version: lts
           cache: true
       - run: vp check
-      - run: vp pack
+      - run: vp run build # vp pack + es-check (ES2019 guard)
 
   test:
     needs: check

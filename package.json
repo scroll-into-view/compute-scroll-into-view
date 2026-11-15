@@ -1,6 +1,6 @@
 {
   "name": "compute-scroll-into-view",
-  "version": "3.2.0",
+  "version": "3.2.2",
   "description": "The engine that powers scroll-into-view-if-needed",
   "keywords": [
     "if-needed",
@@ -40,15 +40,18 @@
     "src"
   ],
   "scripts": {
-    "build": "vp pack",
-    "prepublishOnly": "vp pack",
+    "build": "vp pack && pnpm run check:es",
+    "check:es": "es-check es2019 dist/index.cjs && es-check es2019 --module dist/index.js",
+    "prepublishOnly": "pnpm run build",
     "test": "vp test",
-    "release": "vp pack && changeset publish",
+    "release": "pnpm run build && changeset publish",
     "prepare": "vp config"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^1.0.1",
     "@changesets/cli": "^3.0.3",
+    "@vitest/browser-playwright": "catalog:",
+    "es-check": "^9.8.1",
     "@vitest/browser-playwright": "catalog:",
     "playwright": "*",
     "vite-plus": "catalog:",
@@ -65,8 +68,5 @@
   "publishConfig": {
     "access": "public",
     "provenance": true
-  },
-  "engines": {
-    "node": ">=26"
   }
 }
