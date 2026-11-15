@@ -31,9 +31,12 @@
   "files": [
     "dist"
   ],
+  "browserslist": [
+    "baseline 2019"
+  ],
   "scripts": {
     "build": "vp pack && pnpm run check:es",
-    "check:es": "es-check es2019 --module dist/index.js",
+    "check:es": "es-check es2017 --module dist/index.js",
     "prepublishOnly": "pnpm run build",
     "test": "vp test",
     "release": "pnpm run build && changeset publish",
@@ -46,6 +49,7 @@
     "@types/node": "^26.6.6",
     "@vitest/browser-playwright": "catalog:",
     "@vitest/coverage-istanbul": "catalog:",
+    "browserslist": "^4.29.5",
     "es-check": "^9.9.0",
     "knip": "^6.45.1",
     "playwright": "*",

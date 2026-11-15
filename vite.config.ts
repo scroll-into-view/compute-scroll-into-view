@@ -1,3 +1,4 @@
+import browserslist from 'browserslist'
 import { defineConfig } from 'vite-plus'
 import { playwright } from 'vite-plus/test/browser-playwright'
 
@@ -10,6 +11,33 @@ import { runWebPlatformTest } from './integration/wpt-commands.js'
 
 // Vendored, unmodified web-platform-tests. scripts/sync-wpt.ts replaces them
 const vendoredWpt = 'integration/wpt/upstream/**'
+
+// tsdown doesn't read the `browserslist` field in package.json, so it gets the oldest version of each browser
+// that the field resolves to, in the esbuild-style target format
+const esbuildNames: Record<string, string> = {
+  and_chr: 'chrome',
+  and_ff: 'firefox',
+  chrome: 'chrome',
+  edge: 'edge',
+  firefox: 'firefox',
+  ios_saf: 'ios',
+  opera: 'opera',
+  safari: 'safari',
+}
+const oldest = new Map<string, number>()
+for (const entry of browserslist()) {
+  const [name, version] = entry.split(' ')
+  const esbuildName = esbuildNames[name]
+  if (!esbuildName) {
+    throw new Error(`Map the browserslist name "${name}" to a tsdown target`)
+  }
+  // Ranges like "13.0-13.1" start with their oldest version
+  const number = parseFloat(version)
+  if (number < (oldest.get(esbuildName) ?? Infinity)) {
+    oldest.set(esbuildName, number)
+  }
+}
+const target = [...oldest].map(([name, version]) => `${name}${version}`)
 
 export default defineConfig({
   staged: {
@@ -60,21 +88,16 @@ export default defineConfig({
     entry: ['src/index.ts'],
     format: 'esm',
     platform: 'neutral',
-    // Pinned to ES2019-level targets so the published bundles keep compiling away
+    // The browserslist baseline in package.json (Baseline 2019) keeps the published bundles compiling away
     // optional chaining and nullish coalescing for Webpack 4 and other older toolchains
-    // (scroll-into-view/scroll-into-view-if-needed#1235). `pnpm build` runs es-check to enforce it.
-    target: [
-      'chrome79',
-      'edge79',
-      'firefox72',
-      'ios13',
-      'node12',
-      'opera66',
-      'safari13',
-    ],
-    // Declarations come from Oxc, which tsconfig.json's isolatedDeclarations keeps possible.
-    // Their maps point at the published src/index.ts
-    dts: { generator: 'oxc', sourcemap: true },
+    // (scroll-into-view/scroll-into-view-if-needed#1235). Its oldest browser, Edge 18, supports ES2017 syntax but not
+    // object rest/spread or optional catch binding, so `pnpm build` runs `es-check es2017` to enforce it.
+    // es-check's checkBrowser mode can't be used instead, as it treats Edge 18 as ES5
+    target,
+    // Declarations come from Oxc, which tsconfig.json's isolatedDeclarations keeps possible. They have no maps,
+    // as src/ isn't published for them to point at
+    dts: { generator: 'oxc' },
+    // Embeds src/index.ts in its sourcesContent
     sourcemap: true,
     minify: true,
     // tsdown writes `exports`, plus `main`, `module` and `types` for tools that predate `exports`
