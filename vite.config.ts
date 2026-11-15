@@ -29,6 +29,11 @@ export default defineConfig({
     rules: {
       'vite-plus/prefer-vite-plus-imports': 'error',
       'typescript/switch-exhaustiveness-check': 'error',
+      // The global that Vitest's istanbul coverage provider stores its counters in
+      'eslint/no-underscore-dangle': [
+        'error',
+        { allow: ['__VITEST_COVERAGE__'] },
+      ],
     },
     overrides: [
       {
@@ -75,6 +80,14 @@ export default defineConfig({
   test: {
     include: ['integration/**/*.test.js'],
     setupFiles: ['integration/setup.js'],
+    coverage: {
+      // src/index.ts runs in the fixture pages, not in the test frame that the v8 provider measures. With istanbul,
+      // integration/setup.js merges the fixture pages' counters into the report
+      provider: 'istanbul',
+      include: ['src/**'],
+      // The current coverage, rounded down, so it can't drop unnoticed
+      thresholds: { statements: 95, branches: 82, functions: 100, lines: 95 },
+    },
     browser: {
       enabled: true,
       provider: playwright(),
