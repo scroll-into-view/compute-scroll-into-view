@@ -101,7 +101,8 @@ describe('issues', () => {
       return window.compareWithNative(
         document.querySelector('#target'),
         { block: 'nearest', inline: 'nearest' },
-        { block: 'nearest', inline: 'nearest', scrollMode: 'if-needed' }
+        { block: 'nearest', inline: 'nearest' },
+        window.computeScrollIntoViewIfNeeded
       )
     })
     expect(native).not.toEqual({})
@@ -185,8 +186,7 @@ describe('issues', () => {
           <div style="height: 3000px"></div>`
       window.scrollTo(0, 1400)
       return window
-        .computeScrollIntoView(document.querySelector('#target'), {
-          scrollMode: 'if-needed',
+        .computeScrollIntoViewIfNeeded(document.querySelector('#target'), {
           block: 'nearest',
           inline: 'nearest',
         })
@@ -220,7 +220,8 @@ describe('issues', () => {
         return window.compareWithNative(
           frame.contentDocument.querySelector('.small'),
           { block: 'nearest', inline: 'nearest' },
-          { block: 'nearest', inline: 'nearest', scrollMode: 'if-needed' }
+          { block: 'nearest', inline: 'nearest' },
+          window.computeScrollIntoViewIfNeeded
         )
       })
       expect(native).toHaveProperty(['#frame html'])

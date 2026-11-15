@@ -22,10 +22,9 @@ describe('scrollMode: if-needed', () => {
         (i, blockOption, inlineOption) => {
           window.scrollTo(0, 0)
           return window
-            .computeScrollIntoView(
+            .computeScrollIntoViewIfNeeded(
               document.querySelectorAll('.scroll-tile')[i],
               {
-                scrollMode: 'if-needed',
                 block: blockOption,
                 inline: inlineOption,
               }

@@ -121,7 +121,8 @@ describe('scroll-padding and scroll-margin', () => {
           window.compareWithNative(
             target,
             { block: 'end', inline: 'nearest' },
-            { block: 'end', inline: 'nearest', scrollMode: 'if-needed' }
+            { block: 'end', inline: 'nearest' },
+            window.computeScrollIntoViewIfNeeded
           )
         )
       }

@@ -10,11 +10,7 @@ describe('scrollable element is "overflow: visible" but hidden by iframe', () =>
     const actual = await page.evaluate(() => {
       const iframe = document.querySelector('iframe')
       const target = iframe.contentDocument.querySelector('.target')
-      return window
-        .computeScrollIntoView(target, {
-          scrollMode: 'always',
-        })
-        .map(window.mapActions)
+      return window.computeScrollIntoView(target, {}).map(window.mapActions)
     })
     expect(actual).toHaveLength(1)
     expect(actual[0]).toMatchObject({ el: 'html' })

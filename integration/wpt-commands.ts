@@ -112,12 +112,7 @@ function installScrollIntoView(
       ...rest
     } = options
     if (this.getClientRects().length === 0) return results([])
-    const actions = compute(this, {
-      ...rest,
-      block,
-      inline,
-      scrollMode: 'always',
-    })
+    const actions = compute(this, { ...rest, block, inline })
     return results(
       actions.map(({ el, top, left }) => el.scroll({ top, left, behavior }))
     )
