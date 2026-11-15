@@ -20,6 +20,7 @@ Scrolling SVG elements are supported, as well as Shadow DOM elements. The [Visua
     - [scrollMode](#scrollmode)
     - [boundary](#boundary)
     - [skipOverflowHiddenElements](#skipoverflowhiddenelements)
+- [Development](#development)
 
 # Install
 
@@ -126,6 +127,15 @@ Type: `Boolean`<br> Default: `false`
 By default the [spec](https://drafts.csswg.org/cssom-view/#scrolling-box) states that `overflow: hidden` elements should be scrollable because it has [been used to allow programatic scrolling](https://drafts.csswg.org/css-overflow-3/#valdef-overflow-hidden). This behavior can sometimes lead to [scrolling issues](https://github.com/scroll-into-view/scroll-into-view-if-needed/pull/225#issue-186419520) when you have a node that is a child of an `overflow: hidden` node.
 
 This package follows the convention [adopted by Firefox](https://hg.mozilla.org/integration/fx-team/rev/c48c3ec05012#l7.18) of setting a boolean option to _not_ scroll all nodes with `overflow: hidden` set.
+
+# Development
+
+This project uses [Vite+](https://viteplus.dev). With the [`vp` CLI](https://viteplus.dev/guide/) installed (or through `pnpm exec vp`):
+
+- `vp dev` serves the integration fixtures. Open `/integration/` for a list of them. They run `src/index.ts` directly and reload when it changes, and the DevTools console has `computeScrollIntoView` and `mapActions` for experiments.
+- `vp test` runs the integration tests in Chromium with Playwright (run `vp exec playwright install chromium` once first).
+- `vp check` formats, lints, and type checks, and `vp exec knip` reports unused files, exports, and dependencies.
+- `vp pack` builds the package into `dist`.
 
 [gzip-badge]: https://img.shields.io/bundlephobia/minzip/compute-scroll-into-view?label=gzip%20size&style=flat-square
 [size-badge]: https://img.shields.io/bundlephobia/min/compute-scroll-into-view?label=size&style=flat-square
