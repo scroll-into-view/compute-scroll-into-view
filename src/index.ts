@@ -366,24 +366,29 @@ const getScrollPadding = (
   }
 }
 
-const isOverflowPropagated = () => {
-  const { overflowX, overflowY } = getComputedStyle(document.documentElement)
+const isOverflowPropagated = (doc: Document) => {
+  const { overflowX, overflowY } = getComputedStyle(doc.documentElement)
   return overflowX === 'visible' && overflowY === 'visible'
 }
 
-const getScrollingElement = () =>
-  document.scrollingElement || document.documentElement
+const getScrollingElement = (doc: Document) =>
+  doc.scrollingElement || doc.documentElement
 
 // Support pinch-zooming properly, making sure elements scroll into the visual viewport
 // Browsers that don't support visualViewport will report the layout viewport dimensions on document.documentElement.clientWidth/Height
 // and viewport dimensions on window.innerWidth/Height
 // https://www.quirksmode.org/mobile/viewports2.html
 // https://bokand.github.io/viewport/index.html
-const getViewportRects = (target: SideObject, scrollMargin: SideObject) => {
+const getViewportRects = (
+  target: SideObject,
+  scrollMargin: SideObject,
+  doc: Document,
+  win: Window
+) => {
   const scrollport = {
     top: 0,
-    right: window.visualViewport?.width ?? innerWidth,
-    bottom: window.visualViewport?.height ?? innerHeight,
+    right: win.visualViewport?.width ?? win.innerWidth,
+    bottom: win.visualViewport?.height ?? win.innerHeight,
     left: 0,
   }
   return {
@@ -391,7 +396,7 @@ const getViewportRects = (target: SideObject, scrollMargin: SideObject) => {
     target,
     // The viewport's scroll-padding is set on the root element, also when the scrolling element is the body
     scrollPadding: getScrollPadding(
-      getComputedStyle(document.documentElement),
+      getComputedStyle(doc.documentElement),
       scrollport,
       1,
       1
@@ -499,9 +504,15 @@ export const compute = (
     throw new TypeError('Invalid target')
   }
 
+  // The viewport is the target's, also when `compute` runs in another frame's window
+  const doc = target.ownerDocument
+  const win = doc.defaultView
+  if (!win) {
+    return []
+  }
   // Used to handle the top most element that can be scrolled
-  const scrollingElement = getScrollingElement()
-  const { scrollX, scrollY } = window
+  const scrollingElement = getScrollingElement(doc)
+  const { scrollX, scrollY } = win
 
   // Alignment follows the target's writing mode and direction in every scroll container, like browsers do, rather
   // than each scroll container's own as the spec says: https://github.com/w3c/csswg-drafts/issues/11796
@@ -537,7 +548,9 @@ export const compute = (
       if (viewport) {
         return getViewportRects(
           Object.assign({}, targetRect),
-          Object.assign({}, scrollMargin)
+          Object.assign({}, scrollMargin),
+          doc,
+          win
         )
       }
       measured = measureFrame(frame, getStyle())
@@ -562,7 +575,7 @@ export const compute = (
         isScrollable(frame) &&
         // The body's overflow applies to the viewport instead when the root's is visible, so it isn't a scroll
         // container then: https://drafts.csswg.org/css-overflow-3/#overflow-propagation
-        !(frame === document.body && isOverflowPropagated())
+        !(frame === doc.body && isOverflowPropagated(doc))
     let stop = viewport
     for (let index = 0; index < count; index++) {
       const result = middleware[index].fn({
@@ -648,7 +661,7 @@ export const compute = (
         // mode and direction make it overflow to the left or top
         // @TODO add more test cases to cover this 100%
         const rootFlow = getFlowDirections(
-          getComputedStyle(document.documentElement)
+          getComputedStyle(doc.documentElement)
         )
         blockScroll = clampScroll(
           blockScroll + scrollY,

@@ -44,4 +44,18 @@ describe('scrollable element is "overflow: visible" but hidden by iframe', () =>
     expect(actual.map(({ el }) => el)).toContain('div.scroller')
     expect(actual.map(({ el }) => el)).not.toContain('div.visible')
   })
+
+  test("scrolls the iframe's viewport like scrollIntoView, when called from the parent document", async () => {
+    const results = await page.evaluate(() => {
+      const iframe = document.querySelector('iframe')
+      const target = iframe.contentDocument.querySelector('.target')
+      return ['start', 'center', 'end', 'nearest'].map((block) =>
+        window.compareWithNative(target, { block, inline: 'nearest' })
+      )
+    })
+    for (const { native, computed } of results) {
+      expect(native).toHaveProperty(['iframe html'])
+      expect(computed['iframe html']).toEqual(native['iframe html'])
+    }
+  })
 })

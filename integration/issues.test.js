@@ -211,7 +211,7 @@ describe('issues', () => {
       expect(computed).toEqual(native)
     })
 
-    test.fails("#854: scrolling a target in a frame from the parent document's context uses the frame's viewport", async () => {
+    test("#854: scrolling a target in a frame from the parent document's context uses the frame's viewport", async () => {
       await loadFrame()
       const { native, computed } = await page.evaluate(() => {
         const frame = document.querySelector('#frame')
