@@ -682,23 +682,29 @@ export const compute = (
         const { scrollLeft, scrollTop } = frame
         // Ensure scroll coordinates are not out of bounds while applying scroll offsets. The offsets are negative on
         // axes where the scroll container's own writing mode and direction make it overflow to the left or top
-        const frameFlow = getFlowDirections(visited.style())
+        const frameFlow = getFlowDirections(frameStyle)
+        // `overflow: clip` forbids programmatic scrolling too, so an axis that clips keeps its scroll offset, and the
+        // outer scroll containers align the target on it: https://drafts.csswg.org/css-overflow-3/#valdef-overflow-clip
         blockScroll =
-          scaleY === 0
-            ? 0
-            : clampScroll(
-                scrollTop + blockScroll / scaleY,
-                frame.scrollHeight - frame.clientHeight,
-                frameFlow.yStartIsBottom
-              )
+          frameStyle.overflowY === 'clip'
+            ? scrollTop
+            : scaleY === 0
+              ? 0
+              : clampScroll(
+                  scrollTop + blockScroll / scaleY,
+                  frame.scrollHeight - frame.clientHeight,
+                  frameFlow.yStartIsBottom
+                )
         inlineScroll =
-          scaleX === 0
-            ? 0
-            : clampScroll(
-                scrollLeft + inlineScroll / scaleX,
-                frame.scrollWidth - frame.clientWidth,
-                frameFlow.xStartIsRight
-              )
+          frameStyle.overflowX === 'clip'
+            ? scrollLeft
+            : scaleX === 0
+              ? 0
+              : clampScroll(
+                  scrollLeft + inlineScroll / scaleX,
+                  frame.scrollWidth - frame.clientWidth,
+                  frameFlow.xStartIsRight
+                )
 
         // Cache the offset so that parent frames can scroll this into view correctly
         blockShifts.push(scrollTop - blockScroll)
