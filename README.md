@@ -43,7 +43,8 @@ The published code supports [Baseline 2019](https://web.dev/baseline) browsers (
 # Usage
 
 ```js
-import { compute, onlyIfNeeded } from 'compute-scroll-into-view'
+import { compute } from 'compute-scroll-into-view'
+import { onlyIfNeeded } from 'compute-scroll-into-view/middleware'
 
 const node = document.getElementById('hero')
 
@@ -53,9 +54,11 @@ const actions = compute(node, { block: 'nearest', inline: 'nearest' })
 
 // same behavior as Element.scrollIntoViewIfNeeded(true)
 // see: https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoViewIfNeeded
-const actions = onlyIfNeeded(
-  compute(node, { block: 'center', inline: 'center' })
-)
+const actions = compute(node, {
+  block: 'center',
+  inline: 'center',
+  middleware: [onlyIfNeeded()],
+})
 
 // Then perform the scrolling, use scroll-into-view-if-needed if you don't want to implement this part
 actions.forEach(({ el, top, left }) => {
@@ -99,15 +102,15 @@ Change which ancestors are scrolled, and how they are measured. See [Middleware]
 
 ## Middleware
 
-Like [Floating UI's middleware](https://floating-ui.com/docs/middleware). The built-in ones are exported from the main entry, and bundlers leave out the ones you don't import:
+Like [Floating UI's middleware](https://floating-ui.com/docs/middleware). The built-in ones are exported from `compute-scroll-into-view/middleware`, so `compute-scroll-into-view` stays as small as the spec needs:
 
 ```js
+import { compute } from 'compute-scroll-into-view'
 import {
-  compute,
   boundary,
   skipOverflowHiddenElements,
   onlyIfNeeded,
-} from 'compute-scroll-into-view'
+} from 'compute-scroll-into-view/middleware'
 
 const actions = compute(node, {
   block: 'center',
@@ -161,7 +164,7 @@ This follows the convention [adopted by Firefox](https://hg.mozilla.org/integrat
 
 ### Writing middleware
 
-A middleware is an object with a `name` and an `fn`. `compute` calls `fn` for every ancestor of the target, innermost first, up to the viewport, with what it knows about it. `fn` returns `{}` to change nothing, or what to change:
+A middleware is an object with a `name` and an `fn`, and its types are exported from `compute-scroll-into-view`. `compute` calls `fn` for every ancestor of the target, innermost first, up to the viewport, with what it knows about it. `fn` returns `{}` to change nothing, or what to change:
 
 ```ts
 interface Middleware {
@@ -226,6 +229,8 @@ The target's scroll-margin box (`target` grown by `scrollMargin`) is aligned wit
 For example, this middleware reads `--scroll-margin-top`, `--scroll-padding-left` and the like where they're set, as a fallback for browsers without `scroll-margin` and `scroll-padding`, or to override them:
 
 ```js
+import { compute } from 'compute-scroll-into-view'
+
 const sides = ['top', 'right', 'bottom', 'left']
 const read = (el, property, fallback) => {
   const style = getComputedStyle(el)
@@ -261,7 +266,7 @@ To only use them where `scroll-margin` isn't supported, return `{}` when `CSS.su
 
 This project uses [Vite+](https://viteplus.dev). With the [`vp` CLI](https://viteplus.dev/guide/) installed (or through `pnpm exec vp`):
 
-- `vp dev` serves the integration fixtures. Open `/integration/` for a list of them. They run `src/index.ts` directly and reload when it changes, and the DevTools console has `computeScrollIntoView` and `mapActions` for experiments.
+- `vp dev` serves the integration fixtures. Open `/integration/` for a list of them. They run `src/` directly and reload when it changes, and the DevTools console has `computeScrollIntoView` and `mapActions` for experiments.
 - `vp test` runs the integration tests in Chromium with Playwright (run `vp exec playwright install chromium` once first).
   This includes the [web-platform-tests](https://github.com/web-platform-tests/wpt) for `scrollIntoView`, which measure conformance with the [CSSOM View spec](https://drafts.csswg.org/cssom-view/#scroll-a-target-into-view) (see [`integration/wpt`](./integration/wpt/README.md)), and reproductions of reported bugs in `integration/issues.test.js`.
 - `vp check` formats, lints, and type checks, and `vp exec knip` reports unused files, exports, and dependencies.

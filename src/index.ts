@@ -6,6 +6,13 @@
 
 // For a definition on what is "block flow direction" exactly, check this: https://drafts.csswg.org/css-writing-modes-4/#block-flow-direction
 
+import {
+  getParentElement,
+  getRegion,
+  getTargetBox,
+  isScrollable,
+} from './shared.js'
+
 /**
  * Which scroll containers to scroll: https://drafts.csswg.org/cssom-view/#enumdef-scrollintoviewcontainer
  */
@@ -37,6 +44,8 @@ export interface Options {
    */
   middleware?: Middleware[]
 }
+
+export type ComputeOptions = Options
 
 export interface ScrollAction {
   el: Element
@@ -106,52 +115,6 @@ export interface Middleware {
 const isElement = (el: any): el is Element =>
   typeof el === 'object' && el != null && el.nodeType === 1
 
-const canOverflow = (
-  overflow: string | null,
-  skipOverflowHiddenElements?: boolean
-) => {
-  if (skipOverflowHiddenElements && overflow === 'hidden') {
-    return false
-  }
-
-  return overflow !== 'visible' && overflow !== 'clip'
-}
-
-const getFrameElement = (el: Element) => {
-  if (!el.ownerDocument || !el.ownerDocument.defaultView) {
-    return null
-  }
-
-  try {
-    return el.ownerDocument.defaultView.frameElement
-  } catch {
-    return null
-  }
-}
-
-const isHiddenByFrame = (el: Element): boolean => {
-  const frame = getFrameElement(el)
-  if (!frame) {
-    return false
-  }
-
-  return (
-    frame.clientHeight < el.scrollHeight || frame.clientWidth < el.scrollWidth
-  )
-}
-
-const isScrollable = (el: Element, skipOverflowHiddenElements?: boolean) => {
-  if (el.clientHeight < el.scrollHeight || el.clientWidth < el.scrollWidth) {
-    const style = getComputedStyle(el, null)
-    return (
-      canOverflow(style.overflowY, skipOverflowHiddenElements) ||
-      canOverflow(style.overflowX, skipOverflowHiddenElements) ||
-      isHiddenByFrame(el)
-    )
-  }
-
-  return false
-}
 /**
  * Find out which edge to align against when logical scroll position is "nearest"
  * Interesting fact: "nearest" works similarily to "if-needed", if the element is fully visible it will not scroll it
@@ -321,27 +284,10 @@ const alignAxis = (
   )
 }
 
-const isVisible = (region: SideObject, box: SideObject) =>
-  box.top >= region.top &&
-  box.right <= region.right &&
-  box.bottom <= region.bottom &&
-  box.left >= region.left
-
 // Only HTMLElement objects have offset[Width|Height], but any Element might pass by here. `instanceof HTMLElement`
 // would miss elements from other frames, which have their own HTMLElement, so check for the properties instead
 const hasOffsetWidth = (el: Element): el is HTMLElement => 'offsetWidth' in el
 const hasOffsetHeight = (el: Element): el is HTMLElement => 'offsetHeight' in el
-
-const isShadowRoot = (node: Node): node is ShadowRoot => 'host' in node
-
-const getParentElement = (element: Node): Element | null => {
-  const parent = element.parentElement
-  if (parent == null) {
-    const root = element.getRootNode()
-    return isShadowRoot(root) ? root.host || null : null
-  }
-  return parent
-}
 
 const getScrollMargins = (target: Element) => {
   const computedStyle = window.getComputedStyle(target)
@@ -419,22 +365,6 @@ const getScrollPadding = (
     left: resolvePadding(style.scrollPaddingLeft, width, scaleX),
   }
 }
-
-// The optimal viewing region is the scrollport, inset by `scroll-padding`, in viewport coordinates
-const getRegion = ({ scrollport, scrollPadding }: Rects): SideObject => ({
-  top: scrollport.top + scrollPadding.top,
-  right: scrollport.right - scrollPadding.right,
-  bottom: scrollport.bottom - scrollPadding.bottom,
-  left: scrollport.left + scrollPadding.left,
-})
-
-// The scroll-margin box of the target is what gets aligned
-const getTargetBox = ({ target, scrollMargin }: Rects): SideObject => ({
-  top: target.top - scrollMargin.top,
-  right: target.right + scrollMargin.right,
-  bottom: target.bottom + scrollMargin.bottom,
-  left: target.left - scrollMargin.left,
-})
 
 const getScrollingElement = () =>
   document.scrollingElement || document.documentElement
@@ -718,62 +648,3 @@ export const compute = (
 
   return computations
 }
-
-/**
- * Only scrolls if the target isn't already visible, like the
- * [`scrollMode: "if-needed"` proposal](https://github.com/w3c/csswg-drafts/pull/5677), to be backwards compatible with
- * `Element.scrollIntoViewIfNeeded`. If something is not 100% visible it counts as "needs scrolling".
- *
- * Stops at the first scroll container that the target's scroll-margin box is visible in, inside its `scroll-padding`,
- * if it's visible in the viewport too. Put it after the middleware that change which containers are scrolled, or how
- * they are measured.
- */
-export const onlyIfNeeded = (): Middleware => ({
-  name: 'onlyIfNeeded',
-  fn: ({ scrollable, rects, viewportRects }) => {
-    if (!scrollable) return {}
-    const box = getTargetBox(rects)
-    if (
-      isVisible(getRegion(rects), box) &&
-      // The target has to be visible in the viewport too, which isn't implied by it being visible in an inner frame
-      isVisible(getRegion(viewportRects), box)
-    ) {
-      return { scrollable: false, stop: true }
-    }
-    return {}
-  },
-})
-
-/**
- * Stops at a boundary. The boundary element itself is scrolled if it's a scroll container. A function is called with
- * the target and then each of its ancestors, and stops at the first one it returns `false` for.
- */
-export const boundary = (
-  limit: Element | ((parent: Element) => boolean) | null | undefined
-): Middleware => ({
-  name: 'boundary',
-  fn: ({ target, container, viewport }) => {
-    if (limit == null) return {}
-    const checkBoundary =
-      typeof limit === 'function' ? limit : (node: Element) => node !== limit
-    if (container === getParentElement(target) && !checkBoundary(target)) {
-      return { scrollable: false, stop: true }
-    }
-    // The viewport is the last one anyway
-    return !viewport && !checkBoundary(container) ? { stop: true } : {}
-  },
-})
-
-/**
- * Leaves `overflow: hidden` scroll containers alone, which the spec scrolls, like
- * [Firefox's convention](https://hg.mozilla.org/integration/fx-team/rev/c48c3ec05012#l7.18). The viewport is always
- * scrolled.
- */
-export const skipOverflowHiddenElements = (): Middleware => ({
-  name: 'skipOverflowHiddenElements',
-  fn: ({ container, viewport, scrollable }) => {
-    return scrollable && !viewport && !isScrollable(container, true)
-      ? { scrollable: false }
-      : {}
-  },
-})

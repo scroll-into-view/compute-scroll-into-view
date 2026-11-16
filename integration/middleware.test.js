@@ -1,6 +1,9 @@
 // The middleware option of compute, and the boundary, skipOverflowHiddenElements and onlyIfNeeded middleware
 import { beforeEach, describe, expect, test } from 'vite-plus/test'
 
+import * as rootEntry from '../src/index.ts'
+import * as middlewareEntry from '../src/middleware.ts'
+
 const nested = `
   <div style="height: 2000px"></div>
   <div id="outer" style="height: 300px; width: 300px; overflow: auto">
@@ -16,6 +19,15 @@ const nested = `
 
 beforeEach(async () => {
   await page.goto('/integration/issues.html')
+})
+
+test('the root entry exports compute, and the middleware entry the built-in middleware', () => {
+  expect(Object.keys(rootEntry)).toEqual(['compute'])
+  expect(Object.keys(middlewareEntry).toSorted()).toEqual([
+    'boundary',
+    'onlyIfNeeded',
+    'skipOverflowHiddenElements',
+  ])
 })
 
 describe('boundary', () => {

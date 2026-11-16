@@ -1,9 +1,9 @@
+import { compute } from '../src/index.ts'
 import {
   boundary,
-  compute,
   onlyIfNeeded,
   skipOverflowHiddenElements,
-} from '../src/index.ts'
+} from '../src/middleware.ts'
 window.computeScrollIntoView = compute
 window.onlyIfNeeded = onlyIfNeeded
 window.boundary = boundary
