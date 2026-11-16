@@ -102,7 +102,9 @@ const unionBoxes = (boxes: SideObject[]): SideObject | null =>
 // A collapsed range has no box of its own in every browser, so a caret is measured as the box of the character or
 // node next to it. That box is as tall as the line, and its edge nearest the caret is where the caret is, in any
 // writing mode and direction. A caret looks at the one after it, like browsers place it after a soft wrap, and the
-// focus of a selection at the selected one. At the ends, the one on the other side is measured
+// focus of a selection at the selected one. At the ends, the one on the other side is measured. A neighboring
+// element, like a `<strong>` that wraps over several lines, is entered at the edge nearest the caret, down to the
+// character there. Elements without children, like `<img>` and `<br>`, are the box themselves
 const measureCaret = (
   node: Node,
   offset: number,
@@ -123,10 +125,9 @@ const measureCaret = (
     return toBox(isBefore ? rects[rects.length - 1] : rects[0])
   }
   const child = node.childNodes[index]
-  if (isText(child)) {
-    return measureCaret(child, isBefore ? child.length : 0, isBefore)
-  }
-  return isElementNode(child) ? toBox(child.getBoundingClientRect()) : null
+  if (!isText(child) && !isElementNode(child)) return null
+  const childLength = isText(child) ? child.length : child.childNodes.length
+  return measureCaret(child, isBefore ? childLength : 0, isBefore)
 }
 
 const measureRange = (range: Range): SideObject | null =>

@@ -335,6 +335,7 @@ const editor = `
   <div id="editor" style="height: 100px; width: 240px; overflow: auto; font: 16px/20px monospace">
     <p id="text" style="margin: 0; width: 20ch; word-break: break-all">${'x'.repeat(20 * 15)}</p>
     <p id="empty" style="margin: 0"><br></p>
+    <p id="wrapped" style="margin: 0; width: 20ch; word-break: break-all">aaaa<strong>${'x'.repeat(100)}</strong></p>
   </div>
   <div style="height: 2000px"></div>`
 
@@ -412,6 +413,35 @@ describe('selection', () => {
     )
     // The empty paragraph is the 16th line, with its bottom edge at 320px
     expect(actual).toBeCloseTo(220, -1)
+  })
+
+  test('a caret next to an inline wrapper is measured at the character there, not the wrapper', async () => {
+    const actual = await page.evaluate(
+      (html, helpers) => {
+        document.body.innerHTML = html
+        const { scrollEditor } = window.eval(helpers)
+        const wrapped = document.querySelector('#wrapped')
+        const caret = (offset) => {
+          const range = document.createRange()
+          range.setStart(wrapped, offset)
+          range.collapse(true)
+          return range
+        }
+        return {
+          // After the <strong>, at the end of the paragraph
+          after: scrollEditor('nearest', [window.selection(caret(2))]),
+          // Before the <strong>, after the "aaaa"
+          before: scrollEditor('nearest', [window.selection(caret(1))]),
+        }
+      },
+      editor,
+      editorHelpers
+    )
+    // The paragraph starts at 320px and wraps over 6 lines, 4 of which the <strong> spans past the editor's height.
+    // The caret after it is on the last line, with its bottom edge at 440px
+    expect(actual.after).toBeCloseTo(340, -1)
+    // The caret before it is on the first line, with its bottom edge at 340px
+    expect(actual.before).toBeCloseTo(240, -1)
   })
 
   test('a multi-line selection aligns its focus end by default, and its bounds on request', async () => {
