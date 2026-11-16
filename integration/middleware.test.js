@@ -537,6 +537,39 @@ describe('selection', () => {
     expect(actual.left).toBeCloseTo(actual.expected, 1)
   })
 
+  test("the bounds of a Selection with several ranges are the ranges', not what's between them", async () => {
+    const actual = await page.evaluate(() => {
+      document.body.innerHTML = `
+        <div id="editor" style="height: 100px; width: 100px; overflow: auto; font: 16px/20px monospace; white-space: nowrap">
+          <p id="first" style="margin: 0">aaaa</p>
+          <p style="margin: 0">${'b'.repeat(60)}</p>
+          <p id="last" style="margin: 0">cccc</p>
+        </div>`
+      const ranges = ['#first', '#last'].map((selector) => {
+        const range = document.createRange()
+        range.selectNodeContents(document.querySelector(selector))
+        return range
+      })
+      // Chromium keeps one range, so this is what Firefox gives for a selection across table cells
+      const selected = {
+        rangeCount: ranges.length,
+        getRangeAt: (index) => ranges[index],
+      }
+      const [action] = window.computeScrollIntoView(
+        document.querySelector('#first'),
+        {
+          block: 'nearest',
+          inline: 'end',
+          middleware: [window.selection(selected, { align: 'bounds' })],
+        }
+      )
+      return { left: action.left }
+    })
+    // The ranges end at 64px, inside the 100px wide editor, which can't scroll back past its start. The box between
+    // them is about 580px wide
+    expect(actual.left).toBeLessThanOrEqual(0)
+  })
+
   test('onlyIfNeeded checks the caret, not the element', async () => {
     const actual = await page.evaluate(
       (html, helpers) => {
