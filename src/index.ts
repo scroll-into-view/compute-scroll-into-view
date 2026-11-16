@@ -333,6 +333,47 @@ const toPhysical = (
         ? 'start'
         : position
 
+// A `scroll-snap-align` value other than `none`
+const isSnapPosition = (value: string): value is 'start' | 'center' | 'end' =>
+  value === 'start' || value === 'center' || value === 'end'
+
+/**
+ * The target's own snap alignment on each physical axis that its nearest scroll container snaps, as `scrollIntoView()`
+ * lands on it there: https://drafts.csswg.org/cssom-view/#determine-the-scroll-into-view-position
+ * Both properties are logical to the scroll container's writing mode: https://drafts.csswg.org/css-scroll-snap-1/
+ */
+const getSnapAlignment = (
+  targetStyle: CSSStyleDeclaration,
+  containerStyle: CSSStyleDeclaration
+): { x?: ScrollLogicalPosition; y?: ScrollLogicalPosition } => {
+  // Unset in browsers without scroll snap
+  const [axis] = (containerStyle.scrollSnapType || 'none').split(' ')
+  const [blockAlign, inlineAlign = blockAlign] = (
+    targetStyle.scrollSnapAlign || 'none'
+  ).split(' ')
+  const flow = getFlowDirections(containerStyle)
+  const snapsX =
+    axis === 'both' ||
+    axis === 'x' ||
+    axis === (flow.vertical ? 'block' : 'inline')
+  const snapsY =
+    axis === 'both' ||
+    axis === 'y' ||
+    axis === (flow.vertical ? 'inline' : 'block')
+  const alignX = flow.vertical ? blockAlign : inlineAlign
+  const alignY = flow.vertical ? inlineAlign : blockAlign
+  return {
+    x:
+      snapsX && isSnapPosition(alignX)
+        ? toPhysical(alignX, flow.xStartIsRight)
+        : undefined,
+    y:
+      snapsY && isSnapPosition(alignY)
+        ? toPhysical(alignY, flow.yStartIsBottom)
+        : undefined,
+  }
+}
+
 // Keeps a scroll offset within the scroll container's range, which is negative when its start edge is the right or
 // bottom one
 const clampScroll = (
@@ -595,6 +636,8 @@ export const compute = (
 
   // Collect new scroll positions
   const computations: ScrollAction[] = []
+  // Only the nearest scroll container has the target's snap positions
+  let nearestContainer = true
   // Walk the ancestors for the scrolling boxes, as defined in the spec: https://drafts.csswg.org/cssom-view/#scrolling-box
   let cursor: Element | null = getParentElement(target)
   // The position of the last box in the containing block chain, which says which ancestor is its containing block
@@ -628,15 +671,26 @@ export const compute = (
         box.right += shift
       }
 
+      const snap = nearestContainer
+        ? getSnapAlignment(
+            targetStyle,
+            // The root element's scroll-snap-type applies to the viewport
+            viewport
+              ? getComputedStyle(document.documentElement)
+              : visited.style()
+          )
+        : {}
+      nearestContainer = false
+
       let blockScroll: number = alignAxis(
-        alignY,
+        snap.y || alignY,
         region.top,
         region.bottom,
         box.top,
         box.bottom
       )
       let inlineScroll: number = alignAxis(
-        alignX,
+        snap.x || alignX,
         region.left,
         region.right,
         box.left,
