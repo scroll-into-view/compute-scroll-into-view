@@ -45,15 +45,16 @@ export const boundary = (
   limit: Element | ((parent: Element) => boolean) | null | undefined
 ): Middleware => ({
   name: 'boundary',
-  fn: ({ target, container, viewport }) => {
+  fn: ({ target, container }) => {
     if (limit == null) return {}
     const checkBoundary =
       typeof limit === 'function' ? limit : (node: Element) => node !== limit
     if (container === getParentElement(target) && !checkBoundary(target)) {
       return { scrollable: false, stop: true }
     }
-    // The viewport is the last scrolling box of its document
-    return !viewport && !checkBoundary(container) ? { stop: true } : {}
+    // Stop on the boundary itself, including the viewport, so a frame's scrolling element
+    // prevents the walk from continuing into the parent document
+    return !checkBoundary(container) ? { stop: true } : {}
   },
 })
 

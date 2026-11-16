@@ -773,9 +773,10 @@ export const compute = (
       win = ownerWindow
       scrollingElement = getScrollingElement(doc)
       ;({ scrollX, scrollY } = win)
-      // The `<iframe>` is a box in the parent document, whose containing block chain starts at it
+      // The `<iframe>` is a box in the parent document, whose containing block chain starts at it.
+      // Visit it so middleware such as `boundary` can stop on the frame before parent ancestors.
       position = ownerStyle.position
-      cursor = getParentElement(owner)
+      cursor = owner
       continue
     }
     cursor = getParentElement(frame)
