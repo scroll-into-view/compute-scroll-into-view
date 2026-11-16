@@ -271,12 +271,6 @@
       "scrollIntoView on an SVG shape element, rotated": "PASS"
     }
   },
-  "css/cssom-view/scrollIntoView-then-scrollBy.html": {
-    "status": "OK",
-    "subtests": {
-      "scrollIntoView() followed by a deferred scrollBy() preserves the scroll correction": "FAIL"
-    }
-  },
   "css/cssom-view/scrollIntoView-vertical-lr-writing-mode-and-rtl-direction.html": {
     "status": "OK",
     "subtests": {

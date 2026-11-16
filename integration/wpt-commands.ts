@@ -116,7 +116,29 @@ function installScrollIntoView(
     if (this.getClientRects().length === 0) return results([])
     const actions = compute(this, { ...rest, block, inline })
     return results(
-      actions.map(({ el, top, left }) => el.scroll({ top, left, behavior }))
+      actions.map(({ el, top, left }) => {
+        if (
+          behavior === 'smooth' ||
+          (behavior === 'auto' &&
+            getComputedStyle(el).scrollBehavior === 'smooth')
+        ) {
+          return el.scroll({ top, left, behavior })
+        }
+        // Chromium rounds the positions that `scroll()` gets, but keeps the fractional offsets it scrolls by, like
+        // its native `scrollIntoView()` does
+        const scrolled = el.scroll({
+          top: Math.floor(top),
+          left: Math.floor(left),
+          behavior,
+        })
+        return top % 1 === 0 && left % 1 === 0
+          ? scrolled
+          : el.scrollBy({
+              top: top - Math.floor(top),
+              left: left - Math.floor(left),
+              behavior,
+            })
+      })
     )
   }
 }
