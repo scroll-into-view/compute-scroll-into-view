@@ -25,8 +25,15 @@ jobs:
         with:
           node-version: lts
           cache: true
+      # Changesets runs `pnpm exec oxfmt`. Vite+ owns that binary, and `vp migrate`
+      # removes it as a direct dependency. Put it on PATH, and set VP_VERSION so
+      # oxfmt reads the fmt block in vite.config.ts the way `vp check` does.
+      - name: Expose oxfmt for Changesets
+        run: |
+          oxfmt_bin="$(dirname "$(node -p "require.resolve('oxfmt/package.json', { paths: [require.resolve('vite-plus/package.json')] })")")/bin"
+          echo "$oxfmt_bin" >> "$GITHUB_PATH"
+          echo "VP_VERSION=$(node -p "require('./node_modules/vite-plus/package.json').version")" >> "$GITHUB_ENV"
       - name: Create Release Pull Request or Publish to npm
         uses: changesets/action@v2
         with:
-          version-script: pnpm run version-packages
           publish-script: pnpm release

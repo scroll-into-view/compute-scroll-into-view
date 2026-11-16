@@ -5,6 +5,7 @@
     { "repo": "scroll-into-view/compute-scroll-into-view" }
   ],
   "commit": false,
+  "format": "oxfmt",
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
