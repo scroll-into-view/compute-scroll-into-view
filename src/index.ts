@@ -444,25 +444,39 @@ const measureFrame = (frame: Element, frameStyle: CSSStyleDeclaration) => {
 
 const isSet = (value: string | undefined) => !!value && value !== 'none'
 
+// `will-change` is a comma-separated list of property names. Match whole names so `scroll-position` is not `position`.
+const willChangeHas = (willChange: string, name: string) =>
+  willChange.split(',').some((value) => value.trim() === name)
+
 // Whether an element with this style is the containing block of its absolutely positioned descendants, or with
 // `fixed`, of its fixed positioned ones: https://drafts.csswg.org/css-position-3/#def-cb
+// `container-type` no longer applies layout containment, so it is not a containing block.
 // Some of these properties are missing in older browsers, where they're undefined
-const isContainingBlock = (style: CSSStyleDeclaration, fixed: boolean) =>
-  (!fixed && style.position !== 'static') ||
-  isSet(style.transform) ||
-  isSet(style.translate) ||
-  isSet(style.rotate) ||
-  isSet(style.scale) ||
-  isSet(style.perspective) ||
-  isSet(style.filter) ||
-  isSet(style.backdropFilter) ||
-  /layout|paint|strict|content/.test(style.contain || '') ||
-  /size/.test(style.containerType || '') ||
-  /auto|hidden/.test(style.contentVisibility || '') ||
-  /transform|perspective|filter|translate|rotate|scale/.test(
-    style.willChange || ''
-  ) ||
-  (!fixed && /position/.test(style.willChange || ''))
+const isContainingBlock = (style: CSSStyleDeclaration, fixed: boolean) => {
+  const willChange = style.willChange || ''
+  return (
+    (!fixed && style.position !== 'static') ||
+    isSet(style.transform) ||
+    isSet(style.translate) ||
+    isSet(style.rotate) ||
+    isSet(style.scale) ||
+    isSet(style.perspective) ||
+    isSet(style.filter) ||
+    isSet(style.backdropFilter) ||
+    /layout|paint|strict|content/.test(style.contain || '') ||
+    /auto|hidden/.test(style.contentVisibility || '') ||
+    [
+      'transform',
+      'perspective',
+      'filter',
+      'backdrop-filter',
+      'translate',
+      'rotate',
+      'scale',
+    ].some((name) => willChangeHas(willChange, name)) ||
+    (!fixed && willChangeHas(willChange, 'position'))
+  )
+}
 
 export const compute = (
   target: Element,

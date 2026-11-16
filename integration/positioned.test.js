@@ -62,6 +62,30 @@ const cases = {
       <div id="target" style="position: fixed; top: 400px; height: 50px; width: 50px"></div>
       <div style="height: 1000px"></div>
     </div>`,
+  'an absolutely positioned target in a scroll container with will-change: scroll-position': `
+    <div id="scroller" style="height: 200px; overflow: auto; will-change: scroll-position">
+      <div style="height: 300px"></div>
+      <div id="target" style="position: absolute; top: 400px; height: 50px; width: 50px"></div>
+      <div style="height: 1000px"></div>
+    </div>`,
+  'an absolutely positioned target in a scroll container with will-change: transform, scroll-position': `
+    <div id="scroller" style="height: 200px; overflow: auto; will-change: transform, scroll-position">
+      <div style="height: 300px"></div>
+      <div id="target" style="position: absolute; top: 400px; height: 50px; width: 50px"></div>
+      <div style="height: 1000px"></div>
+    </div>`,
+  'an absolutely positioned target in a scroll container with container-type: size': `
+    <div id="scroller" style="height: 200px; overflow: auto; container-type: size">
+      <div style="height: 300px"></div>
+      <div id="target" style="position: absolute; top: 400px; height: 50px; width: 50px"></div>
+      <div style="height: 1000px"></div>
+    </div>`,
+  'an absolutely positioned target in a scroll container with will-change: position': `
+    <div id="scroller" style="height: 200px; overflow: auto; will-change: position">
+      <div style="height: 300px"></div>
+      <div id="target" style="position: absolute; top: 400px; height: 50px; width: 50px"></div>
+      <div style="height: 1000px"></div>
+    </div>`,
 }
 
 describe('positioned targets', () => {
