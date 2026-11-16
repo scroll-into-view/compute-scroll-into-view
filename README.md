@@ -269,6 +269,7 @@ This project uses [Vite+](https://viteplus.dev). With the [`vp` CLI](https://vit
 - `vp dev` serves the integration fixtures. Open `/integration/` for a list of them. They run `src/` directly and reload when it changes, and the DevTools console has `computeScrollIntoView` and `mapActions` for experiments.
 - `vp test` runs the integration tests in Chromium with Playwright (run `vp exec playwright install chromium` once first).
   This includes the [web-platform-tests](https://github.com/web-platform-tests/wpt) for `scrollIntoView`, which measure conformance with the [CSSOM View spec](https://drafts.csswg.org/cssom-view/#scroll-a-target-into-view) (see [`integration/wpt`](./integration/wpt/README.md)), and reproductions of reported bugs in `integration/issues.test.js`.
+  CI also runs them in Chromium on [BrowserStack](https://www.browserstack.com/automate/playwright), with the `BROWSERSTACK_USERNAME` and `BROWSERSTACK_ACCESS_KEY` repository secrets. To do that locally, start a [BrowserStack Local](https://www.browserstack.com/docs/automate/playwright/local-testing) tunnel and run `BROWSERSTACK=true vp test` with those variables and `BROWSERSTACK_LOCAL_IDENTIFIER` set to the tunnel's identifier.
 - `vp check` formats, lints, and type checks, and `vp exec knip` reports unused files, exports, and dependencies.
 - `vp pack` builds the package into `dist`.
 

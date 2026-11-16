@@ -1,4 +1,5 @@
 import browserslist from 'browserslist'
+import playwrightPackage from 'playwright/package.json' with { type: 'json' }
 import { defineConfig } from 'vite-plus'
 import { playwright } from 'vite-plus/test/browser-playwright'
 
@@ -38,6 +39,41 @@ for (const entry of browserslist()) {
   }
 }
 const target = [...oldest].map(([name, version]) => `${name}${version}`)
+
+// Chromium turns smooth scrolling off when the OS has animations off, like on GitHub's Windows runners, which
+// makes the web-platform-tests for `behavior: 'smooth'` fail there
+const chromiumArgs = ['--enable-smooth-scrolling']
+
+// With BROWSERSTACK=true, the tests run in Playwright's Chromium on BrowserStack instead of a local one. It loads the
+// test server through a BrowserStack Local tunnel, which has to be running with BROWSERSTACK_LOCAL_IDENTIFIER
+function browserStackEndpoint(): string {
+  const { BROWSERSTACK_USERNAME, BROWSERSTACK_ACCESS_KEY } = process.env
+  const missing = Object.entries({
+    BROWSERSTACK_USERNAME,
+    BROWSERSTACK_ACCESS_KEY,
+  }).flatMap(([name, value]) => (value ? [] : [name]))
+  if (missing.length > 0) {
+    throw new Error(
+      `BROWSERSTACK is set, but ${missing.join(' and ')} ${missing.length > 1 ? 'are' : 'is'} missing. ` +
+        'In GitHub Actions, add them as repository secrets'
+    )
+  }
+  const caps = {
+    browser: 'playwright-chromium',
+    os: 'Windows',
+    os_version: '11',
+    'browserstack.username': BROWSERSTACK_USERNAME,
+    'browserstack.accessKey': BROWSERSTACK_ACCESS_KEY,
+    'browserstack.local': 'true',
+    'browserstack.localIdentifier': process.env.BROWSERSTACK_LOCAL_IDENTIFIER,
+    'client.playwrightVersion': playwrightPackage.version,
+    project: 'compute-scroll-into-view',
+    build: process.env.BROWSERSTACK_BUILD_NAME,
+    name: 'vp test',
+    args: chromiumArgs,
+  }
+  return `wss://cdp.browserstack.com/playwright?caps=${encodeURIComponent(JSON.stringify(caps))}`
+}
 
 export default defineConfig({
   staged: {
@@ -119,11 +155,11 @@ export default defineConfig({
     },
     browser: {
       enabled: true,
-      // Chromium turns smooth scrolling off when the OS has animations off, like on GitHub's Windows runners, which
-      // makes the web-platform-tests for `behavior: 'smooth'` fail there
-      provider: playwright({
-        launchOptions: { args: ['--enable-smooth-scrolling'] },
-      }),
+      provider: playwright(
+        process.env.BROWSERSTACK
+          ? { connectOptions: { wsEndpoint: browserStackEndpoint() } }
+          : { launchOptions: { args: chromiumArgs } }
+      ),
       headless: true,
       instances: [{ browser: 'chromium' }],
       commands: {
