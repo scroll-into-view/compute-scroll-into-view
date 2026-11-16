@@ -11,18 +11,6 @@
       "scrollIntoView scrolls to the position of the element in the fitted SVG document": "FAIL"
     }
   },
-  "css/css-overflow/single-axis-scroll-into-view-rtl.html": {
-    "status": "OK",
-    "subtests": {
-      "scrollIntoView() respects single-axis limits independently on each ancestor in RTL": "FAIL"
-    }
-  },
-  "css/css-overflow/single-axis-scroll-into-view.html": {
-    "status": "OK",
-    "subtests": {
-      "scrollIntoView() respects single-axis limits independently on each ancestor": "FAIL"
-    }
-  },
   "css/css-position/sticky/position-sticky-scrollIntoView.html": {
     "status": "OK",
     "subtests": {
