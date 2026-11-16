@@ -89,16 +89,6 @@ const toBox = (rect: DOMRect | undefined): SideObject | null =>
     ? { top: rect.top, right: rect.right, bottom: rect.bottom, left: rect.left }
     : null
 
-const unionBoxes = (boxes: SideObject[]): SideObject | null =>
-  boxes.length
-    ? boxes.reduce((union, box) => ({
-        top: Math.min(union.top, box.top),
-        right: Math.max(union.right, box.right),
-        bottom: Math.max(union.bottom, box.bottom),
-        left: Math.min(union.left, box.left),
-      }))
-    : null
-
 // A collapsed range has no box of its own in every browser, so a caret is measured as the box of the character or
 // node next to it. That box is as tall as the line, and its edge nearest the caret is where the caret is, in any
 // writing mode and direction. A caret looks at the one after it, like browsers place it after a soft wrap, and the
@@ -151,18 +141,19 @@ const measureSelection = (
           !selected.collapsed
         )
   }
-  if (align === 'bounds') {
-    const boxes: SideObject[] = []
-    for (let index = 0; index < selected.rangeCount; index++) {
-      const box = measureRange(selected.getRangeAt(index))
-      if (box) boxes.push(box)
-    }
-    return unionBoxes(boxes)
-  }
-  const { focusNode, focusOffset } = selected
-  if (!focusNode || !selected.rangeCount) return null
+  if (!selected.rangeCount) return null
+  const first = selected.getRangeAt(0)
   // The focus is the end of a forward selection, and the start of a backward one
   const range = selected.getRangeAt(selected.rangeCount - 1)
+  if (align === 'bounds') {
+    // Firefox has more than one range for a selection across table cells, or with ctrl-select. The box around
+    // all of them is the one from the start of the first to the end of the last
+    const span = first.cloneRange()
+    span.setEnd(range.endContainer, range.endOffset)
+    return measureRange(span)
+  }
+  const { focusNode, focusOffset } = selected
+  if (!focusNode) return null
   const forward =
     !range.collapsed &&
     focusNode === range.endContainer &&

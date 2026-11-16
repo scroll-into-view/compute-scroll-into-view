@@ -485,6 +485,10 @@ describe('selection', () => {
           range: scrollEditor('nearest', [
             window.selection(selected.getRangeAt(0)),
           ]),
+          // The box around the selection is taller than the editor, so its start edge (line 3's) is aligned
+          bounds: scrollEditor('nearest', [
+            window.selection(selected, { align: 'bounds' }),
+          ]),
         }
         selected.removeAllRanges()
         return result
@@ -497,6 +501,7 @@ describe('selection', () => {
     expect(actual.implicit).toBe(actual.explicit)
     // The range has no direction, so its focus is its end
     expect(actual.range).toBeCloseTo(80, -1)
+    expect(actual.bounds).toBeCloseTo(40, -1)
   })
 
   test('a caret in a long line scrolls horizontally', async () => {
@@ -608,7 +613,8 @@ describe('selection', () => {
         caret: outerTop([window.selection(range)]),
       }
     })
-    expect(actual.caret).toBe(actual.element + 60)
+    // The glyph box is a pixel inside the line box on some platforms
+    expect(actual.caret).toBeCloseTo(actual.element + 60, -1)
   })
 })
 
