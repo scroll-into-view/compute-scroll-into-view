@@ -141,7 +141,7 @@ describe('issues', () => {
     expect(computed).toEqual(native)
   })
 
-  test.fails('#827: a body with overflow: auto, under a root with overflow: hidden, is scrolled', async () => {
+  test('#827: a body with overflow: auto, under a root with overflow: hidden, is scrolled', async () => {
     const { native, computed } = await page.evaluate(() => {
       document.documentElement.style.cssText = 'height: 100%; overflow: hidden'
       document.body.style.cssText = 'height: 100%; overflow: auto'

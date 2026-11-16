@@ -366,6 +366,11 @@ const getScrollPadding = (
   }
 }
 
+const isOverflowPropagated = () => {
+  const { overflowX, overflowY } = getComputedStyle(document.documentElement)
+  return overflowX === 'visible' && overflowY === 'visible'
+}
+
 const getScrollingElement = () =>
   document.scrollingElement || document.documentElement
 
@@ -515,8 +520,9 @@ export const compute = (
     let scrollable =
       viewport ||
       (isScrollable(frame) &&
-        // Skip document.body if it's not the scrollingElement and documentElement isn't independently scrollable
-        !(frame === document.body && !isScrollable(document.documentElement)))
+        // The body's overflow applies to the viewport instead when the root's is visible, so it isn't a scroll
+        // container then: https://drafts.csswg.org/css-overflow-3/#overflow-propagation
+        !(frame === document.body && isOverflowPropagated()))
     let stop = viewport
     for (let index = 0; index < count; index++) {
       const result = middleware[index].fn({
