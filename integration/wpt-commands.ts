@@ -159,12 +159,17 @@ function bundleEngine(context: BrowserCommandContext): Promise<string> {
 
 // The web-platform-tests are written for browsers with classic scrollbars, which take 15px of the layout width and
 // height. Playwright's headless Chromium hides them, which the fixtures of the other integration tests depend on, so
-// the web-platform-tests run in a browser of their own that keeps them
+// the web-platform-tests run in a browser of their own that keeps them. Its experimental web platform features match
+// the Chrome of wpt.fyi's experimental results, which lays out SVG documents embedded with object-fit and keeps
+// fractional scroll offsets
 let browserContext: Promise<BrowserContext> | undefined
 function getBrowserContext(): Promise<BrowserContext> {
   browserContext ??= chromium
     .launch({
-      args: ['--enable-smooth-scrolling'],
+      args: [
+        '--enable-smooth-scrolling',
+        '--enable-experimental-web-platform-features',
+      ],
       ignoreDefaultArgs: ['--hide-scrollbars'],
     })
     .then((browser) => browser.newContext())
