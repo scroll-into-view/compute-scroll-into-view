@@ -12,6 +12,7 @@ import {
   getRegion,
   getTargetBox,
   isScrollable,
+  mapSides,
 } from './shared.js'
 
 /**
@@ -287,22 +288,11 @@ const alignAxis = (
 
 // Only HTMLElement objects have offset[Width|Height], but any Element might pass by here. `instanceof HTMLElement`
 // would miss elements from other frames, which have their own HTMLElement, so check for the properties instead
-const hasOffsetWidth = (el: Element): el is HTMLElement => 'offsetWidth' in el
-const hasOffsetHeight = (el: Element): el is HTMLElement => 'offsetHeight' in el
-
-const getScrollMargins = (target: Element) => {
-  const computedStyle = window.getComputedStyle(target)
-  return {
-    top: parseFloat(computedStyle.scrollMarginTop) || 0,
-    right: parseFloat(computedStyle.scrollMarginRight) || 0,
-    bottom: parseFloat(computedStyle.scrollMarginBottom) || 0,
-    left: parseFloat(computedStyle.scrollMarginLeft) || 0,
-  }
-}
+const isHTMLElement = (el: Element): el is HTMLElement => 'offsetWidth' in el
 
 /**
- * Which axis is the block axis, and whether the start edge of each physical axis is its right or bottom edge, for a
- * box with this writing mode and direction: https://drafts.csswg.org/css-writing-modes-4/#logical-to-physical
+ * Which axis is the block axis, and whether the start edge of each physical axis is its right (`x`) or bottom (`y`)
+ * edge, for a box with this writing mode and direction: https://drafts.csswg.org/css-writing-modes-4/#logical-to-physical
  * A scroll container whose start edge is on the right or bottom has negative scroll offsets on that axis
  */
 const getFlowDirections = (style: CSSStyleDeclaration) => {
@@ -310,14 +300,11 @@ const getFlowDirections = (style: CSSStyleDeclaration) => {
   const rtl = direction === 'rtl'
   // Also matches the legacy `tb`, `tb-rl` values
   const vertical = /^(vertical|sideways|tb)/.test(writingMode)
-  if (!vertical) {
-    return { vertical, xStartIsRight: rtl, yStartIsBottom: false }
-  }
   return {
     vertical,
-    xStartIsRight: !writingMode.endsWith('lr'),
+    x: vertical ? !writingMode.endsWith('lr') : rtl,
     // Lines in sideways-lr run bottom to top
-    yStartIsBottom: writingMode === 'sideways-lr' ? !rtl : rtl,
+    y: vertical && (writingMode === 'sideways-lr' ? !rtl : rtl),
   }
 }
 
@@ -353,26 +340,16 @@ const getSnapAlignment = (
     targetStyle.scrollSnapAlign || 'none'
   ).split(' ')
   const flow = getFlowDirections(containerStyle)
-  const snapsX =
-    axis === 'both' ||
-    axis === 'x' ||
-    axis === (flow.vertical ? 'block' : 'inline')
-  const snapsY =
-    axis === 'both' ||
-    axis === 'y' ||
-    axis === (flow.vertical ? 'inline' : 'block')
-  const alignX = flow.vertical ? blockAlign : inlineAlign
-  const alignY = flow.vertical ? inlineAlign : blockAlign
-  return {
-    x:
-      snapsX && isSnapPosition(alignX)
-        ? toPhysical(alignX, flow.xStartIsRight)
-        : undefined,
-    y:
-      snapsY && isSnapPosition(alignY)
-        ? toPhysical(alignY, flow.yStartIsBottom)
-        : undefined,
+  const snap = (physical: 'x' | 'y', isBlock: boolean) => {
+    const align = isBlock ? blockAlign : inlineAlign
+    return (axis === 'both' ||
+      axis === physical ||
+      axis === (isBlock ? 'block' : 'inline')) &&
+      isSnapPosition(align)
+      ? toPhysical(align, flow[physical])
+      : undefined
   }
+  return { x: snap('x', flow.vertical), y: snap('y', !flow.vertical) }
 }
 
 // Keeps a scroll offset within the scroll container's range, which is negative when its start edge is the right or
@@ -395,133 +372,92 @@ const resolvePadding = (value: string, scrollportSize: number, scale: number) =>
 const getScrollPadding = (
   style: CSSStyleDeclaration,
   scrollport: SideObject,
-  scaleX: number,
-  scaleY: number
-): SideObject => {
-  const width = scrollport.right - scrollport.left
-  const height = scrollport.bottom - scrollport.top
-  return {
-    top: resolvePadding(style.scrollPaddingTop, height, scaleY),
-    right: resolvePadding(style.scrollPaddingRight, width, scaleX),
-    bottom: resolvePadding(style.scrollPaddingBottom, height, scaleY),
-    left: resolvePadding(style.scrollPaddingLeft, width, scaleX),
-  }
-}
+  scale: Scale
+): SideObject =>
+  mapSides((side, _start, axis) =>
+    resolvePadding(
+      style.getPropertyValue(`scroll-padding-${side}`),
+      axis === 'x'
+        ? scrollport.right - scrollport.left
+        : scrollport.bottom - scrollport.top,
+      scale[axis]
+    )
+  )
+
+const getRootStyle = (doc: Document) => getComputedStyle(doc.documentElement)
 
 const isOverflowPropagated = (doc: Document) => {
-  const { overflowX, overflowY } = getComputedStyle(doc.documentElement)
+  const { overflowX, overflowY } = getRootStyle(doc)
   return overflowX === 'visible' && overflowY === 'visible'
 }
 
 const getScrollingElement = (doc: Document) =>
   doc.scrollingElement || doc.documentElement
 
-// Support pinch-zooming properly, making sure elements scroll into the visual viewport
-// Browsers that don't support visualViewport will report the layout viewport dimensions on document.documentElement.clientWidth/Height
-// and viewport dimensions on window.innerWidth/Height
-// https://www.quirksmode.org/mobile/viewports2.html
-// https://bokand.github.io/viewport/index.html
-const getViewportRects = (
-  target: SideObject,
-  scrollMargin: SideObject,
-  doc: Document,
-  win: Window
-) => {
-  const scrollport = {
-    top: 0,
-    right: win.visualViewport?.width ?? win.innerWidth,
-    bottom: win.visualViewport?.height ?? win.innerHeight,
-    left: 0,
-  }
-  return {
-    scrollport,
-    target,
-    // The viewport's scroll-padding is set on the root element, also when the scrolling element is the body
-    scrollPadding: getScrollPadding(
-      getComputedStyle(doc.documentElement),
-      scrollport,
-      1,
-      1
-    ),
-    scrollMargin,
-  }
+// How much transforms scale a box on each axis
+interface Scale {
+  x: number
+  y: number
 }
 
 // The scrollport of a scroll container, and how much transforms scale it
 const measureFrame = (frame: Element, frameStyle: CSSStyleDeclaration) => {
-  const { height, width, top, right, bottom, left } =
-    frame.getBoundingClientRect()
-
-  // Borders, plus the scrollbar on whichever side it is, like the left in right-to-left scroll containers
-  const insetLeft = hasOffsetWidth(frame)
-    ? frame.clientLeft
-    : parseInt(frameStyle.borderLeftWidth, 10)
-  const insetRight = hasOffsetWidth(frame)
-    ? frame.offsetWidth - frame.clientLeft - frame.clientWidth
-    : parseInt(frameStyle.borderRightWidth, 10)
-  const insetTop = hasOffsetHeight(frame)
-    ? frame.clientTop
-    : parseInt(frameStyle.borderTopWidth, 10)
-  const insetBottom = hasOffsetHeight(frame)
-    ? frame.offsetHeight - frame.clientTop - frame.clientHeight
-    : parseInt(frameStyle.borderBottomWidth, 10)
-
-  const scaleX = hasOffsetWidth(frame)
-    ? frame.offsetWidth === 0
-      ? 0
-      : width / frame.offsetWidth
-    : 0
-  const scaleY = hasOffsetHeight(frame)
-    ? frame.offsetHeight === 0
-      ? 0
-      : height / frame.offsetHeight
-    : 0
-
+  const rect = frame.getBoundingClientRect()
+  const html = isHTMLElement(frame)
+  const scale = {
+    x: html && frame.offsetWidth ? rect.width / frame.offsetWidth : 0,
+    y: html && frame.offsetHeight ? rect.height / frame.offsetHeight : 0,
+  }
   return {
-    scrollport: {
-      top: top + insetTop * scaleY,
-      right: right - insetRight * scaleX,
-      bottom: bottom - insetBottom * scaleY,
-      left: left + insetLeft * scaleX,
-    },
-    scaleX,
-    scaleY,
+    scrollport: mapSides(
+      (side, start, axis) =>
+        rect[side] +
+        (start ? 1 : -1) *
+          // Borders, plus the scrollbar on whichever side it is, like the left in right-to-left scroll containers
+          (!html
+            ? parseInt(frameStyle.getPropertyValue(`border-${side}-width`), 10)
+            : start
+              ? axis === 'x'
+                ? frame.clientLeft
+                : frame.clientTop
+              : axis === 'x'
+                ? frame.offsetWidth - frame.clientLeft - frame.clientWidth
+                : frame.offsetHeight - frame.clientTop - frame.clientHeight) *
+          scale[axis]
+    ),
+    scale,
   }
 }
 
-const isSet = (value: string | undefined) => !!value && value !== 'none'
-
-// `will-change` is a comma-separated list of property names. Match whole names so `scroll-position` is not `position`.
-const willChangeHas = (willChange: string, name: string) =>
-  willChange.split(',').some((value) => value.trim() === name)
+const isSet = (value: string) => !!value && value !== 'none'
 
 // Whether an element with this style is the containing block of its absolutely positioned descendants, or with
 // `fixed`, of its fixed positioned ones: https://drafts.csswg.org/css-position-3/#def-cb
 // `container-type` no longer applies layout containment, so it is not a containing block.
-// Some of these properties are missing in older browsers, where they're undefined
+// Some of these properties are missing in older browsers, where they're empty
 const isContainingBlock = (style: CSSStyleDeclaration, fixed: boolean) => {
-  const willChange = style.willChange || ''
+  // `will-change` is a comma-separated list of property names. Match whole names so `scroll-position` is not `position`
+  const willChange = new Set(
+    style
+      .getPropertyValue('will-change')
+      .split(',')
+      .map((name) => name.trim())
+  )
   return (
-    (!fixed && style.position !== 'static') ||
-    isSet(style.transform) ||
-    isSet(style.translate) ||
-    isSet(style.rotate) ||
-    isSet(style.scale) ||
-    isSet(style.perspective) ||
-    isSet(style.filter) ||
-    isSet(style.backdropFilter) ||
-    /layout|paint|strict|content/.test(style.contain || '') ||
-    /auto|hidden/.test(style.contentVisibility || '') ||
+    (!fixed && (style.position !== 'static' || willChange.has('position'))) ||
     [
       'transform',
-      'perspective',
-      'filter',
-      'backdrop-filter',
       'translate',
       'rotate',
       'scale',
-    ].some((name) => willChangeHas(willChange, name)) ||
-    (!fixed && willChangeHas(willChange, 'position'))
+      'perspective',
+      'filter',
+      'backdrop-filter',
+    ].some(
+      (name) => isSet(style.getPropertyValue(name)) || willChange.has(name)
+    ) ||
+    /layout|paint|strict|content/.test(style.getPropertyValue('contain')) ||
+    /auto|hidden/.test(style.getPropertyValue('content-visibility'))
   )
 }
 
@@ -555,70 +491,88 @@ export const compute = (
   let win = targetWindow
   // The viewport of the document that the walk is in, the last scrolling box in it
   let scrollingElement = getScrollingElement(doc)
-  let { scrollX, scrollY } = win
+  let scroll = { x: win.scrollX, y: win.scrollY }
 
   // Alignment follows the target's writing mode and direction in every scroll container, like browsers do, rather
   // than each scroll container's own as the spec says: https://github.com/w3c/csswg-drafts/issues/11796
   // From here on `start` means the top or left edge
   const targetStyle = getComputedStyle(target)
   const targetFlow = getFlowDirections(targetStyle)
-  const alignY = toPhysical(
-    targetFlow.vertical ? inline : block,
-    targetFlow.yStartIsBottom
-  )
-  const alignX = toPhysical(
-    targetFlow.vertical ? block : inline,
-    targetFlow.xStartIsRight
-  )
+  const align = {
+    x: toPhysical(targetFlow.vertical ? block : inline, targetFlow.x),
+    y: toPhysical(targetFlow.vertical ? inline : block, targetFlow.y),
+  }
 
-  const { top, right, bottom, left } = target.getBoundingClientRect()
-  let targetRect = { top, right, bottom, left }
-  const scrollMargin = getScrollMargins(target)
+  const targetRect = target.getBoundingClientRect()
+  let targetBox = mapSides((side) => targetRect[side])
+  const scrollMargin = mapSides(
+    (side) =>
+      parseFloat(targetStyle.getPropertyValue(`scroll-margin-${side}`)) || 0
+  )
 
   // How much the inner scroll containers move the target, in the order they scroll
-  const blockShifts: number[] = []
-  const inlineShifts: number[] = []
+  let shifts = { x: [] as number[], y: [] as number[] }
+  const shift = (box: SideObject) =>
+    mapSides((side, _start, axis) =>
+      shifts[axis].reduce((edge, offset) => edge + offset, box[side])
+    )
 
   // Runs the first `count` middleware for an ancestor of the target. Ancestors that aren't in the target's containing
   // block chain don't move it when they scroll, so they aren't scrollable
-  const visit = (frame: Element, count: number, inChain = true) => {
+  const visit = (
+    frame: Element,
+    style: CSSStyleDeclaration,
+    count: number,
+    inChain = true
+  ) => {
     const viewport = frame === scrollingElement
-    let style: CSSStyleDeclaration | undefined
-    const getStyle = () => (style ??= getComputedStyle(frame))
     let measured: ReturnType<typeof measureFrame> | undefined
     let rects: Rects | undefined
-    const measure = (): Rects => {
-      if (viewport) {
-        return getViewportRects(
-          Object.assign({}, targetRect),
-          Object.assign({}, scrollMargin),
-          doc,
-          win
-        )
-      }
-      measured = measureFrame(frame, getStyle())
-      return {
-        scrollport: measured.scrollport,
-        target: Object.assign({}, targetRect),
-        scrollPadding: getScrollPadding(
-          getStyle(),
-          measured.scrollport,
-          measured.scaleX,
-          measured.scaleY
-        ),
-        scrollMargin: Object.assign({}, scrollMargin),
-      }
+    // Support pinch-zooming properly, making sure elements scroll into the visual viewport
+    // Browsers that don't support visualViewport will report the layout viewport dimensions on
+    // document.documentElement.clientWidth/Height and viewport dimensions on window.innerWidth/Height
+    // https://www.quirksmode.org/mobile/viewports2.html
+    // https://bokand.github.io/viewport/index.html
+    const measureBox = () => {
+      const visualViewport = win.visualViewport
+      return viewport
+        ? {
+            scrollport: {
+              top: 0,
+              right: visualViewport ? visualViewport.width : win.innerWidth,
+              bottom: visualViewport ? visualViewport.height : win.innerHeight,
+              left: 0,
+            },
+            scale: { x: 1, y: 1 },
+          }
+        : (measured = measureFrame(frame, style))
     }
-    const getRects = () => (rects ??= measure())
+    const getRects = (): Rects => {
+      if (!rects) {
+        const { scrollport, scale } = measureBox()
+        rects = {
+          scrollport,
+          target: Object.assign({}, targetBox),
+          scrollPadding: getScrollPadding(
+            // The viewport's scroll-padding is set on the root element, also when the scrolling element is the body
+            viewport ? getRootStyle(doc) : style,
+            scrollport,
+            scale
+          ),
+          scrollMargin: Object.assign({}, scrollMargin),
+        }
+      }
+      return rects
+    }
 
     // A fixed positioned target doesn't move with the viewport either, unless the root is its containing block
-    let scrollable = viewport
-      ? inChain
-      : inChain &&
-        isScrollable(frame) &&
-        // The body's overflow applies to the viewport instead when the root's is visible, so it isn't a scroll
-        // container then: https://drafts.csswg.org/css-overflow-3/#overflow-propagation
-        !(frame === doc.body && isOverflowPropagated(doc))
+    let scrollable =
+      inChain &&
+      (viewport ||
+        (isScrollable(frame) &&
+          // The body's overflow applies to the viewport instead when the root's is visible, so it isn't a scroll
+          // container then: https://drafts.csswg.org/css-overflow-3/#overflow-propagation
+          !(frame === doc.body && isOverflowPropagated(doc))))
     let stop = false
     for (let index = 0; index < count; index++) {
       const result = middleware[index].fn({
@@ -631,7 +585,10 @@ export const compute = (
           return getRects()
         },
         get viewportRects() {
-          return viewport ? getRects() : visit(scrollingElement, index).rects()
+          return viewport
+            ? getRects()
+            : // The viewport's rects don't depend on its style
+              visit(scrollingElement, style, index).rects()
         },
       })
       if (result.scrollable !== undefined) scrollable = result.scrollable
@@ -643,9 +600,8 @@ export const compute = (
       scrollable,
       stop,
       rects: getRects,
-      style: getStyle,
       // How transforms scale the scroll container, once its rects are measured
-      scale: () => measured ?? measureFrame(frame, getStyle()),
+      scale: () => (measured || measureBox()).scale,
     }
   }
 
@@ -672,117 +628,74 @@ export const compute = (
     if (inChain) {
       position = frameStyle.position
     }
-    const visited = visit(frame, middleware.length, inChain)
+    const visited = visit(frame, frameStyle, middleware.length, inChain)
     const { viewport, scrollable } = visited
     let { stop } = visited
 
     if (scrollable) {
       const rects = visited.rects()
       const region = getRegion(rects)
-      const box = getTargetBox(rects)
-      for (const shift of blockShifts) {
-        box.top += shift
-        box.bottom += shift
-      }
-      for (const shift of inlineShifts) {
-        box.left += shift
-        box.right += shift
-      }
+      const box = shift(getTargetBox(rects))
 
       const snap = nearestContainer
         ? getSnapAlignment(
             targetStyle,
             // The root element's scroll-snap-type applies to the viewport
-            viewport ? getComputedStyle(document.documentElement) : frameStyle
+            viewport ? getRootStyle(document) : frameStyle
           )
         : {}
       nearestContainer = false
 
-      let blockScroll: number = alignAxis(
-        snap.y || alignY,
-        region.top,
-        region.bottom,
-        box.top,
-        box.bottom
-      )
-      let inlineScroll: number = alignAxis(
-        snap.x || alignX,
-        region.left,
-        region.right,
-        box.left,
-        box.right
-      )
-
-      if (viewport) {
-        // Apply scroll position offsets and ensure they are within bounds, which are negative when the root's writing
-        // mode and direction make it overflow to the left or top
-        // @TODO add more test cases to cover this 100%
-        const rootFlow = getFlowDirections(
-          getComputedStyle(doc.documentElement)
+      // A middleware may have measured the rects for this frame, or replaced them
+      const scale = visited.scale()
+      // Scroll offsets are negative on axes where the scroll container's writing mode and direction make it overflow
+      // to the left or top. The root's applies to the viewport
+      const flow = getFlowDirections(viewport ? getRootStyle(doc) : frameStyle)
+      const scrollAxis = (axis: 'x' | 'y') => {
+        const [start, end] =
+          axis === 'x'
+            ? (['left', 'right'] as const)
+            : (['top', 'bottom'] as const)
+        const delta = alignAxis(
+          snap[axis] || align[axis],
+          region[start],
+          region[end],
+          box[start],
+          box[end]
         )
-        blockScroll = clampScroll(
-          blockScroll + scrollY,
-          Infinity,
-          rootFlow.yStartIsBottom
-        )
-        inlineScroll = clampScroll(
-          inlineScroll + scrollX,
-          Infinity,
-          rootFlow.xStartIsRight
-        )
-        // The browser keeps the viewport in range, which moves the target when the parent frames align it
-        blockShifts.push(
-          scrollY -
-            clampScroll(
-              blockScroll,
-              scrollingElement.scrollHeight - scrollingElement.clientHeight,
-              rootFlow.yStartIsBottom
-            )
-        )
-        inlineShifts.push(
-          scrollX -
-            clampScroll(
-              inlineScroll,
-              scrollingElement.scrollWidth - scrollingElement.clientWidth,
-              rootFlow.xStartIsRight
-            )
-        )
-      } else {
-        // A middleware may have measured the rects for this frame, or replaced them
-        const { scaleX, scaleY } = visited.scale()
-        const { scrollLeft, scrollTop } = frame
-        // Ensure scroll coordinates are not out of bounds while applying scroll offsets. The offsets are negative on
-        // axes where the scroll container's own writing mode and direction make it overflow to the left or top
-        const frameFlow = getFlowDirections(frameStyle)
+        const current = viewport
+          ? scroll[axis]
+          : axis === 'x'
+            ? frame.scrollLeft
+            : frame.scrollTop
+        const max =
+          axis === 'x'
+            ? frame.scrollWidth - frame.clientWidth
+            : frame.scrollHeight - frame.clientHeight
         // `overflow: clip` forbids programmatic scrolling too, so an axis that clips keeps its scroll offset, and the
         // outer scroll containers align the target on it: https://drafts.csswg.org/css-overflow-3/#valdef-overflow-clip
-        blockScroll =
-          frameStyle.overflowY === 'clip'
-            ? scrollTop
-            : scaleY === 0
+        const offset =
+          !viewport &&
+          (axis === 'x' ? frameStyle.overflowX : frameStyle.overflowY) ===
+            'clip'
+            ? current
+            : scale[axis] === 0
               ? 0
-              : clampScroll(
-                  scrollTop + blockScroll / scaleY,
-                  frame.scrollHeight - frame.clientHeight,
-                  frameFlow.yStartIsBottom
-                )
-        inlineScroll =
-          frameStyle.overflowX === 'clip'
-            ? scrollLeft
-            : scaleX === 0
-              ? 0
-              : clampScroll(
-                  scrollLeft + inlineScroll / scaleX,
-                  frame.scrollWidth - frame.clientWidth,
-                  frameFlow.xStartIsRight
-                )
-
-        // Cache the offset so that parent frames can scroll this into view correctly
-        blockShifts.push(scrollTop - blockScroll)
-        inlineShifts.push(scrollLeft - inlineScroll)
+              : clampScroll(current + delta / scale[axis], max, flow[axis])
+        // Cache the offset so that parent frames can scroll this into view correctly. The browser keeps the viewport
+        // in range, which moves the target when the parent frames align it
+        shifts[axis].push(current - offset)
+        // @TODO add more test cases to cover this 100%
+        return viewport
+          ? clampScroll(current + delta, Infinity, flow[axis])
+          : offset
       }
 
-      computations.push({ el: frame, top: blockScroll, left: inlineScroll })
+      computations.push({
+        el: frame,
+        top: scrollAxis('y'),
+        left: scrollAxis('x'),
+      })
 
       // `scrollIntoView()` passes the target itself as the container for 'nearest', and every scroll container of the
       // target is its ancestor, so the loop stops after the first one
@@ -798,40 +711,29 @@ export const compute = (
       // The viewport of a frame is inside its `<iframe>` in the parent document, which is scrolled too when it's
       // same-origin. `frameElement` is `null` otherwise. 'nearest' stops at the first scrolling box
       const owner = container === 'nearest' ? null : getFrameElement(frame)
-      const ownerWindow = owner?.ownerDocument.defaultView
+      const ownerWindow = owner && owner.ownerDocument.defaultView
       if (!owner || !ownerWindow) {
         break
       }
       // The border box middleware left, where the scrolling so far puts it, in the parent document.
-      // With no replacement, that is the element's border box
-      const box = Object.assign({}, visited.rects().target)
-      for (const shift of blockShifts) {
-        box.top += shift
-        box.bottom += shift
-      }
-      for (const shift of inlineShifts) {
-        box.left += shift
-        box.right += shift
-      }
-      blockShifts.length = 0
-      inlineShifts.length = 0
+      // With no replacement, that is the element's border box. `shift` returns a new box
+      const box = shift(visited.rects().target)
+      shifts = { x: [], y: [] }
       const ownerStyle = getComputedStyle(owner)
-      const { scrollport, scaleX, scaleY } = measureFrame(owner, ownerStyle)
+      const { scrollport, scale } = measureFrame(owner, ownerStyle)
       // The frame's viewport is the content box of the `<iframe>`
-      const originX =
-        scrollport.left + (parseFloat(ownerStyle.paddingLeft) || 0) * scaleX
-      const originY =
-        scrollport.top + (parseFloat(ownerStyle.paddingTop) || 0) * scaleY
-      targetRect = {
-        top: originY + box.top * scaleY,
-        right: originX + box.right * scaleX,
-        bottom: originY + box.bottom * scaleY,
-        left: originX + box.left * scaleX,
+      const origin = {
+        x:
+          scrollport.left + (parseFloat(ownerStyle.paddingLeft) || 0) * scale.x,
+        y: scrollport.top + (parseFloat(ownerStyle.paddingTop) || 0) * scale.y,
       }
+      targetBox = mapSides(
+        (side, _start, axis) => origin[axis] + box[side] * scale[axis]
+      )
       doc = owner.ownerDocument
       win = ownerWindow
+      scroll = { x: win.scrollX, y: win.scrollY }
       scrollingElement = getScrollingElement(doc)
-      ;({ scrollX, scrollY } = win)
       // The `<iframe>` is a box in the parent document, whose containing block chain starts at it
       position = ownerStyle.position
       cursor = getParentElement(owner)
