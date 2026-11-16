@@ -12,7 +12,6 @@
   ],
   // Vendored, unmodified web-platform-tests
   "ignore": ["integration/wpt/upstream/**"],
-  // Loaded by `vp pack` (tsdown) for its `publint` and `attw` checks.
-  // Changesets runs `pnpm exec oxfmt` from the `format` option.
-  "ignoreDependencies": ["@arethetypeswrong/core", "publint", "oxfmt"],
+  // Loaded by `vp pack` (tsdown) for its `publint` and `attw` checks
+  "ignoreDependencies": ["@arethetypeswrong/core", "publint"],
 }
