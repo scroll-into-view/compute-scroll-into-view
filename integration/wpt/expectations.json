@@ -95,9 +95,9 @@
   "css/cssom-view/scrollIntoView-fixed.html": {
     "status": "OK",
     "subtests": {
-      "[Box A] scrollIntoView from unscrollable position:fixed": "FAIL",
+      "[Box A] scrollIntoView from unscrollable position:fixed": "PASS",
       "[Box B] scrollIntoView from unscrollable position:fixed in iframe": "FAIL",
-      "[Box C] scrollIntoView from scrollable position:fixed": "FAIL",
+      "[Box C] scrollIntoView from scrollable position:fixed": "PASS",
       "[Box D] scrollIntoView from scrollable position:fixed in iframe": "FAIL"
     }
   },
@@ -364,7 +364,7 @@
   "css/cssom-view/scrollintoview-containingblock-chain.html": {
     "status": "OK",
     "subtests": {
-      "scrollIntoView should not scroll ancestor overflow:scroll elements that are not containing block ancestors": "FAIL"
+      "scrollIntoView should not scroll ancestor overflow:scroll elements that are not containing block ancestors": "PASS"
     }
   },
   "css/cssom-view/scrollintoview-zero-height-item.html": {
