@@ -12,6 +12,7 @@ Scrolling SVG elements are supported, as well as Shadow DOM elements. The [Visua
 
 - [Install](#install)
 - [Usage](#usage)
+- [Migrating from v3](#migrating-from-v3)
 - [API](#api)
   - [compute(target, options)](#computetarget-options)
   - [options](#options)
@@ -66,6 +67,43 @@ actions.forEach(({ el, top, left }) => {
   el.scrollLeft = left
 })
 ```
+
+# Migrating from v3
+
+v4 keeps `compute` spec-only. Move `scrollMode`, `boundary`, and `skipOverflowHiddenElements` to `compute-scroll-into-view/middleware`, and use the ESM build.
+
+```js
+// v3
+import { compute } from 'compute-scroll-into-view'
+
+compute(node, {
+  scrollMode: 'if-needed',
+  boundary: list,
+  skipOverflowHiddenElements: true,
+})
+
+// v4
+import { compute } from 'compute-scroll-into-view'
+import {
+  boundary,
+  skipOverflowHiddenElements,
+  onlyIfNeeded,
+} from 'compute-scroll-into-view/middleware'
+
+compute(node, {
+  middleware: [boundary(list), skipOverflowHiddenElements(), onlyIfNeeded()],
+})
+```
+
+- `scrollMode: 'if-needed'` is `onlyIfNeeded()`. `scrollMode: 'always'`, the v3 default, is `compute` with no middleware.
+- `boundary: list` is `boundary(list)`. An element, a function, or `null` is passed through the same way.
+- `skipOverflowHiddenElements: true` is `skipOverflowHiddenElements()`.
+- Put `onlyIfNeeded()` after middleware that change which scroll containers are scrolled or how they are measured.
+- The `ScrollMode` type is removed. `Middleware`, `MiddlewareState`, `MiddlewareReturn`, `Rects`, and `SideObject` are exported from `compute-scroll-into-view`. `ComputeOptions` is an alias of `Options`.
+
+The CommonJS build (`dist/index.cjs`) is removed. On Node.js 20.19+ and 22.12+, `require('compute-scroll-into-view')` still works through `require(esm)` and returns `{ compute }`. TypeScript projects with CommonJS files need `"module": "nodenext"`. With `"module": "node16"`, TypeScript reports TS1479 when a CommonJS file imports this package. ESM files and `"moduleResolution": "bundler"` are unchanged.
+
+`exports` maps `"."` to `./dist/index.js` and `"./middleware"` to `./dist/middleware.js`. The `source` export condition and the `source` and `typings` fields are removed. `types` replaces `typings`. The published package is `dist` only.
 
 # API
 
