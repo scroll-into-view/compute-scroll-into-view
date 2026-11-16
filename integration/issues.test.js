@@ -249,7 +249,7 @@ describe('issues in quirks mode', () => {
     await page.goto('/integration/issues-quirks.html')
   })
 
-  test.fails('#292: the body can be scrolled into view when it is the scrollingElement', async () => {
+  test('#292: the body can be scrolled into view when it is the scrollingElement', async () => {
     const { native, computed } = await page.evaluate(() => {
       window.scrollTo(0, 1000)
       return window.compareWithNative(document.body, {

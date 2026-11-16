@@ -596,7 +596,10 @@ export const compute = (
   // Collect new scroll positions
   const computations: ScrollAction[] = []
   // Walk the ancestors for the scrolling boxes, as defined in the spec: https://drafts.csswg.org/cssom-view/#scrolling-box
-  let cursor: Element | null = getParentElement(target)
+  // The viewport is an ancestor of every element, including the scrolling element and the root when it's the body
+  let cursor: Element | null = target.contains(scrollingElement)
+    ? scrollingElement
+    : getParentElement(target)
   // The position of the last box in the containing block chain, which says which ancestor is its containing block
   let position = targetStyle.position
   while (isElement(cursor)) {
