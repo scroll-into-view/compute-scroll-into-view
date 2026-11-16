@@ -1,3 +1,7 @@
+## Failing browsers
+
+If Chrome, Firefox, or Safari fails an integration test, check that case on https://wpt.fyi/results/css/cssom-view?label=experimental&label=master&aligned. A failure there too means the browser is wrong and has to fix it. `compute` is likely more correct than the browser's implementation, so do not change `compute` to match it.
+
 <!--VITE PLUS START-->
 
 # Using Vite+, the Unified Toolchain for the Web
