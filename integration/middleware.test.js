@@ -209,6 +209,57 @@ describe('custom middleware', () => {
     expect(actual.custom).toBe(450)
   })
 
+  test("onlyIfNeeded checks the viewport with what earlier middleware return for it, before it's reached", async () => {
+    const actual = await page.evaluate(() => {
+      document.body.innerHTML = `
+        <div style="height: 50px"></div>
+        <div style="height: 200px; overflow: auto">
+          <div id="target" style="height: 20px"></div>
+          <div style="height: 500px"></div>
+        </div>
+        <div style="height: 2000px"></div>`
+      const target = document.querySelector('#target')
+      const root = document.documentElement
+      const viewportPadding = {
+        name: 'viewportPadding',
+        fn: ({ viewport, rects }) => {
+          const value = getComputedStyle(root).getPropertyValue(
+            '--scroll-padding-top'
+          )
+          return viewport && value
+            ? {
+                rects: {
+                  scrollPadding: Object.assign({}, rects.scrollPadding, {
+                    top: parseFloat(value),
+                  }),
+                },
+              }
+            : {}
+        },
+      }
+      const run = () =>
+        window
+          .computeScrollIntoView(target, {
+            block: 'nearest',
+            middleware: [viewportPadding, window.onlyIfNeeded()],
+          })
+          .map(({ el, top }) => [el.tagName.toLowerCase(), top])
+      window.scrollTo(0, 0)
+      const unpadded = run()
+      // The target is 50px from the top, behind 100px of scroll-padding
+      root.style.setProperty('--scroll-padding-top', '100px')
+      const custom = run()
+      root.style.removeProperty('--scroll-padding-top')
+      root.style.scrollPaddingTop = '100px'
+      const native = run()
+      root.style.scrollPaddingTop = ''
+      return { unpadded, custom, native }
+    })
+    expect(actual.unpadded).toEqual([])
+    expect(actual.custom).toHaveLength(2)
+    expect(actual.custom).toEqual(actual.native)
+  })
+
   test('the state, and rects that earlier middleware returned', async () => {
     const actual = await page.evaluate((html) => {
       document.body.innerHTML = html

@@ -79,6 +79,11 @@ export interface MiddlewareState {
   >
   /** Measured the first time it's read, and with what earlier middleware returned in `rects` */
   readonly rects: Rects
+  /**
+   * The viewport's `rects`, with what earlier middleware return in `rects` for the viewport. Reading it before the
+   * viewport is reached calls the earlier middleware for the viewport, so keep them free of side effects
+   */
+  readonly viewportRects: Rects
 }
 
 export interface MiddlewareReturn {
@@ -548,12 +553,8 @@ export const compute = (
   const blockShifts: number[] = []
   const inlineShifts: number[] = []
 
-  // Collect new scroll positions
-  const computations: ScrollAction[] = []
-  // Walk the ancestors for the scrolling boxes, as defined in the spec: https://drafts.csswg.org/cssom-view/#scrolling-box
-  let cursor: Element | null = getParentElement(target)
-  while (isElement(cursor)) {
-    const frame: Element = cursor
+  // Runs the first `count` middleware for an ancestor of the target
+  const visit = (frame: Element, count: number) => {
     const viewport = frame === scrollingElement
     let style: CSSStyleDeclaration | undefined
     const getStyle = () => (style ??= getComputedStyle(frame))
@@ -579,6 +580,7 @@ export const compute = (
         scrollMargin: Object.assign({}, scrollMargin),
       }
     }
+    const getRects = () => (rects ??= measure())
 
     let scrollable =
       viewport ||
@@ -586,25 +588,47 @@ export const compute = (
         // Skip document.body if it's not the scrollingElement and documentElement isn't independently scrollable
         !(frame === document.body && !isScrollable(document.documentElement)))
     let stop = viewport
-    for (const { fn } of middleware) {
-      const result = fn({
+    for (let index = 0; index < count; index++) {
+      const result = middleware[index].fn({
         target,
         container: frame,
         viewport,
         scrollable,
         options: resolvedOptions,
         get rects() {
-          return (rects ??= measure())
+          return getRects()
+        },
+        get viewportRects() {
+          return viewport ? getRects() : visit(scrollingElement, index).rects()
         },
       })
       if (result.scrollable !== undefined) scrollable = result.scrollable
       if (result.stop) stop = true
-      if (result.rects)
-        rects = Object.assign({}, rects ?? measure(), result.rects)
+      if (result.rects) rects = Object.assign({}, getRects(), result.rects)
     }
+    return {
+      viewport,
+      scrollable,
+      stop,
+      rects: getRects,
+      style: getStyle,
+      // How transforms scale the scroll container, once its rects are measured
+      scale: () => measured ?? measureFrame(frame, getStyle()),
+    }
+  }
+
+  // Collect new scroll positions
+  const computations: ScrollAction[] = []
+  // Walk the ancestors for the scrolling boxes, as defined in the spec: https://drafts.csswg.org/cssom-view/#scrolling-box
+  let cursor: Element | null = getParentElement(target)
+  while (isElement(cursor)) {
+    const frame: Element = cursor
+    const visited = visit(frame, middleware.length)
+    const { viewport, scrollable } = visited
+    let { stop } = visited
 
     if (scrollable) {
-      rects ??= measure()
+      const rects = visited.rects()
       const region = getRegion(rects)
       const box = getTargetBox(rects)
       for (const shift of blockShifts) {
@@ -650,11 +674,11 @@ export const compute = (
         )
       } else {
         // A middleware may have measured the rects for this frame, or replaced them
-        const { scaleX, scaleY } = measured ?? measureFrame(frame, getStyle())
+        const { scaleX, scaleY } = visited.scale()
         const { scrollLeft, scrollTop } = frame
         // Ensure scroll coordinates are not out of bounds while applying scroll offsets. The offsets are negative on
         // axes where the scroll container's own writing mode and direction make it overflow to the left or top
-        const frameFlow = getFlowDirections(getStyle())
+        const frameFlow = getFlowDirections(visited.style())
         blockScroll =
           scaleY === 0
             ? 0
@@ -706,16 +730,13 @@ export const compute = (
  */
 export const onlyIfNeeded = (): Middleware => ({
   name: 'onlyIfNeeded',
-  fn: ({ scrollable, rects }) => {
+  fn: ({ scrollable, rects, viewportRects }) => {
     if (!scrollable) return {}
     const box = getTargetBox(rects)
     if (
+      isVisible(getRegion(rects), box) &&
       // The target has to be visible in the viewport too, which isn't implied by it being visible in an inner frame
-      isVisible(
-        getRegion(getViewportRects(rects.target, rects.scrollMargin)),
-        box
-      ) &&
-      isVisible(getRegion(rects), box)
+      isVisible(getRegion(viewportRects), box)
     ) {
       return { scrollable: false, stop: true }
     }

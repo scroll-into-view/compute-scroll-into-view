@@ -184,6 +184,11 @@ interface MiddlewareState {
   }
   /** Measured the first time it's read, and with what earlier middleware returned in `rects` */
   readonly rects: Rects
+  /**
+   * The viewport's `rects`, with what earlier middleware return in `rects` for the viewport. Reading it before the
+   * viewport is reached calls the earlier middleware for the viewport, so keep them free of side effects
+   */
+  readonly viewportRects: Rects
 }
 
 interface MiddlewareReturn {
