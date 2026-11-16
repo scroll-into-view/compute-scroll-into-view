@@ -1,4 +1,4 @@
-// The middleware option of compute, and the boundary, skipOverflowHiddenElements and onlyIfNeeded middleware
+// The middleware option of compute, and the boundary, skipOverflowHiddenElements, onlyIfNeeded and selection middleware
 import { beforeEach, describe, expect, test } from 'vite-plus/test'
 
 import * as rootEntry from '../src/index.ts'
@@ -26,6 +26,7 @@ test('the root entry exports compute, and the middleware entry the built-in midd
   expect(Object.keys(middlewareEntry).toSorted()).toEqual([
     'boundary',
     'onlyIfNeeded',
+    'selection',
     'skipOverflowHiddenElements',
   ])
 })
@@ -324,6 +325,329 @@ describe('custom middleware', () => {
     })
     // 10px above the target in #inner
     expect(actual.tops[0]).toBe(390)
+  })
+})
+
+// An editor: 20px lines in a 100px tall scroller, with text that wraps to 15 lines of 20 characters. Characters are
+// measured as glyph boxes, which are a pixel inside the line boxes, so their positions are checked to within 5px
+const editor = `
+  <div style="height: 300px"></div>
+  <div id="editor" style="height: 100px; width: 240px; overflow: auto; font: 16px/20px monospace">
+    <p id="text" style="margin: 0; width: 20ch; word-break: break-all">${'x'.repeat(20 * 15)}</p>
+    <p id="empty" style="margin: 0"><br></p>
+    <p id="wrapped" style="margin: 0; width: 20ch; word-break: break-all">aaaa<strong>${'x'.repeat(100)}</strong></p>
+  </div>
+  <div style="height: 2000px"></div>`
+
+// Helpers for the fixture page, evaluated there. `scrollEditor` is how far the editor is scrolled for the text, with
+// `block` and `middleware`, or `null` when it isn't. The viewport isn't scrolled, as the editor is in view. `caretAt`
+// is a collapsed range at `offset` in the text
+const editorHelpers = `({
+  scrollEditor: (block, middleware) => {
+    const action = window
+      .computeScrollIntoView(document.querySelector('#text'), {
+        block,
+        inline: 'nearest',
+        middleware,
+      })
+      .find(({ el }) => el.id === 'editor')
+    return action ? Math.round(action.top) : null
+  },
+  caretAt: (offset) => {
+    const range = document.createRange()
+    range.setStart(document.querySelector('#text').firstChild, offset)
+    range.collapse(true)
+    return range
+  },
+})`
+
+describe('selection', () => {
+  test('a collapsed caret aligns the line it is on, where the element would not scroll', async () => {
+    const actual = await page.evaluate(
+      (html, helpers) => {
+        document.body.innerHTML = html
+        const { scrollEditor, caretAt } = window.eval(helpers)
+        // The caret is on the 8th line, which starts 140px into the paragraph
+        return {
+          element: scrollEditor('nearest', []),
+          caret: scrollEditor('nearest', [
+            window.selection(caretAt(20 * 7 + 3)),
+          ]),
+        }
+      },
+      editor,
+      editorHelpers
+    )
+    // The paragraph is taller than the editor and already overlaps it, so 'nearest' leaves it alone
+    expect(actual.element).toBe(0)
+    // The line's bottom edge (160px) at the editor's bottom edge (100px)
+    expect(actual.caret).toBeCloseTo(60, -1)
+  })
+
+  test('a caret at the end of a text node is measured from the character before it', async () => {
+    const actual = await page.evaluate(
+      (html, helpers) => {
+        document.body.innerHTML = html
+        const { scrollEditor, caretAt } = window.eval(helpers)
+        return scrollEditor('nearest', [window.selection(caretAt(20 * 15))])
+      },
+      editor,
+      editorHelpers
+    )
+    // The last line's bottom edge (300px) at the editor's bottom edge
+    expect(actual).toBeCloseTo(200, -1)
+  })
+
+  test('a caret on an empty line is measured as the line', async () => {
+    const actual = await page.evaluate(
+      (html, helpers) => {
+        document.body.innerHTML = html
+        const { scrollEditor } = window.eval(helpers)
+        const range = document.createRange()
+        range.setStart(document.querySelector('#empty'), 0)
+        range.collapse(true)
+        return scrollEditor('nearest', [window.selection(range)])
+      },
+      editor,
+      editorHelpers
+    )
+    // The empty paragraph is the 16th line, with its bottom edge at 320px
+    expect(actual).toBeCloseTo(220, -1)
+  })
+
+  test('a caret next to an inline wrapper is measured at the character there, not the wrapper', async () => {
+    const actual = await page.evaluate(
+      (html, helpers) => {
+        document.body.innerHTML = html
+        const { scrollEditor } = window.eval(helpers)
+        const wrapped = document.querySelector('#wrapped')
+        const caret = (offset) => {
+          const range = document.createRange()
+          range.setStart(wrapped, offset)
+          range.collapse(true)
+          return range
+        }
+        return {
+          // After the <strong>, at the end of the paragraph
+          after: scrollEditor('nearest', [window.selection(caret(2))]),
+          // Before the <strong>, after the "aaaa"
+          before: scrollEditor('nearest', [window.selection(caret(1))]),
+        }
+      },
+      editor,
+      editorHelpers
+    )
+    // The paragraph starts at 320px and wraps over 6 lines, 4 of which the <strong> spans past the editor's height.
+    // The caret after it is on the last line, with its bottom edge at 440px
+    expect(actual.after).toBeCloseTo(340, -1)
+    // The caret before it is on the first line, with its bottom edge at 340px
+    expect(actual.before).toBeCloseTo(240, -1)
+  })
+
+  test('a multi-line selection aligns its focus end by default, and its bounds on request', async () => {
+    const actual = await page.evaluate(
+      (html, helpers) => {
+        document.body.innerHTML = html
+        const { scrollEditor } = window.eval(helpers)
+        const text = document.querySelector('#text').firstChild
+        // Lines 3 through 9: a 140px tall selection, which is taller than the editor
+        const range = document.createRange()
+        range.setStart(text, 20 * 2)
+        range.setEnd(text, 20 * 9)
+        return {
+          focus: scrollEditor('nearest', [window.selection(range)]),
+          bounds: scrollEditor('nearest', [
+            window.selection(range, { align: 'bounds' }),
+          ]),
+        }
+      },
+      editor,
+      editorHelpers
+    )
+    // The focus is the end of line 9, whose bottom edge is at 180px
+    expect(actual.focus).toBeCloseTo(80, -1)
+    // The bounds are taller than the editor, so 'nearest' aligns their start edge, at 40px
+    expect(actual.bounds).toBeCloseTo(40, -1)
+  })
+
+  test("a backward Selection's focus is its start, and it's the document's selection by default", async () => {
+    const actual = await page.evaluate(
+      (html, helpers) => {
+        document.body.innerHTML = html
+        const { scrollEditor } = window.eval(helpers)
+        const text = document.querySelector('#text').firstChild
+        // Selected from the end of line 9 back to the start of line 3
+        const selected = document.getSelection()
+        selected.setBaseAndExtent(text, 20 * 9, text, 20 * 2)
+        const result = {
+          explicit: scrollEditor('nearest', [window.selection(selected)]),
+          implicit: scrollEditor('nearest', [window.selection()]),
+          range: scrollEditor('nearest', [
+            window.selection(selected.getRangeAt(0)),
+          ]),
+          // The box around the selection is taller than the editor, so its start edge (line 3's) is aligned
+          bounds: scrollEditor('nearest', [
+            window.selection(selected, { align: 'bounds' }),
+          ]),
+        }
+        selected.removeAllRanges()
+        return result
+      },
+      editor,
+      editorHelpers
+    )
+    // Line 3 is in view already: its bottom edge is at 60px, inside the 100px tall editor
+    expect(actual.explicit).toBe(0)
+    expect(actual.implicit).toBe(actual.explicit)
+    // The range has no direction, so its focus is its end
+    expect(actual.range).toBeCloseTo(80, -1)
+    expect(actual.bounds).toBeCloseTo(40, -1)
+  })
+
+  test('a caret in a long line scrolls horizontally', async () => {
+    const actual = await page.evaluate(() => {
+      document.body.innerHTML = `
+        <div id="editor" style="height: 100px; width: 200px; overflow: auto; font: 16px/20px monospace; white-space: nowrap">
+          <p id="text" style="margin: 0">${'x'.repeat(100)}</p>
+        </div>`
+      const text = document.querySelector('#text').firstChild
+      const range = document.createRange()
+      range.setStart(text, 50)
+      range.setEnd(text, 51)
+      const character = range.getBoundingClientRect()
+      const scroller = document.querySelector('#editor')
+      range.collapse(true)
+      const [action] = window.computeScrollIntoView(text.parentElement, {
+        block: 'nearest',
+        inline: 'nearest',
+        middleware: [window.selection(range)],
+      })
+      return {
+        left: action.left,
+        editor: action.el.id,
+        // The 51st character's right edge at the editor's right edge
+        expected:
+          character.right -
+          scroller.getBoundingClientRect().left -
+          scroller.clientWidth,
+      }
+    })
+    expect(actual.editor).toBe('editor')
+    expect(actual.expected).toBeGreaterThan(0)
+    expect(actual.left).toBeCloseTo(actual.expected, 1)
+  })
+
+  test("the bounds of a Selection with several ranges are the ranges', not what's between them", async () => {
+    const actual = await page.evaluate(() => {
+      document.body.innerHTML = `
+        <div id="editor" style="height: 100px; width: 100px; overflow: auto; font: 16px/20px monospace; white-space: nowrap">
+          <p id="first" style="margin: 0">aaaa</p>
+          <p style="margin: 0">${'b'.repeat(60)}</p>
+          <p id="last" style="margin: 0">cccc</p>
+        </div>`
+      const ranges = ['#first', '#last'].map((selector) => {
+        const range = document.createRange()
+        range.selectNodeContents(document.querySelector(selector))
+        return range
+      })
+      // Chromium keeps one range, so this is what Firefox gives for a selection across table cells
+      const selected = {
+        rangeCount: ranges.length,
+        getRangeAt: (index) => ranges[index],
+      }
+      const [action] = window.computeScrollIntoView(
+        document.querySelector('#first'),
+        {
+          block: 'nearest',
+          inline: 'end',
+          middleware: [window.selection(selected, { align: 'bounds' })],
+        }
+      )
+      return { left: action.left }
+    })
+    // The ranges end at 64px, inside the 100px wide editor, which can't scroll back past its start. The box between
+    // them is about 580px wide
+    expect(actual.left).toBeLessThanOrEqual(0)
+  })
+
+  test('onlyIfNeeded checks the caret, not the element', async () => {
+    const actual = await page.evaluate(
+      (html, helpers) => {
+        document.body.innerHTML = html
+        const { scrollEditor, caretAt } = window.eval(helpers)
+        return {
+          // Line 2 is in view
+          visible: scrollEditor('center', [
+            window.selection(caretAt(25)),
+            window.onlyIfNeeded(),
+          ]),
+          // The paragraph isn't fully in view
+          element: scrollEditor('center', [window.onlyIfNeeded()]),
+          // Line 11 isn't in view, so its center (210px) is at the editor's center (50px)
+          hidden: scrollEditor('center', [
+            window.selection(caretAt(205)),
+            window.onlyIfNeeded(),
+          ]),
+        }
+      },
+      editor,
+      editorHelpers
+    )
+    expect(actual.visible).toBe(null)
+    expect(actual.element).not.toBe(null)
+    expect(actual.hidden).toBe(160)
+  })
+
+  test('a selection with nothing to measure leaves the element in place', async () => {
+    const actual = await page.evaluate(
+      (html, helpers) => {
+        document.body.innerHTML = html
+        const { scrollEditor } = window.eval(helpers)
+        document.getSelection().removeAllRanges()
+        return {
+          element: scrollEditor('start', []),
+          none: scrollEditor('start', [window.selection()]),
+        }
+      },
+      editor,
+      editorHelpers
+    )
+    expect(actual.element).toBe(0)
+    expect(actual.none).toBe(actual.element)
+  })
+
+  test("a caret in an iframe is what the parent document aligns, when the frame can't scroll it", async () => {
+    const actual = await page.evaluate(async () => {
+      document.body.style.margin = '0'
+      document.body.innerHTML = `
+        <div id="outer" style="height: 160px; overflow: auto">
+          <div style="height: 220px"></div>
+          <iframe id="frame" style="width: 300px; height: 300px; border: 0; display: block"></iframe>
+          <div style="height: 500px"></div>
+        </div>`
+      const frame = document.querySelector('#frame')
+      await new Promise((resolve) => {
+        frame.addEventListener('load', resolve)
+        frame.srcdoc = `<body style="margin: 0; font: 16px/20px monospace">
+          <p id="text" style="margin: 0; width: 20ch; word-break: break-all">${'x'.repeat(20 * 5)}</p>
+        </body>`
+      })
+      const text = frame.contentDocument.querySelector('#text')
+      // The caret is on the 4th line, 60px into the paragraph
+      const range = frame.contentDocument.createRange()
+      range.setStart(text.firstChild, 20 * 3 + 1)
+      range.collapse(true)
+      const outerTop = (middleware) =>
+        window
+          .computeScrollIntoView(text, { block: 'start', middleware })
+          .find(({ el }) => el.id === 'outer').top
+      return {
+        element: outerTop([]),
+        caret: outerTop([window.selection(range)]),
+      }
+    })
+    // The glyph box is a pixel inside the line box on some platforms
+    expect(actual.caret).toBeCloseTo(actual.element + 60, -1)
   })
 })
 

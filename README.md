@@ -24,6 +24,7 @@ Scrolling SVG elements are supported, as well as Shadow DOM elements. The [Visua
     - [onlyIfNeeded()](#onlyifneeded)
     - [boundary(boundary)](#boundaryboundary)
     - [skipOverflowHiddenElements()](#skipoverflowhiddenelements)
+    - [selection(selection, options)](#selectionselection-options)
     - [Writing middleware](#writing-middleware)
 - [Development](#development)
 
@@ -200,6 +201,35 @@ By default the [spec](https://drafts.csswg.org/cssom-view/#scrolling-box) states
 
 This follows the convention [adopted by Firefox](https://hg.mozilla.org/integration/fx-team/rev/c48c3ec05012#l7.18) of _not_ scrolling nodes with `overflow: hidden` set. The target is scrolled into view in the other scroll containers regardless. With `container: 'nearest'`, the nearest scroll container that isn't skipped is scrolled.
 
+### selection(selection, options)
+
+Scrolls a text selection into view instead of the target element, like editors keep the caret in view. `selection` is a [`Selection`](https://developer.mozilla.org/en-US/docs/Web/API/Selection) or a [`Range`](https://developer.mozilla.org/en-US/docs/Web/API/Range) in the target's document, and defaults to the document's own selection (`document.getSelection()`). `options.align` is what to align:
+
+- `'focus'` (default): the end of the selection where the caret is. A collapsed caret has no box of its own in every browser, so it's measured as the character or node next to it, which also covers empty lines (`<p><br></p>`) and carets next to images. A `Range` has no direction, so its focus is its end. Pass the `Selection` for a backward one.
+- `'bounds'`: the box around the whole selection, [`range.getBoundingClientRect()`](https://developer.mozilla.org/en-US/docs/Web/API/Range/getBoundingClientRect). With `block: 'nearest'`, a selection taller than the scroll container is aligned to its start.
+
+`compute` still walks the target's ancestors, so pass an element inside the editor, such as the parent element of the focus node. Passing the editor itself does not scroll it, as elements don't scroll themselves into view. The scroll containers' `scroll-padding` keeps the caret away from their edges, and the target's `scroll-margin` still grows the box. Put it before `onlyIfNeeded()`, which then checks the selection instead of the element. When there is nothing to measure, the target is aligned as usual. A caret inside a same-origin iframe is mapped into the parent document with the scrolling inside the frame.
+
+```js
+import { compute } from 'compute-scroll-into-view'
+import { onlyIfNeeded, selection } from 'compute-scroll-into-view/middleware'
+
+// The caret's parent element is inside the editor, so the editor is one of the scroll containers
+const { focusNode } = document.getSelection()
+const actions = compute(focusNode.parentElement, {
+  block: 'nearest',
+  inline: 'nearest',
+  middleware: [selection(), onlyIfNeeded()],
+})
+
+// A range built by the editor, aligning the whole selection
+compute(range.startContainer.parentElement, {
+  block: 'nearest',
+  inline: 'nearest',
+  middleware: [selection(range, { align: 'bounds' })],
+})
+```
+
 ### Writing middleware
 
 A middleware is an object with a `name` and an `fn`, and its types are exported from `compute-scroll-into-view`. `compute` calls `fn` for every ancestor of the target, innermost first, up to the viewport, with what it knows about it. `fn` returns `{}` to change nothing, or what to change:
@@ -253,7 +283,7 @@ interface SideObject {
 interface Rects {
   /** The scroll container's padding box without scrollbars. For the viewport, the visual viewport */
   scrollport: SideObject
-  /** The target's border box. The scrolling of inner scroll containers is added to it when it's aligned */
+  /** The target's border box, unless middleware replaced it. Inner scrolling is added when it's aligned */
   target: SideObject
   /** The scroll container's `scroll-padding`. For the viewport, the root element's */
   scrollPadding: SideObject

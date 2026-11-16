@@ -802,8 +802,9 @@ export const compute = (
       if (!owner || !ownerWindow) {
         break
       }
-      // The target where the scrolling so far puts it, in the parent document
-      const box = Object.assign({}, targetRect)
+      // The border box middleware left, where the scrolling so far puts it, in the parent document.
+      // With no replacement, that is the element's border box
+      const box = Object.assign({}, visited.rects().target)
       for (const shift of blockShifts) {
         box.top += shift
         box.bottom += shift
