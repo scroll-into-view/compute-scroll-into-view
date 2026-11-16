@@ -40,6 +40,7 @@
     "check:es": "es-check es2017 --module 'dist/*.js'",
     "prepublishOnly": "pnpm run build",
     "test": "vp test",
+    "version-packages": "changeset version && vp check --fix",
     "release": "pnpm run build && changeset publish",
     "prepare": "vp config"
   },

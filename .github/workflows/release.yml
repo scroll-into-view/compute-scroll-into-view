@@ -28,4 +28,5 @@ jobs:
       - name: Create Release Pull Request or Publish to npm
         uses: changesets/action@v2
         with:
+          version-script: pnpm run version-packages
           publish-script: pnpm release
