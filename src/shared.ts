@@ -52,8 +52,13 @@ export const isScrollable = (
 
 const isShadowRoot = (node: Node): node is ShadowRoot => 'host' in node
 
+const isSlottable = (node: Node): node is Element | Text =>
+  'assignedSlot' in node
+
+// A slotted element is laid out in its slot, in the host's shadow tree, so the slot's ancestors there come first
 export const getParentElement = (element: Node): Element | null => {
-  const parent = element.parentElement
+  const parent =
+    (isSlottable(element) && element.assignedSlot) || element.parentElement
   if (parent == null) {
     const root = element.getRootNode()
     return isShadowRoot(root) ? root.host || null : null

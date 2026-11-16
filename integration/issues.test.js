@@ -46,7 +46,7 @@ describe('issues', () => {
     expect(computed).toEqual(native)
   })
 
-  test.fails("#916, #917: scroll containers in the shadow tree of the target's slot are scrolled", async () => {
+  test("#916, #917: scroll containers in the shadow tree of the target's slot are scrolled", async () => {
     const { native, computed } = await page.evaluate(() => {
       document.body.innerHTML = `
           <div id="host"><div id="target" style="height: 100px">target</div></div>
