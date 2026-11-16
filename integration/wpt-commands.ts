@@ -116,7 +116,29 @@ function installScrollIntoView(
     if (this.getClientRects().length === 0) return results([])
     const actions = compute(this, { ...rest, block, inline })
     return results(
-      actions.map(({ el, top, left }) => el.scroll({ top, left, behavior }))
+      actions.map(({ el, top, left }) => {
+        if (
+          behavior === 'smooth' ||
+          (behavior === 'auto' &&
+            getComputedStyle(el).scrollBehavior === 'smooth')
+        ) {
+          return el.scroll({ top, left, behavior })
+        }
+        // Chromium rounds the positions that `scroll()` gets, but keeps the fractional offsets it scrolls by, like
+        // its native `scrollIntoView()` does
+        const scrolled = el.scroll({
+          top: Math.floor(top),
+          left: Math.floor(left),
+          behavior,
+        })
+        return top % 1 === 0 && left % 1 === 0
+          ? scrolled
+          : el.scrollBy({
+              top: top - Math.floor(top),
+              left: left - Math.floor(left),
+              behavior,
+            })
+      })
     )
   }
 }
@@ -159,12 +181,17 @@ function bundleEngine(context: BrowserCommandContext): Promise<string> {
 
 // The web-platform-tests are written for browsers with classic scrollbars, which take 15px of the layout width and
 // height. Playwright's headless Chromium hides them, which the fixtures of the other integration tests depend on, so
-// the web-platform-tests run in a browser of their own that keeps them
+// the web-platform-tests run in a browser of their own that keeps them. Its experimental web platform features match
+// the Chrome of wpt.fyi's experimental results, which lays out SVG documents embedded with object-fit and keeps
+// fractional scroll offsets
 let browserContext: Promise<BrowserContext> | undefined
 function getBrowserContext(): Promise<BrowserContext> {
   browserContext ??= chromium
     .launch({
-      args: ['--enable-smooth-scrolling'],
+      args: [
+        '--enable-smooth-scrolling',
+        '--enable-experimental-web-platform-features',
+      ],
       ignoreDefaultArgs: ['--hide-scrollbars'],
     })
     .then((browser) => browser.newContext())

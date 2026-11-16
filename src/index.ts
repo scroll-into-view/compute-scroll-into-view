@@ -715,8 +715,9 @@ export const compute = (
       if (!owner || !ownerWindow) {
         break
       }
-      // The target where the scrolling so far puts it, in the parent document
-      const box = shift(targetBox)
+      // The border box middleware left, where the scrolling so far puts it, in the parent document.
+      // With no replacement, that is the element's border box. `shift` returns a new box
+      const box = shift(visited.rects().target)
       shifts = { x: [], y: [] }
       const ownerStyle = getComputedStyle(owner)
       const { scrollport, scale } = measureFrame(owner, ownerStyle)
