@@ -384,8 +384,10 @@ const getScrollPadding = (
     )
   )
 
+const getRootStyle = (doc: Document) => getComputedStyle(doc.documentElement)
+
 const isOverflowPropagated = (doc: Document) => {
-  const { overflowX, overflowY } = getComputedStyle(doc.documentElement)
+  const { overflowX, overflowY } = getRootStyle(doc)
   return overflowX === 'visible' && overflowY === 'visible'
 }
 
@@ -553,7 +555,7 @@ export const compute = (
           target: Object.assign({}, targetBox),
           scrollPadding: getScrollPadding(
             // The viewport's scroll-padding is set on the root element, also when the scrolling element is the body
-            viewport ? getComputedStyle(doc.documentElement) : style,
+            viewport ? getRootStyle(doc) : style,
             scrollport,
             scale
           ),
@@ -639,7 +641,7 @@ export const compute = (
         ? getSnapAlignment(
             targetStyle,
             // The root element's scroll-snap-type applies to the viewport
-            viewport ? getComputedStyle(document.documentElement) : frameStyle
+            viewport ? getRootStyle(document) : frameStyle
           )
         : {}
       nearestContainer = false
@@ -648,9 +650,7 @@ export const compute = (
       const scale = visited.scale()
       // Scroll offsets are negative on axes where the scroll container's writing mode and direction make it overflow
       // to the left or top. The root's applies to the viewport
-      const flow = getFlowDirections(
-        viewport ? getComputedStyle(doc.documentElement) : frameStyle
-      )
+      const flow = getFlowDirections(viewport ? getRootStyle(doc) : frameStyle)
       const scrollAxis = (axis: 'x' | 'y') => {
         const [start, end] =
           axis === 'x'
