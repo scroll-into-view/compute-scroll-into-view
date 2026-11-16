@@ -17,6 +17,7 @@ Scrolling SVG elements are supported, as well as Shadow DOM elements. The [Visua
   - [options](#options)
     - [block](#block)
     - [inline](#inline)
+    - [container](#container)
     - [scrollMode](#scrollmode)
     - [boundary](#boundary)
     - [skipOverflowHiddenElements](#skipoverflowhiddenelements)
@@ -86,6 +87,12 @@ In `horizontal-tb` (the default) `block: 'start'` aligns to the top edge and `bl
 Type: `'start' | 'center' | 'end' | 'nearest'`<br> Default: `'nearest'`
 
 Control the scroll position in the inline direction of the target's [writing-mode](https://developer.mozilla.org/en-US/docs/Web/CSS/writing-mode) and [direction](https://developer.mozilla.org/en-US/docs/Web/CSS/direction). In left-to-right text `inline: 'start'` aligns to the left edge, in right-to-left text to the right edge. Scroll containers that overflow to the left or top get negative `left` or `top` values, like `scrollLeft` in right-to-left scroll containers.
+
+### container
+
+Type: `'all' | 'nearest'`<br> Default: `'all'`
+
+Like the [`container`](https://drafts.csswg.org/cssom-view/#dom-scrollintoviewoptions-container) option of `Element.scrollIntoView()`. `'all'` scrolls every scroll container of the target, up to and including the viewport. `'nearest'` only scrolls the target's nearest scroll container, or the viewport if it has none.
 
 ### [scrollMode](https://scroll-into-view.dev/#scrolling-if-needed)
 

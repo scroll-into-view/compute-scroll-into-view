@@ -87,7 +87,7 @@ add_completion_callback((tests, status) => {
 function installScrollIntoView(
   compute: (target: Element, options: Options) => ScrollAction[]
 ) {
-  type Arg = boolean | (ScrollIntoViewOptions & { container?: string })
+  type Arg = boolean | (ScrollIntoViewOptions & Pick<Options, 'container'>)
   // oxlint-disable-next-line unicorn/consistent-function-scoping -- serialized on its own, it can't use outer scope
   const results = (promises: unknown[]) =>
     Promise.all(promises).then((values) => ({
@@ -102,7 +102,7 @@ function installScrollIntoView(
     this: Element,
     arg: Arg = {}
   ) {
-    let options: ScrollIntoViewOptions & { container?: string } = {}
+    let options: ScrollIntoViewOptions & Pick<Options, 'container'> = {}
     if (arg === false) options = { block: 'end' }
     else if (typeof arg === 'object' && arg !== null) options = arg
     const {
