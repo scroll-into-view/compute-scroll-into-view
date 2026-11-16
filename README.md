@@ -23,7 +23,7 @@ Scrolling SVG elements are supported, as well as Shadow DOM elements. The [Visua
     - [onlyIfNeeded()](#onlyifneeded)
     - [boundary(boundary)](#boundaryboundary)
     - [skipOverflowHiddenElements()](#skipoverflowhiddenelements)
-    - [targetRect(rect)](#targetrectrect)
+    - [selection(selection, options)](#selectionselection-options)
     - [Writing middleware](#writing-middleware)
 - [Development](#development)
 
@@ -163,21 +163,32 @@ By default the [spec](https://drafts.csswg.org/cssom-view/#scrolling-box) states
 
 This follows the convention [adopted by Firefox](https://hg.mozilla.org/integration/fx-team/rev/c48c3ec05012#l7.18) of _not_ scrolling nodes with `overflow: hidden` set. The target is scrolled into view in the other scroll containers regardless. With `container: 'nearest'`, the nearest scroll container that isn't skipped is scrolled.
 
-### targetRect(rect)
+### selection(selection, options)
 
-Aligns `rect` instead of the target element's border box. `rect` is in viewport coordinates, the same as [`getBoundingClientRect()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect) on that element or on a [`Range`](https://developer.mozilla.org/en-US/docs/Web/API/Range/getBoundingClientRect). The ancestor walk is still the element's, so pass a node inside the scroll container that should scroll. Passing the container itself does not scroll it.
+Scrolls a text selection into view instead of the target element, like editors keep the caret in view. `selection` is a [`Selection`](https://developer.mozilla.org/en-US/docs/Web/API/Selection) or a [`Range`](https://developer.mozilla.org/en-US/docs/Web/API/Range) in the target's document, and defaults to the document's own selection (`document.getSelection()`). `options.align` is what to align:
 
-This is how [Quill](https://github.com/quilljs/quill) scrolls a selection: the range's rectangle, through the ancestors of a node in the editor. `block: 'nearest'` and `inline: 'nearest'` match Quill's alignment. The element's `scroll-margin` still grows the rectangle. Put `targetRect()` before `onlyIfNeeded()`, which then checks the rectangle. A rectangle inside a same-origin iframe is mapped into the parent document with the scrolling inside the frame.
+- `'focus'` (default): the end of the selection where the caret is. A collapsed caret has no box of its own in every browser, so it's measured as the character or node next to it, which also covers empty lines (`<p><br></p>`) and carets next to images. A `Range` has no direction, so its focus is its end. Pass the `Selection` for a backward one.
+- `'bounds'`: the box around the whole selection, [`range.getBoundingClientRect()`](https://developer.mozilla.org/en-US/docs/Web/API/Range/getBoundingClientRect). With `block: 'nearest'`, a selection taller than the scroll container is aligned to its start.
+
+`compute` still walks the target's ancestors, so pass an element inside the editor, such as the parent element of the focus node. Passing the editor itself does not scroll it, as elements don't scroll themselves into view. The scroll containers' `scroll-padding` keeps the caret away from their edges, and the target's `scroll-margin` still grows the box. Put it before `onlyIfNeeded()`, which then checks the selection instead of the element. When there is nothing to measure, the target is aligned as usual. A caret inside a same-origin iframe is mapped into the parent document with the scrolling inside the frame.
 
 ```js
 import { compute } from 'compute-scroll-into-view'
-import { onlyIfNeeded, targetRect } from 'compute-scroll-into-view/middleware'
+import { onlyIfNeeded, selection } from 'compute-scroll-into-view/middleware'
 
-// `node` is inside the editor, so the editor is one of the scroll containers
-const actions = compute(node, {
+// The caret's parent element is inside the editor, so the editor is one of the scroll containers
+const { focusNode } = document.getSelection()
+const actions = compute(focusNode.parentElement, {
   block: 'nearest',
   inline: 'nearest',
-  middleware: [targetRect(range.getBoundingClientRect()), onlyIfNeeded()],
+  middleware: [selection(), onlyIfNeeded()],
+})
+
+// A range built by the editor, aligning the whole selection
+compute(range.startContainer.parentElement, {
+  block: 'nearest',
+  inline: 'nearest',
+  middleware: [selection(range, { align: 'bounds' })],
 })
 ```
 
