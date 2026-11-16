@@ -1,4 +1,4 @@
-// The middleware option of compute, and the boundary, skipOverflowHiddenElements and onlyIfNeeded middleware
+// The middleware option of compute, and the boundary, skipOverflowHiddenElements, onlyIfNeeded and targetRect middleware
 import { beforeEach, describe, expect, test } from 'vite-plus/test'
 
 import * as rootEntry from '../src/index.ts'
@@ -27,6 +27,7 @@ test('the root entry exports compute, and the middleware entry the built-in midd
     'boundary',
     'onlyIfNeeded',
     'skipOverflowHiddenElements',
+    'targetRect',
   ])
 })
 
@@ -324,6 +325,146 @@ describe('custom middleware', () => {
     })
     // 10px above the target in #inner
     expect(actual.tops[0]).toBe(390)
+  })
+})
+
+describe('targetRect', () => {
+  test("aligns the rectangle, not the element's border box", async () => {
+    const actual = await page.evaluate(() => {
+      document.body.innerHTML = `
+        <div id="scroller" style="height: 180px; width: 180px; overflow: auto">
+          <div style="height: 240px"></div>
+          <div id="target" style="height: 60px; width: 60px; margin-left: 80px"></div>
+          <div style="height: 400px; width: 400px"></div>
+        </div>`
+      const target = document.querySelector('#target')
+      const box = target.getBoundingClientRect()
+      const rect = {
+        top: box.top + 50,
+        bottom: box.bottom + 50,
+        left: box.left + 30,
+        right: box.right + 30,
+      }
+      const tops = (middleware) =>
+        window
+          .computeScrollIntoView(target, {
+            block: 'start',
+            inline: 'start',
+            middleware,
+          })
+          .find(({ el }) => el.id === 'scroller')
+      const element = tops([])
+      const range = tops([window.targetRect(rect)])
+      return {
+        elementTop: element.top,
+        elementLeft: element.left,
+        rangeTop: range.top,
+        rangeLeft: range.left,
+      }
+    })
+    expect(actual.rangeTop).toBe(actual.elementTop + 50)
+    expect(actual.rangeLeft).toBe(actual.elementLeft + 30)
+  })
+
+  test("the element's own border box matches compute without the middleware", async () => {
+    const actual = await page.evaluate((html) => {
+      document.body.innerHTML = html
+      const target = document.querySelector('#target')
+      const box = target.getBoundingClientRect()
+      const rect = {
+        top: box.top,
+        right: box.right,
+        bottom: box.bottom,
+        left: box.left,
+      }
+      const actions = (middleware) =>
+        window
+          .computeScrollIntoView(target, { block: 'center', middleware })
+          .map(window.mapActions)
+      return {
+        element: actions([]),
+        range: actions([window.targetRect(rect)]),
+      }
+    }, nested)
+    expect(actual.range).toEqual(actual.element)
+  })
+
+  test('onlyIfNeeded checks the rectangle', async () => {
+    const actual = await page.evaluate(() => {
+      document.body.innerHTML = `
+        <div id="scroller" style="height: 200px; overflow: auto">
+          <div id="target" style="height: 800px"></div>
+        </div>`
+      const target = document.querySelector('#target')
+      const box = target.getBoundingClientRect()
+      const slice = (offset) => ({
+        top: box.top + offset,
+        bottom: box.top + offset + 20,
+        left: box.left,
+        right: box.right,
+      })
+      const scrollerTop = (block, middleware) => {
+        const action = window
+          .computeScrollIntoView(target, { block, middleware })
+          .find(({ el }) => el.id === 'scroller')
+        return action ? action.top : 0
+      }
+      return {
+        // The top 20px is already in view, so centering it is skipped
+        visible: scrollerTop('center', [
+          window.targetRect(slice(0)),
+          window.onlyIfNeeded(),
+        ]),
+        // The element itself is 800px, so it is not fully in view
+        element: scrollerTop('center', [window.onlyIfNeeded()]),
+        hidden: scrollerTop('start', [
+          window.targetRect(slice(350)),
+          window.onlyIfNeeded(),
+        ]),
+      }
+    })
+    expect(actual.visible).toBe(0)
+    expect(actual.element).toBeGreaterThan(0)
+    expect(actual.hidden).toBe(350)
+  })
+
+  test("a rectangle in an iframe is what the parent document aligns, when the frame can't scroll it", async () => {
+    const actual = await page.evaluate(async () => {
+      document.body.style.margin = '0'
+      document.body.innerHTML = `
+        <div id="outer" style="height: 160px; overflow: auto">
+          <div style="height: 220px"></div>
+          <iframe id="frame" style="width: 200px; height: 200px; border: 0; display: block"></iframe>
+          <div style="height: 500px"></div>
+        </div>`
+      const frame = document.querySelector('#frame')
+      await new Promise((resolve) => {
+        frame.addEventListener('load', resolve)
+        frame.srcdoc =
+          '<body style="margin:0"><div id="target" style="position:absolute;top:24px;left:16px;width:40px;height:40px"></div></body>'
+      })
+      const target = frame.contentDocument.querySelector('#target')
+      const box = target.getBoundingClientRect()
+      const rect = {
+        top: box.top + 48,
+        bottom: box.bottom + 48,
+        left: box.left,
+        right: box.right,
+      }
+      const outerTop = (middleware) =>
+        window
+          .computeScrollIntoView(target, {
+            block: 'start',
+            inline: 'nearest',
+            middleware,
+          })
+          .find(({ el }) => el.id === 'outer').top
+      return {
+        element: outerTop([]),
+        range: outerTop([window.targetRect(rect)]),
+      }
+    })
+    expect(actual.range).toBe(actual.element + 48)
   })
 })
 

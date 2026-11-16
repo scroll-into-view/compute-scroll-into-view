@@ -3,11 +3,13 @@ import {
   boundary,
   onlyIfNeeded,
   skipOverflowHiddenElements,
+  targetRect,
 } from '../src/middleware.ts'
 window.computeScrollIntoView = compute
 window.onlyIfNeeded = onlyIfNeeded
 window.boundary = boundary
 window.skipOverflowHiddenElements = skipOverflowHiddenElements
+window.targetRect = targetRect
 // What `scrollMode: 'if-needed'` did before it became the onlyIfNeeded middleware
 window.computeScrollIntoViewIfNeeded = (target, options) =>
   compute(target, { ...options, middleware: [onlyIfNeeded()] })

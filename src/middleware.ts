@@ -70,3 +70,36 @@ export const skipOverflowHiddenElements = (): Middleware => ({
       : {}
   },
 })
+
+/**
+ * Aligns `rect` instead of the target element's border box. `rect` uses viewport coordinates, like
+ * `getBoundingClientRect()` on the element or on a `Range`. The ancestor walk is still the element's: pass a node
+ * inside the scroll container that should scroll, not the container itself. The element's `scroll-margin` still grows
+ * the rectangle. In the element's own document this replaces the border box; after a frame is crossed, the rectangle
+ * mapped into the parent document is left as it is. Put it before `onlyIfNeeded()`.
+ */
+export const targetRect = (rect: SideObject): Middleware => {
+  const box = {
+    top: rect.top,
+    right: rect.right,
+    bottom: rect.bottom,
+    left: rect.left,
+  }
+  return {
+    name: 'targetRect',
+    fn: ({ target, container }) => {
+      // The rectangle is in the element's viewport. The parent document has the mapped copy already
+      if (container.ownerDocument !== target.ownerDocument) return {}
+      return {
+        rects: {
+          target: {
+            top: box.top,
+            right: box.right,
+            bottom: box.bottom,
+            left: box.left,
+          },
+        },
+      }
+    },
+  }
+}

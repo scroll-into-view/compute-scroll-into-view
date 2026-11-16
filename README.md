@@ -23,6 +23,7 @@ Scrolling SVG elements are supported, as well as Shadow DOM elements. The [Visua
     - [onlyIfNeeded()](#onlyifneeded)
     - [boundary(boundary)](#boundaryboundary)
     - [skipOverflowHiddenElements()](#skipoverflowhiddenelements)
+    - [targetRect(rect)](#targetrectrect)
     - [Writing middleware](#writing-middleware)
 - [Development](#development)
 
@@ -162,6 +163,24 @@ By default the [spec](https://drafts.csswg.org/cssom-view/#scrolling-box) states
 
 This follows the convention [adopted by Firefox](https://hg.mozilla.org/integration/fx-team/rev/c48c3ec05012#l7.18) of _not_ scrolling nodes with `overflow: hidden` set. The target is scrolled into view in the other scroll containers regardless. With `container: 'nearest'`, the nearest scroll container that isn't skipped is scrolled.
 
+### targetRect(rect)
+
+Aligns `rect` instead of the target element's border box. `rect` is in viewport coordinates, the same as [`getBoundingClientRect()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect) on that element or on a [`Range`](https://developer.mozilla.org/en-US/docs/Web/API/Range/getBoundingClientRect). The ancestor walk is still the element's, so pass a node inside the scroll container that should scroll. Passing the container itself does not scroll it.
+
+This is how [Quill](https://github.com/quilljs/quill) scrolls a selection: the range's rectangle, through the ancestors of a node in the editor. `block: 'nearest'` and `inline: 'nearest'` match Quill's alignment. The element's `scroll-margin` still grows the rectangle. Put `targetRect()` before `onlyIfNeeded()`, which then checks the rectangle. A rectangle inside a same-origin iframe is mapped into the parent document with the scrolling inside the frame.
+
+```js
+import { compute } from 'compute-scroll-into-view'
+import { onlyIfNeeded, targetRect } from 'compute-scroll-into-view/middleware'
+
+// `node` is inside the editor, so the editor is one of the scroll containers
+const actions = compute(node, {
+  block: 'nearest',
+  inline: 'nearest',
+  middleware: [targetRect(range.getBoundingClientRect()), onlyIfNeeded()],
+})
+```
+
 ### Writing middleware
 
 A middleware is an object with a `name` and an `fn`, and its types are exported from `compute-scroll-into-view`. `compute` calls `fn` for every ancestor of the target, innermost first, up to the viewport, with what it knows about it. `fn` returns `{}` to change nothing, or what to change:
@@ -215,7 +234,7 @@ interface SideObject {
 interface Rects {
   /** The scroll container's padding box without scrollbars. For the viewport, the visual viewport */
   scrollport: SideObject
-  /** The target's border box. The scrolling of inner scroll containers is added to it when it's aligned */
+  /** The target's border box, unless middleware replaced it. Inner scrolling is added when it's aligned */
   target: SideObject
   /** The scroll container's `scroll-padding`. For the viewport, the root element's */
   scrollPadding: SideObject
