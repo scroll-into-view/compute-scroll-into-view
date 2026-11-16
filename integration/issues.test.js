@@ -28,7 +28,7 @@ describe('issues', () => {
     await page.goto('/integration/issues.html')
   })
 
-  test.fails('#918, #919: ancestors that are not in the containing block chain of a positioned target are not scrolled', async () => {
+  test('#918, #919: ancestors that are not in the containing block chain of a positioned target are not scrolled', async () => {
     const { native, computed } = await page.evaluate(() => {
       document.body.innerHTML = `
           <div id="scroller" style="position: relative; height: 200px; overflow: auto">

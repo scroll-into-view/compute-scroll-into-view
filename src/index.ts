@@ -442,6 +442,28 @@ const measureFrame = (frame: Element, frameStyle: CSSStyleDeclaration) => {
   }
 }
 
+const isSet = (value: string | undefined) => !!value && value !== 'none'
+
+// Whether an element with this style is the containing block of its absolutely positioned descendants, or with
+// `fixed`, of its fixed positioned ones: https://drafts.csswg.org/css-position-3/#def-cb
+// Some of these properties are missing in older browsers, where they're undefined
+const isContainingBlock = (style: CSSStyleDeclaration, fixed: boolean) =>
+  (!fixed && style.position !== 'static') ||
+  isSet(style.transform) ||
+  isSet(style.translate) ||
+  isSet(style.rotate) ||
+  isSet(style.scale) ||
+  isSet(style.perspective) ||
+  isSet(style.filter) ||
+  isSet(style.backdropFilter) ||
+  /layout|paint|strict|content/.test(style.contain || '') ||
+  /size/.test(style.containerType || '') ||
+  /auto|hidden/.test(style.contentVisibility || '') ||
+  /transform|perspective|filter|translate|rotate|scale/.test(
+    style.willChange || ''
+  ) ||
+  (!fixed && /position/.test(style.willChange || ''))
+
 export const compute = (
   target: Element,
   options: Options = {}
@@ -470,7 +492,8 @@ export const compute = (
   // Alignment follows the target's writing mode and direction in every scroll container, like browsers do, rather
   // than each scroll container's own as the spec says: https://github.com/w3c/csswg-drafts/issues/11796
   // From here on `start` means the top or left edge
-  const targetFlow = getFlowDirections(getComputedStyle(target))
+  const targetStyle = getComputedStyle(target)
+  const targetFlow = getFlowDirections(targetStyle)
   const alignY = toPhysical(
     targetFlow.vertical ? inline : block,
     targetFlow.yStartIsBottom
@@ -488,8 +511,9 @@ export const compute = (
   const blockShifts: number[] = []
   const inlineShifts: number[] = []
 
-  // Runs the first `count` middleware for an ancestor of the target
-  const visit = (frame: Element, count: number) => {
+  // Runs the first `count` middleware for an ancestor of the target. Ancestors that aren't in the target's containing
+  // block chain don't move it when they scroll, so they aren't scrollable
+  const visit = (frame: Element, count: number, inChain = true) => {
     const viewport = frame === scrollingElement
     let style: CSSStyleDeclaration | undefined
     const getStyle = () => (style ??= getComputedStyle(frame))
@@ -517,12 +541,14 @@ export const compute = (
     }
     const getRects = () => (rects ??= measure())
 
-    let scrollable =
-      viewport ||
-      (isScrollable(frame) &&
+    // A fixed positioned target doesn't move with the viewport either, unless the root is its containing block
+    let scrollable = viewport
+      ? inChain
+      : inChain &&
+        isScrollable(frame) &&
         // The body's overflow applies to the viewport instead when the root's is visible, so it isn't a scroll
         // container then: https://drafts.csswg.org/css-overflow-3/#overflow-propagation
-        !(frame === document.body && isOverflowPropagated()))
+        !(frame === document.body && isOverflowPropagated())
     let stop = viewport
     for (let index = 0; index < count; index++) {
       const result = middleware[index].fn({
@@ -557,9 +583,21 @@ export const compute = (
   const computations: ScrollAction[] = []
   // Walk the ancestors for the scrolling boxes, as defined in the spec: https://drafts.csswg.org/cssom-view/#scrolling-box
   let cursor: Element | null = getParentElement(target)
+  // The position of the last box in the containing block chain, which says which ancestor is its containing block
+  let position = targetStyle.position
   while (isElement(cursor)) {
     const frame: Element = cursor
-    const visited = visit(frame, middleware.length)
+    const frameStyle = getComputedStyle(frame)
+    const inChain =
+      (position !== 'absolute' && position !== 'fixed') ||
+      // Without another one, the containing block of absolutely positioned boxes is the initial containing block,
+      // which moves with the viewport
+      (position === 'absolute' && frame === scrollingElement) ||
+      isContainingBlock(frameStyle, position === 'fixed')
+    if (inChain) {
+      position = frameStyle.position
+    }
+    const visited = visit(frame, middleware.length, inChain)
     const { viewport, scrollable } = visited
     let { stop } = visited
 
