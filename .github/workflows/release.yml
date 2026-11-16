@@ -25,8 +25,11 @@ jobs:
         with:
           node-version: lts
           cache: true
+      # oxfmt reads the fmt block in vite.config.ts when VP_VERSION is set,
+      # which is how `vp check` runs this same binary.
+      - name: Let oxfmt read the Vite+ format config
+        run: echo "VP_VERSION=$(node -p "require('./node_modules/vite-plus/package.json').version")" >> "$GITHUB_ENV"
       - name: Create Release Pull Request or Publish to npm
         uses: changesets/action@v2
         with:
-          version-script: pnpm run version-packages
           publish-script: pnpm release
