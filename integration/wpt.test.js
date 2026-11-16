@@ -1,10 +1,12 @@
 // Runs the vendored web-platform-tests with `compute` behind Element.scrollIntoView, and checks that every test file
 // reports what integration/wpt/expectations.json expects, failures included. See integration/wpt/README.md
-import { expect, test } from 'vite-plus/test'
+import { afterAll, expect, test } from 'vite-plus/test'
 import { commands } from 'vite-plus/test/browser'
 
 import expectations from './wpt/expectations.json'
 import manifest from './wpt/manifest.json'
+
+afterAll(() => commands.closeWebPlatformBrowser())
 
 // testharness.js times out "long" tests after 60s
 const harnessTimeout = 65_000

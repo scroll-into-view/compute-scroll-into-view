@@ -11,7 +11,7 @@ const canOverflow = (
   return overflow !== 'visible' && overflow !== 'clip'
 }
 
-const getFrameElement = (el: Element) => {
+export const getFrameElement = (el: Element) => {
   if (!el.ownerDocument || !el.ownerDocument.defaultView) {
     return null
   }

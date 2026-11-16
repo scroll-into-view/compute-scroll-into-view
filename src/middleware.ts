@@ -52,7 +52,7 @@ export const boundary = (
     if (container === getParentElement(target) && !checkBoundary(target)) {
       return { scrollable: false, stop: true }
     }
-    // The viewport is the last one anyway
+    // The viewport is the last scrolling box of its document
     return !viewport && !checkBoundary(container) ? { stop: true } : {}
   },
 })

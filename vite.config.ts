@@ -7,7 +7,10 @@ import {
   evaluateInFixture,
   gotoFixture,
 } from './integration/fixture-commands.js'
-import { runWebPlatformTest } from './integration/wpt-commands.js'
+import {
+  closeWebPlatformBrowser,
+  runWebPlatformTest,
+} from './integration/wpt-commands.js'
 
 // Vendored, unmodified web-platform-tests. scripts/sync-wpt.ts replaces them
 const vendoredWpt = 'integration/wpt/upstream/**'
@@ -130,6 +133,7 @@ export default defineConfig({
         closeFixture,
         evaluateInFixture,
         gotoFixture,
+        closeWebPlatformBrowser,
         runWebPlatformTest,
       },
     },

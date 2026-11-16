@@ -196,7 +196,7 @@ describe('issues', () => {
   })
 
   describe('iframes', () => {
-    test.fails('#694: scrolling a target in a frame from inside the frame scrolls the parent document too', async () => {
+    test('#694: scrolling a target in a frame from inside the frame scrolls the parent document too', async () => {
       await loadFrame()
       const { native, computed } = await page.evaluate(() => {
         const frame = document.querySelector('#frame')

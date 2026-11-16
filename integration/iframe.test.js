@@ -6,14 +6,16 @@ beforeAll(async () => {
 
 describe('scrollable element is "overflow: visible" but hidden by iframe', () => {
   test('should scroll to inside iframe', async () => {
-    expect.assertions(3)
+    expect.assertions(4)
     const actual = await page.evaluate(() => {
       const iframe = document.querySelector('iframe')
       const target = iframe.contentDocument.querySelector('.target')
       return window.computeScrollIntoView(target, {}).map(window.mapActions)
     })
-    expect(actual).toHaveLength(1)
-    expect(actual[0]).toMatchObject({ el: 'html' })
+    // The iframe's viewport, then the same-origin parent document's, which is aligned on where the iframe's moved it
+    expect(actual).toHaveLength(2)
+    expect(actual.map(({ el }) => el)).toEqual(['html', 'html'])
+    expect(actual[0]).toMatchObject({ top: 133 })
     expect(actual).toMatchSnapshot()
   })
 

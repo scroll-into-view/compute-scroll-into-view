@@ -3,7 +3,7 @@
 // written for. The tests can't use the iframe that Vitest runs them in, because
 // `compute` treats elements inside a frame differently from a top-level page.
 /// <reference types="vite-plus/test/browser-playwright" />
-import type { Page } from 'playwright'
+import type { BrowserContext, Page } from 'playwright'
 import type { BrowserCommandContext } from 'vite-plus/test/node'
 
 interface Fixture {
@@ -31,7 +31,7 @@ function getFixture(context: BrowserCommandContext): Fixture {
 // Istanbul coverage counters of fixture pages that were closed, by test file
 const closedCoverage = new Map<string, CoverageMap[]>()
 
-async function close(context: BrowserCommandContext): Promise<void> {
+export async function close(context: BrowserCommandContext): Promise<void> {
   const fixture = fixtures.get(key(context))
   if (!fixture) return
   fixtures.delete(key(context))
@@ -59,10 +59,13 @@ export async function closeFixture(
 /** Replaces the test file's fixture page with a new, blank one */
 export async function openFixturePage(
   context: BrowserCommandContext,
-  { trackErrors = true } = {}
+  {
+    trackErrors = true,
+    browserContext = context.context,
+  }: { trackErrors?: boolean; browserContext?: BrowserContext } = {}
 ): Promise<Page> {
   await close(context)
-  const page = await context.context.newPage()
+  const page = await browserContext.newPage()
   const fixture: Fixture = { page, errors: [] }
   if (trackErrors) page.on('pageerror', (error) => fixture.errors.push(error))
   fixtures.set(key(context), fixture)
