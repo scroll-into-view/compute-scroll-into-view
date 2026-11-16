@@ -1,5 +1,19 @@
 import type { Rects, SideObject } from './index.js'
 
+/** A `SideObject` of what `fn` returns for each side, given whether it's a start (top or left) edge, and its axis */
+export const mapSides = (
+  fn: (side: keyof SideObject, start: boolean, axis: 'x' | 'y') => number
+): SideObject => ({
+  top: fn('top', true, 'y'),
+  right: fn('right', false, 'x'),
+  bottom: fn('bottom', false, 'y'),
+  left: fn('left', true, 'x'),
+})
+
+// Moves each edge of `box` inwards by `by`, or outwards with a `sign` of -1
+const inset = (box: SideObject, by: SideObject, sign: number): SideObject =>
+  mapSides((side, start) => box[side] + (start ? sign : -sign) * by[side])
+
 const canOverflow = (
   overflow: string | null,
   skipOverflowHiddenElements?: boolean
@@ -11,33 +25,23 @@ const canOverflow = (
   return overflow !== 'visible' && overflow !== 'clip'
 }
 
-export const getFrameElement = (el: Element) => {
-  if (!el.ownerDocument || !el.ownerDocument.defaultView) {
-    return null
-  }
-
+// Throws without a window, or for a cross-origin parent
+export const getFrameElement = (el: Element): Element | null => {
   try {
-    return el.ownerDocument.defaultView.frameElement
+    return el.ownerDocument.defaultView!.frameElement
   } catch {
     return null
   }
 }
 
 const isHiddenByFrame = (el: Element): boolean => {
-  // An iframe clips its document's viewport, not the overflow: visible elements in it
-  if (
-    el !== el.ownerDocument.documentElement &&
-    el !== el.ownerDocument.scrollingElement
-  ) {
-    return false
-  }
+  const { documentElement, scrollingElement } = el.ownerDocument
   const frame = getFrameElement(el)
-  if (!frame) {
-    return false
-  }
-
+  // An iframe clips its document's viewport, not the overflow: visible elements in it
   return (
-    frame.clientHeight < el.scrollHeight || frame.clientWidth < el.scrollWidth
+    !!frame &&
+    (el === documentElement || el === scrollingElement) &&
+    (frame.clientHeight < el.scrollHeight || frame.clientWidth < el.scrollWidth)
   )
 }
 
@@ -46,7 +50,7 @@ export const isScrollable = (
   skipOverflowHiddenElements?: boolean
 ): boolean => {
   if (el.clientHeight < el.scrollHeight || el.clientWidth < el.scrollWidth) {
-    const style = getComputedStyle(el, null)
+    const style = getComputedStyle(el)
     return (
       canOverflow(style.overflowY, skipOverflowHiddenElements) ||
       canOverflow(style.overflowX, skipOverflowHiddenElements) ||
@@ -74,20 +78,9 @@ export const getParentElement = (element: Node): Element | null => {
 }
 
 // The optimal viewing region is the scrollport, inset by `scroll-padding`, in viewport coordinates
-export const getRegion = ({
-  scrollport,
-  scrollPadding,
-}: Rects): SideObject => ({
-  top: scrollport.top + scrollPadding.top,
-  right: scrollport.right - scrollPadding.right,
-  bottom: scrollport.bottom - scrollPadding.bottom,
-  left: scrollport.left + scrollPadding.left,
-})
+export const getRegion = ({ scrollport, scrollPadding }: Rects): SideObject =>
+  inset(scrollport, scrollPadding, 1)
 
 // The scroll-margin box of the target is what gets aligned
-export const getTargetBox = ({ target, scrollMargin }: Rects): SideObject => ({
-  top: target.top - scrollMargin.top,
-  right: target.right + scrollMargin.right,
-  bottom: target.bottom + scrollMargin.bottom,
-  left: target.left - scrollMargin.left,
-})
+export const getTargetBox = ({ target, scrollMargin }: Rects): SideObject =>
+  inset(target, scrollMargin, -1)
