@@ -675,9 +675,7 @@ export const compute = (
         ? getSnapAlignment(
             targetStyle,
             // The root element's scroll-snap-type applies to the viewport
-            viewport
-              ? getComputedStyle(document.documentElement)
-              : visited.style()
+            viewport ? getComputedStyle(document.documentElement) : frameStyle
           )
         : {}
       nearestContainer = false
