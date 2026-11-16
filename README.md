@@ -5,7 +5,7 @@
 
 ![compute-scroll-into-view](https://user-images.githubusercontent.com/81981/43024153-a2cc212c-8c6d-11e8-913b-b4d62efcf105.png)
 
-Lower level API that is used by the [ponyfill](https://ponyfill.com) [scroll-into-view-if-needed](https://github.com/scroll-into-view/scroll-into-view-if-needed) to compute where (if needed) elements should scroll based on [options defined in the spec](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView) and the [`scrollMode: "if-needed"` draft spec proposal](https://github.com/w3c/csswg-drafts/pull/1805).
+Lower level API that is used by the [ponyfill](https://ponyfill.com) [scroll-into-view-if-needed](https://github.com/scroll-into-view/scroll-into-view-if-needed) to compute where (if needed) elements should scroll based on [options defined in the spec](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView). The [`if-needed` draft spec proposal](https://github.com/w3c/csswg-drafts/pull/1805) and other additions are [middleware](#middleware-1).
 Use this if you want the smallest possible bundlesize and is ok with implementing the actual scrolling yourself.
 
 Scrolling SVG elements are supported, as well as Shadow DOM elements. The [VisualViewport](https://developer.mozilla.org/en-US/docs/Web/API/VisualViewport) API is also supported, ensuring scrolling works properly on modern devices. Quirksmode is also supported as long as you polyfill [`document.scrollingElement`](https://developer.mozilla.org/en-US/docs/Web/API/document/scrollingElement).
@@ -18,9 +18,12 @@ Scrolling SVG elements are supported, as well as Shadow DOM elements. The [Visua
     - [block](#block)
     - [inline](#inline)
     - [container](#container)
-    - [scrollMode](#scrollmode)
-    - [boundary](#boundary)
-    - [skipOverflowHiddenElements](#skipoverflowhiddenelements)
+    - [middleware](#middleware)
+  - [Middleware](#middleware-1)
+    - [onlyIfNeeded()](#onlyifneeded)
+    - [boundary(boundary)](#boundaryboundary)
+    - [skipOverflowHiddenElements()](#skipoverflowhiddenelements)
+    - [Writing middleware](#writing-middleware)
 - [Development](#development)
 
 # Install
@@ -41,23 +44,20 @@ The published code supports [Baseline 2019](https://web.dev/baseline) browsers (
 
 ```js
 import { compute } from 'compute-scroll-into-view'
+import { onlyIfNeeded } from 'compute-scroll-into-view/middleware'
 
 const node = document.getElementById('hero')
 
 // same behavior as Element.scrollIntoView({block: "nearest", inline: "nearest"})
 // see: https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView
-const actions = compute(node, {
-  scrollMode: 'if-needed',
-  block: 'nearest',
-  inline: 'nearest',
-})
+const actions = compute(node, { block: 'nearest', inline: 'nearest' })
 
 // same behavior as Element.scrollIntoViewIfNeeded(true)
 // see: https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoViewIfNeeded
 const actions = compute(node, {
-  scrollMode: 'if-needed',
   block: 'center',
   inline: 'center',
+  middleware: [onlyIfNeeded()],
 })
 
 // Then perform the scrolling, use scroll-into-view-if-needed if you don't want to implement this part
@@ -73,7 +73,7 @@ actions.forEach(({ el, top, left }) => {
 
 ## options
 
-Type: `Object`
+Type: `Object`, optional
 
 ### [block](https://scroll-into-view.dev/#scroll-alignment)
 
@@ -94,18 +94,41 @@ Type: `'all' | 'nearest'`<br> Default: `'all'`
 
 Like the [`container`](https://drafts.csswg.org/cssom-view/#dom-scrollintoviewoptions-container) option of `Element.scrollIntoView()`. `'all'` scrolls every scroll container of the target, up to and including the viewport. `'nearest'` only scrolls the target's nearest scroll container, or the viewport if it has none.
 
-### [scrollMode](https://scroll-into-view.dev/#scrolling-if-needed)
+### middleware
 
-Type: `'always' | 'if-needed'`<br> Default: `'always'`
+Type: `Middleware[]`<br> Default: `[]`
 
-This is a proposed addition to the spec that you can track here: https://github.com/w3c/csswg-drafts/pull/5677
+Change which ancestors are scrolled, and how they are measured. See [Middleware](#middleware-1).
 
-This library will be updated to reflect any changes to the spec and will provide a migration path.
-To be backwards compatible with `Element.scrollIntoViewIfNeeded` if something is not 100% visible it will count as "needs scrolling". The target's `scroll-margin` and the `scroll-padding` of the scroll containers and the viewport are taken into account. If you need a different visibility ratio your best option would be to implement an [Intersection Observer](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API).
+## Middleware
 
-### [boundary](https://scroll-into-view.dev/#limit-propagation)
+Like [Floating UI's middleware](https://floating-ui.com/docs/middleware). The built-in ones are exported from `compute-scroll-into-view/middleware`, so `compute-scroll-into-view` stays as small as the spec needs:
 
-Type: `Element | Function`
+```js
+import { compute } from 'compute-scroll-into-view'
+import {
+  boundary,
+  skipOverflowHiddenElements,
+  onlyIfNeeded,
+} from 'compute-scroll-into-view/middleware'
+
+const actions = compute(node, {
+  block: 'center',
+  middleware: [boundary(list), skipOverflowHiddenElements(), onlyIfNeeded()],
+})
+```
+
+They run in order, so put `onlyIfNeeded()` after the middleware that change which scroll containers are scrolled or how they are measured.
+
+### [onlyIfNeeded()](https://scroll-into-view.dev/#scrolling-if-needed)
+
+Replaces `scrollMode: 'if-needed'`. This is a proposed addition to the spec that you can track here: https://github.com/w3c/csswg-drafts/pull/5677
+
+To be backwards compatible with `Element.scrollIntoViewIfNeeded` if something is not 100% visible it will count as "needs scrolling". It stops at the first scroll container the target is visible in, if the target is visible in the viewport too. The target's `scroll-margin` and the `scroll-padding` of the scroll containers and the viewport are taken into account. If you need a different visibility ratio your best option would be to implement an [Intersection Observer](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API).
+
+### [boundary(boundary)](https://scroll-into-view.dev/#limit-propagation)
+
+Replaces the `boundary` option. `boundary` is an `Element`, a `Function` or `null`.
 
 By default there is no boundary. All the parent elements of your target is checked until it reaches the viewport ([`document.scrollingElement`](https://developer.mozilla.org/en-US/docs/Web/API/document/scrollingElement)) when calculating layout and what to scroll.
 By passing a boundary you can short-circuit this loop depending on your needs:
@@ -113,35 +136,137 @@ By passing a boundary you can short-circuit this loop depending on your needs:
 - Prevent the browser window from scrolling.
 - Scroll elements into view in a list, without scrolling container elements.
 
-You can also pass a function to do more dynamic checks to override the scroll scoping:
+The boundary element itself is scrolled if it's a scroll container. You can also pass a function to do more dynamic checks to override the scroll scoping. It's called with the target and then each of its parents, and stops at the first one it returns `false` for:
 
 ```js
 const actions = compute(target, {
-  boundary: (parent) => {
-    // By default `overflow: hidden` elements are allowed, only `overflow: visible | clip` is skipped as
-    // this is required by the CSSOM spec
-    if (getComputedStyle(parent)['overflow'] === 'hidden') {
-      return false
-    }
+  middleware: [
+    boundary((parent) => {
+      // By default `overflow: hidden` elements are allowed, only `overflow: visible | clip` is skipped as
+      // this is required by the CSSOM spec
+      if (getComputedStyle(parent)['overflow'] === 'hidden') {
+        return false
+      }
 
-    return true
-  },
+      return true
+    }),
+  ],
 })
 ```
 
-### skipOverflowHiddenElements
+### skipOverflowHiddenElements()
 
-Type: `Boolean`<br> Default: `false`
+Replaces the `skipOverflowHiddenElements` option.
 
 By default the [spec](https://drafts.csswg.org/cssom-view/#scrolling-box) states that `overflow: hidden` elements should be scrollable because it has [been used to allow programatic scrolling](https://drafts.csswg.org/css-overflow-3/#valdef-overflow-hidden). This behavior can sometimes lead to [scrolling issues](https://github.com/scroll-into-view/scroll-into-view-if-needed/pull/225#issue-186419520) when you have a node that is a child of an `overflow: hidden` node.
 
-This package follows the convention [adopted by Firefox](https://hg.mozilla.org/integration/fx-team/rev/c48c3ec05012#l7.18) of setting a boolean option to _not_ scroll all nodes with `overflow: hidden` set.
+This follows the convention [adopted by Firefox](https://hg.mozilla.org/integration/fx-team/rev/c48c3ec05012#l7.18) of _not_ scrolling nodes with `overflow: hidden` set. The target is scrolled into view in the other scroll containers regardless. With `container: 'nearest'`, the nearest scroll container that isn't skipped is scrolled.
+
+### Writing middleware
+
+A middleware is an object with a `name` and an `fn`, and its types are exported from `compute-scroll-into-view`. `compute` calls `fn` for every ancestor of the target, innermost first, up to the viewport, with what it knows about it. `fn` returns `{}` to change nothing, or what to change:
+
+```ts
+interface Middleware {
+  name: string
+  fn: (state: MiddlewareState) => MiddlewareReturn
+}
+
+interface MiddlewareState {
+  readonly target: Element
+  /** The ancestor of the target that is considered */
+  readonly container: Element
+  /** Whether `container` is the scrolling element of the document, which scrolls the viewport. It's the last one */
+  readonly viewport: boolean
+  /** Whether `container` gets scrolled: it's a scroll container, and no middleware so far returned `scrollable: false` */
+  readonly scrollable: boolean
+  readonly options: {
+    block: ScrollLogicalPosition
+    inline: ScrollLogicalPosition
+    container: 'all' | 'nearest'
+  }
+  /** Measured the first time it's read, and with what earlier middleware returned in `rects` */
+  readonly rects: Rects
+  /**
+   * The viewport's `rects`, with what earlier middleware return in `rects` for the viewport. Reading it before the
+   * viewport is reached calls the earlier middleware for the viewport, so keep them free of side effects
+   */
+  readonly viewportRects: Rects
+}
+
+interface MiddlewareReturn {
+  /** Whether `container` gets scrolled. `false` leaves it alone, the target is aligned in the outer ones regardless */
+  scrollable?: boolean
+  /** Don't consider the ancestors of `container`. Together with `scrollable: false`, not `container` either */
+  stop?: boolean
+  /** Use these measurements instead, for the middleware after this one and for aligning the target */
+  rects?: Partial<Rects>
+}
+
+/** Edges in viewport coordinates, like `getBoundingClientRect()`, or the lengths of the sides of a box in pixels */
+interface SideObject {
+  top: number
+  right: number
+  bottom: number
+  left: number
+}
+
+/** Measured before anything is scrolled */
+interface Rects {
+  /** The scroll container's padding box without scrollbars. For the viewport, the visual viewport */
+  scrollport: SideObject
+  /** The target's border box. The scrolling of inner scroll containers is added to it when it's aligned */
+  target: SideObject
+  /** The scroll container's `scroll-padding`. For the viewport, the root element's */
+  scrollPadding: SideObject
+  /** The target's `scroll-margin` */
+  scrollMargin: SideObject
+}
+```
+
+The target's scroll-margin box (`target` grown by `scrollMargin`) is aligned with the scroll container's optimal viewing region (`scrollport` shrunk by `scrollPadding`).
+
+For example, this middleware reads `--scroll-margin-top`, `--scroll-padding-left` and the like where they're set, as a fallback for browsers without `scroll-margin` and `scroll-padding`, or to override them:
+
+```js
+import { compute } from 'compute-scroll-into-view'
+
+const sides = ['top', 'right', 'bottom', 'left']
+const read = (el, property, fallback) => {
+  const style = getComputedStyle(el)
+  return Object.fromEntries(
+    sides.map((side) => {
+      const value = style.getPropertyValue(`--${property}-${side}`)
+      return [side, value ? parseFloat(value) : fallback[side]]
+    })
+  )
+}
+
+const customScrollSpacing = {
+  name: 'customScrollSpacing',
+  fn: ({ target, container, viewport, rects }) => ({
+    rects: {
+      scrollMargin: read(target, 'scroll-margin', rects.scrollMargin),
+      // The viewport's scroll-padding is set on the root element
+      scrollPadding: read(
+        viewport ? document.documentElement : container,
+        'scroll-padding',
+        rects.scrollPadding
+      ),
+    },
+  }),
+}
+
+const actions = compute(node, { middleware: [customScrollSpacing] })
+```
+
+To only use them where `scroll-margin` isn't supported, return `{}` when `CSS.supports('scroll-margin: 0')`.
 
 # Development
 
 This project uses [Vite+](https://viteplus.dev). With the [`vp` CLI](https://viteplus.dev/guide/) installed (or through `pnpm exec vp`):
 
-- `vp dev` serves the integration fixtures. Open `/integration/` for a list of them. They run `src/index.ts` directly and reload when it changes, and the DevTools console has `computeScrollIntoView` and `mapActions` for experiments.
+- `vp dev` serves the integration fixtures. Open `/integration/` for a list of them. They run `src/` directly and reload when it changes, and the DevTools console has `computeScrollIntoView` and `mapActions` for experiments.
 - `vp test` runs the integration tests in Chromium with Playwright (run `vp exec playwright install chromium` once first).
   This includes the [web-platform-tests](https://github.com/web-platform-tests/wpt) for `scrollIntoView`, which measure conformance with the [CSSOM View spec](https://drafts.csswg.org/cssom-view/#scroll-a-target-into-view) (see [`integration/wpt`](./integration/wpt/README.md)), and reproductions of reported bugs in `integration/issues.test.js`.
 - `vp check` formats, lints, and type checks, and `vp exec knip` reports unused files, exports, and dependencies.

@@ -1,5 +1,16 @@
 import { compute } from '../src/index.ts'
+import {
+  boundary,
+  onlyIfNeeded,
+  skipOverflowHiddenElements,
+} from '../src/middleware.ts'
 window.computeScrollIntoView = compute
+window.onlyIfNeeded = onlyIfNeeded
+window.boundary = boundary
+window.skipOverflowHiddenElements = skipOverflowHiddenElements
+// What `scrollMode: 'if-needed'` did before it became the onlyIfNeeded middleware
+window.computeScrollIntoViewIfNeeded = (target, options) =>
+  compute(target, { ...options, middleware: [onlyIfNeeded()] })
 
 window.mapActions = (item) => ({
   el: (item.el.tagName.toLowerCase() + '.' + item.el.className).replace(

@@ -10,11 +10,9 @@ describe('scrollMode: if-needed (outside the scrollingElement bounding box)', ()
       const actual = await page.evaluate(() => {
         window.scrollTo(0, 0)
         return window
-          .computeScrollIntoView(
+          .computeScrollIntoViewIfNeeded(
             document.querySelector('.vertical-scroll .target'),
-            {
-              scrollMode: 'if-needed',
-            }
+            {}
           )
           .map(window.mapActions)
       })
@@ -26,11 +24,9 @@ describe('scrollMode: if-needed (outside the scrollingElement bounding box)', ()
       const actual = await page.evaluate(() => {
         window.scrollTo(0, 50)
         return window
-          .computeScrollIntoView(
+          .computeScrollIntoViewIfNeeded(
             document.querySelector('.vertical-scroll .target'),
-            {
-              scrollMode: 'if-needed',
-            }
+            {}
           )
           .map(window.mapActions)
       })
@@ -42,11 +38,9 @@ describe('scrollMode: if-needed (outside the scrollingElement bounding box)', ()
       const actual = await page.evaluate(() => {
         window.scrollTo(0, window.innerHeight / 2)
         return window
-          .computeScrollIntoView(
+          .computeScrollIntoViewIfNeeded(
             document.querySelector('.vertical-scroll .target'),
-            {
-              scrollMode: 'if-needed',
-            }
+            {}
           )
           .map(window.mapActions)
       })
@@ -58,11 +52,9 @@ describe('scrollMode: if-needed (outside the scrollingElement bounding box)', ()
       const actual = await page.evaluate(() => {
         window.scrollTo(0, window.innerHeight + 50)
         return window
-          .computeScrollIntoView(
+          .computeScrollIntoViewIfNeeded(
             document.querySelector('.vertical-scroll .target'),
-            {
-              scrollMode: 'if-needed',
-            }
+            {}
           )
           .map(window.mapActions)
       })
@@ -74,11 +66,9 @@ describe('scrollMode: if-needed (outside the scrollingElement bounding box)', ()
       const actual = await page.evaluate(() => {
         window.scrollTo(0, window.innerHeight + 100)
         return window
-          .computeScrollIntoView(
+          .computeScrollIntoViewIfNeeded(
             document.querySelector('.vertical-scroll .target'),
-            {
-              scrollMode: 'if-needed',
-            }
+            {}
           )
           .map(window.mapActions)
       })
@@ -92,11 +82,9 @@ describe('scrollMode: if-needed (outside the scrollingElement bounding box)', ()
       const actual = await page.evaluate(() => {
         window.scrollTo(0, 0)
         return window
-          .computeScrollIntoView(
+          .computeScrollIntoViewIfNeeded(
             document.querySelector('.horizontal-scroll .target'),
-            {
-              scrollMode: 'if-needed',
-            }
+            {}
           )
           .map(window.mapActions)
       })
@@ -108,11 +96,9 @@ describe('scrollMode: if-needed (outside the scrollingElement bounding box)', ()
       const actual = await page.evaluate(() => {
         window.scrollTo(50, 0)
         return window
-          .computeScrollIntoView(
+          .computeScrollIntoViewIfNeeded(
             document.querySelector('.horizontal-scroll .target'),
-            {
-              scrollMode: 'if-needed',
-            }
+            {}
           )
           .map(window.mapActions)
       })
@@ -124,11 +110,9 @@ describe('scrollMode: if-needed (outside the scrollingElement bounding box)', ()
       const actual = await page.evaluate(() => {
         window.scrollTo(window.innerWidth / 2, 0)
         return window
-          .computeScrollIntoView(
+          .computeScrollIntoViewIfNeeded(
             document.querySelector('.horizontal-scroll .target'),
-            {
-              scrollMode: 'if-needed',
-            }
+            {}
           )
           .map(window.mapActions)
       })
@@ -140,11 +124,9 @@ describe('scrollMode: if-needed (outside the scrollingElement bounding box)', ()
       const actual = await page.evaluate(() => {
         window.scrollTo(window.innerWidth + 50, 0)
         return window
-          .computeScrollIntoView(
+          .computeScrollIntoViewIfNeeded(
             document.querySelector('.horizontal-scroll .target'),
-            {
-              scrollMode: 'if-needed',
-            }
+            {}
           )
           .map(window.mapActions)
       })
@@ -156,11 +138,9 @@ describe('scrollMode: if-needed (outside the scrollingElement bounding box)', ()
       const actual = await page.evaluate(() => {
         window.scrollTo(window.innerWidth + 100, 0)
         return window
-          .computeScrollIntoView(
+          .computeScrollIntoViewIfNeeded(
             document.querySelector('.horizontal-scroll .target'),
-            {
-              scrollMode: 'if-needed',
-            }
+            {}
           )
           .map(window.mapActions)
       })

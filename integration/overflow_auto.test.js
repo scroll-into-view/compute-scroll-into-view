@@ -79,9 +79,10 @@ describe('scrollMode: if-needed', () => {
       const actual = await page.evaluate(() => {
         const container = document.querySelector('.container')
         container.scrollTo(100, 0)
-        return window.computeScrollIntoView(document.querySelector('.target'), {
-          scrollMode: 'if-needed',
-        })
+        return window.computeScrollIntoViewIfNeeded(
+          document.querySelector('.target'),
+          {}
+        )
       })
       expect(actual).toHaveLength(1)
       expect(actual).toMatchSnapshot()
@@ -92,9 +93,7 @@ describe('scrollMode: if-needed', () => {
         const container = document.querySelector('.container')
         container.scrollTo(100, 50)
         return window
-          .computeScrollIntoView(document.querySelector('.target'), {
-            scrollMode: 'if-needed',
-          })
+          .computeScrollIntoViewIfNeeded(document.querySelector('.target'), {})
           .map(window.mapActions)
       })
       expect(actual).toHaveLength(1)
@@ -108,9 +107,7 @@ describe('scrollMode: if-needed', () => {
         const container = document.querySelector('.container')
         container.scrollTo(0, 100)
         return window
-          .computeScrollIntoView(document.querySelector('.target'), {
-            scrollMode: 'if-needed',
-          })
+          .computeScrollIntoViewIfNeeded(document.querySelector('.target'), {})
           .map(window.mapActions)
       })
       expect(actual).toHaveLength(1)
@@ -122,9 +119,7 @@ describe('scrollMode: if-needed', () => {
         const container = document.querySelector('.container')
         container.scrollTo(50, 100)
         return window
-          .computeScrollIntoView(document.querySelector('.target'), {
-            scrollMode: 'if-needed',
-          })
+          .computeScrollIntoViewIfNeeded(document.querySelector('.target'), {})
           .map(window.mapActions)
       })
       expect(actual).toHaveLength(1)

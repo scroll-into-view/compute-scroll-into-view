@@ -11,9 +11,7 @@ describe('scrollMode: if-needed', () => {
       window.scrollTo(0, 0)
       container.scrollTo(250, 250)
       return window
-        .computeScrollIntoView(document.querySelector('.target'), {
-          scrollMode: 'if-needed',
-        })
+        .computeScrollIntoViewIfNeeded(document.querySelector('.target'), {})
         .map(window.mapActions)
     })
     expect(actual).toHaveLength(2)

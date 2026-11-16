@@ -85,7 +85,7 @@ export default defineConfig({
     options: { typeAware: true, typeCheck: true },
   },
   pack: {
-    entry: ['src/index.ts'],
+    entry: ['src/index.ts', 'src/middleware.ts'],
     format: 'esm',
     platform: 'neutral',
     // The browserslist baseline in package.json (Baseline 2019) keeps the published bundles compiling away

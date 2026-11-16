@@ -112,12 +112,7 @@ function installScrollIntoView(
       ...rest
     } = options
     if (this.getClientRects().length === 0) return results([])
-    const actions = compute(this, {
-      ...rest,
-      block,
-      inline,
-      scrollMode: 'always',
-    })
+    const actions = compute(this, { ...rest, block, inline })
     return results(
       actions.map(({ el, top, left }) => el.scroll({ top, left, behavior }))
     )
@@ -129,22 +124,27 @@ function installScrollIntoView(
 let engine: Promise<string> | undefined
 function bundleEngine(context: BrowserCommandContext): Promise<string> {
   engine ??= (async () => {
-    const url = new URL('/src/index.ts', context.page.url())
-    const response = await fetch(url)
-    if (!response.ok) {
-      throw new Error(`Failed to load ${url}: HTTP ${response.status}`)
-    }
-    const source = await response.text()
+    const serverUrl = context.page.url()
     const { output } = await Rolldown.build({
-      input: 'engine',
+      input: '/src/index.ts',
       write: false,
       platform: 'browser',
       plugins: [
         {
           name: 'engine',
-          resolveId: (id) => (id === 'engine' ? id : null),
-          load: (id) =>
-            id === 'engine' ? { code: source, moduleType: 'js' } : null,
+          // The Vite server rewrites the imports between src/ modules to server paths
+          resolveId: (id, importer) => {
+            const url = new URL(id, new URL(importer ?? '/', serverUrl))
+            return url.pathname + url.search
+          },
+          load: async (id) => {
+            const url = new URL(id, serverUrl)
+            const response = await fetch(url)
+            if (!response.ok) {
+              throw new Error(`Failed to load ${url}: HTTP ${response.status}`)
+            }
+            return { code: await response.text(), moduleType: 'js' }
+          },
         },
       ],
       output: { format: 'iife', name: 'computeScrollIntoViewEngine' },

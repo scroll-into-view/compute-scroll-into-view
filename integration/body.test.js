@@ -9,9 +9,7 @@ describe('document.body !== document.scrollingElement edge cases', () => {
     expect.assertions(3)
     const actual = await page.evaluate(() => {
       return window
-        .computeScrollIntoView(document.querySelector('.target'), {
-          scrollMode: 'always',
-        })
+        .computeScrollIntoView(document.querySelector('.target'), {})
         .map(window.mapActions)
     })
     expect(actual).toHaveLength(1)
