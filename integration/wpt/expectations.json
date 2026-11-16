@@ -5,12 +5,6 @@
       "ContentVisibilityAutoStateChange fires trece when `scrollIntoView` a descendant of `content-visibility:auto` which is hidden after scrolling": "TIMEOUT"
     }
   },
-  "css/css-images/object-fit-svg-scroll-into-view.html": {
-    "status": "OK",
-    "subtests": {
-      "scrollIntoView scrolls to the position of the element in the fitted SVG document": "FAIL"
-    }
-  },
   "css/css-position/sticky/position-sticky-scrollIntoView.html": {
     "status": "OK",
     "subtests": {

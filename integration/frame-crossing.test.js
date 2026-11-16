@@ -75,6 +75,54 @@ describe('frame crossing', () => {
     }
   )
 
+  // An SVG document embedded with `<object>` is sized by `object-fit` and placed by `object-position`, so its viewport
+  // isn't at the top left of the content box
+  test.each(
+    ['contain', 'cover'].flatMap((fit) =>
+      [
+        '50% 50%',
+        '10px 20px',
+        'right 10px bottom 5px',
+        'calc(25% + 10px) 75%',
+        'left top',
+      ].map((position) => [fit, position])
+    )
+  )('object-fit: %s; object-position: %s', async (fit, position) => {
+    const results = await page.evaluate(
+      async ([objectFit, objectPosition]) => {
+        const svg = new Blob(
+          [
+            `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 8">
+              <rect id="target" x="10" y="4" width="4" height="2" />
+            </svg>`,
+          ],
+          { type: 'image/svg+xml' }
+        )
+        document.body.innerHTML = `
+          <div id="outer" style="width: 300px; height: 300px; overflow: auto">
+            <div style="height: 500px"></div>
+            <object style="width: 200px; height: 300px; padding: 5px; object-fit: ${objectFit}; object-position: ${objectPosition}"></object>
+            <div style="height: 2000px; width: 1000px"></div>
+          </div>`
+        const object = document.querySelector('object')
+        await new Promise((resolve) => {
+          object.addEventListener('load', resolve)
+          object.data = URL.createObjectURL(svg)
+        })
+        const target = object.contentDocument.querySelector('#target')
+        return ['start', 'center', 'end'].flatMap((block) =>
+          ['start', 'center', 'end'].map((inline) =>
+            window.compareWithNative(target, { block, inline })
+          )
+        )
+      },
+      [fit, position]
+    )
+    for (const { native, computed } of results) {
+      expect(computed).toEqual(native)
+    }
+  })
+
   test("a fixed box in the iframe doesn't scroll the iframe, but its parent document", async () => {
     await loadFrame(
       'position: static',
