@@ -364,7 +364,7 @@
   "css/cssom-view/scrollintoview-containingblock-chain.html": {
     "status": "OK",
     "subtests": {
-      "scrollIntoView should not scroll ancestor overflow:scroll elements that are not containing block ancestors": "FAIL"
+      "scrollIntoView should not scroll ancestor overflow:scroll elements that are not containing block ancestors": "PASS"
     }
   },
   "css/cssom-view/scrollintoview-zero-height-item.html": {

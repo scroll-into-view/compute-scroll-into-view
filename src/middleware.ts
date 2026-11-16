@@ -1,6 +1,6 @@
 import type { Middleware, SideObject } from './index.js'
 import {
-  getParentElement,
+  getContainingParent,
   getRegion,
   getTargetBox,
   isScrollable,
@@ -49,7 +49,7 @@ export const boundary = (
     if (limit == null) return {}
     const checkBoundary =
       typeof limit === 'function' ? limit : (node: Element) => node !== limit
-    if (container === getParentElement(target) && !checkBoundary(target)) {
+    if (container === getContainingParent(target) && !checkBoundary(target)) {
       return { scrollable: false, stop: true }
     }
     // The viewport is the last one anyway

@@ -7,7 +7,7 @@
 // For a definition on what is "block flow direction" exactly, check this: https://drafts.csswg.org/css-writing-modes-4/#block-flow-direction
 
 import {
-  getParentElement,
+  getContainingParent,
   getRegion,
   getTargetBox,
   isScrollable,
@@ -550,7 +550,7 @@ export const compute = (
   // Collect new scroll positions
   const computations: ScrollAction[] = []
   // Walk the ancestors for the scrolling boxes, as defined in the spec: https://drafts.csswg.org/cssom-view/#scrolling-box
-  let cursor: Element | null = getParentElement(target)
+  let cursor: Element | null = getContainingParent(target)
   while (isElement(cursor)) {
     const frame: Element = cursor
     const visited = visit(frame, middleware.length)
@@ -643,7 +643,7 @@ export const compute = (
     if (stop) {
       break
     }
-    cursor = getParentElement(frame)
+    cursor = getContainingParent(frame)
   }
 
   return computations

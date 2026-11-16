@@ -52,13 +52,29 @@ export const isScrollable = (
 
 const isShadowRoot = (node: Node): node is ShadowRoot => 'host' in node
 
-export const getParentElement = (element: Node): Element | null => {
+const getParentElement = (element: Node): Element | null => {
   const parent = element.parentElement
   if (parent == null) {
     const root = element.getRootNode()
     return isShadowRoot(root) ? root.host || null : null
   }
   return parent
+}
+
+const hasOffsetParent = (el: Element): el is HTMLElement => 'offsetParent' in el
+
+// The next ancestor whose scrolling moves `element`. Scrolling the ancestors between an absolutely positioned element
+// and its offset parent doesn't move it, and a fixed positioned element only scrolls with the viewport
+export const getContainingParent = (element: Element): Element | null => {
+  const { position } = getComputedStyle(element)
+  if (position === 'fixed') {
+    return document.scrollingElement || document.documentElement
+  }
+  if (position === 'absolute' && hasOffsetParent(element)) {
+    // Elements that aren't rendered have no offset parent
+    return element.offsetParent || getParentElement(element)
+  }
+  return getParentElement(element)
 }
 
 // The optimal viewing region is the scrollport, inset by `scroll-padding`, in viewport coordinates
