@@ -228,7 +228,7 @@ describe('issues', () => {
       expect(computed['#frame html']).toEqual(native['#frame html'])
     })
 
-    test.fails('#914, #922: overflow: visible ancestors in a frame are not scrolled', async () => {
+    test('#914, #922: overflow: visible ancestors in a frame are not scrolled', async () => {
       await loadFrame()
       const actions = await page.evaluate(() => {
         const frame = document.querySelector('#frame')
