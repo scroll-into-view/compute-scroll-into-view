@@ -17,12 +17,6 @@
       "scrolling a sticky element into view should use its unshifted position": "FAIL"
     }
   },
-  "css/css-scroll-snap/nested-scrollIntoView-snaps.html": {
-    "status": "OK",
-    "subtests": {
-      "All the scrollers affected by scrollIntoView should land on a snap position if one exists. Otherwise, land according to the specified alignment": "FAIL"
-    }
-  },
   "css/css-scroll-snap/scroll-margin-overflow-ancestor.html": {
     "status": "OK",
     "subtests": {
