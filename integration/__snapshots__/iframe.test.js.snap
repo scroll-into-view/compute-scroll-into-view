@@ -7,5 +7,10 @@ exports[`scrollable element is "overflow: visible" but hidden by iframe > should
     "left": 0,
     "top": 133,
   },
+  {
+    "el": "html",
+    "left": 0,
+    "top": 0,
+  },
 ]
 `;

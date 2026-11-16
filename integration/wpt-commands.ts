@@ -3,11 +3,13 @@
 /// <reference types="vite-plus/test/browser-playwright" />
 import { readFile, writeFile } from 'node:fs/promises'
 import { extname, join } from 'node:path'
+import { chromium } from 'playwright'
+import type { BrowserContext } from 'playwright'
 import { Rolldown } from 'vite-plus/pack'
 import type { BrowserCommandContext } from 'vite-plus/test/node'
 
 import type { Options, ScrollAction } from '../src/index.js'
-import { openFixturePage } from './fixture-commands.js'
+import { close, openFixturePage } from './fixture-commands.js'
 
 const wptDir = join(import.meta.dirname, 'wpt')
 const upstreamDir = join(wptDir, 'upstream')
@@ -155,6 +157,31 @@ function bundleEngine(context: BrowserCommandContext): Promise<string> {
   return engine
 }
 
+// The web-platform-tests are written for browsers with classic scrollbars, which take 15px of the layout width and
+// height. Playwright's headless Chromium hides them, which the fixtures of the other integration tests depend on, so
+// the web-platform-tests run in a browser of their own that keeps them
+let browserContext: Promise<BrowserContext> | undefined
+function getBrowserContext(): Promise<BrowserContext> {
+  browserContext ??= chromium
+    .launch({
+      args: ['--enable-smooth-scrolling'],
+      ignoreDefaultArgs: ['--hide-scrollbars'],
+    })
+    .then((browser) => browser.newContext())
+  return browserContext
+}
+
+/** Closes the browser of the web-platform-tests, which would keep the Vitest process from exiting */
+export async function closeWebPlatformBrowser(
+  context: BrowserCommandContext
+): Promise<void> {
+  // Its page is the last one of the test file's fixture, and closing it records its coverage
+  await close(context)
+  const webPlatformContext = await browserContext
+  browserContext = undefined
+  await webPlatformContext?.browser()?.close()
+}
+
 const uniqueNames = (tests: HarnessReport['tests']) => {
   const seen = new Map<string, number>()
   return tests.map(({ name }) => {
@@ -182,7 +209,10 @@ export async function runWebPlatformTest(
   timeout: number
 ): Promise<WebPlatformTestResult> {
   // Uncaught errors are part of what testharness.js reports
-  const page = await openFixturePage(context, { trackErrors: false })
+  const page = await openFixturePage(context, {
+    trackErrors: false,
+    browserContext: await getBrowserContext(),
+  })
   await page.route(isWptHost, async (route) => {
     const { pathname } = new URL(route.request().url())
     const file = join(upstreamDir, decodeURIComponent(pathname))

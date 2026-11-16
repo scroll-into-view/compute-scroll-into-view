@@ -7,6 +7,7 @@
 // For a definition on what is "block flow direction" exactly, check this: https://drafts.csswg.org/css-writing-modes-4/#block-flow-direction
 
 import {
+  getFrameElement,
   getParentElement,
   getRegion,
   getTargetBox,
@@ -505,14 +506,15 @@ export const compute = (
   }
 
   // The viewport is the target's, also when `compute` runs in another frame's window
-  const doc = target.ownerDocument
-  const win = doc.defaultView
-  if (!win) {
+  let doc = target.ownerDocument
+  const targetWindow = doc.defaultView
+  if (!targetWindow) {
     return []
   }
-  // Used to handle the top most element that can be scrolled
-  const scrollingElement = getScrollingElement(doc)
-  const { scrollX, scrollY } = win
+  let win = targetWindow
+  // The viewport of the document that the walk is in, the last scrolling box in it
+  let scrollingElement = getScrollingElement(doc)
+  let { scrollX, scrollY } = win
 
   // Alignment follows the target's writing mode and direction in every scroll container, like browsers do, rather
   // than each scroll container's own as the spec says: https://github.com/w3c/csswg-drafts/issues/11796
@@ -529,7 +531,7 @@ export const compute = (
   )
 
   const { top, right, bottom, left } = target.getBoundingClientRect()
-  const targetRect = { top, right, bottom, left }
+  let targetRect = { top, right, bottom, left }
   const scrollMargin = getScrollMargins(target)
 
   // How much the inner scroll containers move the target, in the order they scroll
@@ -576,7 +578,7 @@ export const compute = (
         // The body's overflow applies to the viewport instead when the root's is visible, so it isn't a scroll
         // container then: https://drafts.csswg.org/css-overflow-3/#overflow-propagation
         !(frame === doc.body && isOverflowPropagated(doc))
-    let stop = viewport
+    let stop = false
     for (let index = 0; index < count; index++) {
       const result = middleware[index].fn({
         target,
@@ -676,6 +678,23 @@ export const compute = (
           Infinity,
           rootFlow.xStartIsRight
         )
+        // The browser keeps the viewport in range, which moves the target when the parent frames align it
+        blockShifts.push(
+          scrollY -
+            clampScroll(
+              blockScroll,
+              scrollingElement.scrollHeight - scrollingElement.clientHeight,
+              rootFlow.yStartIsBottom
+            )
+        )
+        inlineShifts.push(
+          scrollX -
+            clampScroll(
+              inlineScroll,
+              scrollingElement.scrollWidth - scrollingElement.clientWidth,
+              rootFlow.xStartIsRight
+            )
+        )
       } else {
         // A middleware may have measured the rects for this frame, or replaced them
         const { scaleX, scaleY } = visited.scale()
@@ -716,6 +735,48 @@ export const compute = (
 
     if (stop) {
       break
+    }
+    if (viewport) {
+      // The viewport of a frame is inside its `<iframe>` in the parent document, which is scrolled too when it's
+      // same-origin. `frameElement` is `null` otherwise. 'nearest' stops at the first scrolling box
+      const owner = container === 'nearest' ? null : getFrameElement(frame)
+      const ownerWindow = owner?.ownerDocument.defaultView
+      if (!owner || !ownerWindow) {
+        break
+      }
+      // The target where the scrolling so far puts it, in the parent document
+      const box = Object.assign({}, targetRect)
+      for (const shift of blockShifts) {
+        box.top += shift
+        box.bottom += shift
+      }
+      for (const shift of inlineShifts) {
+        box.left += shift
+        box.right += shift
+      }
+      blockShifts.length = 0
+      inlineShifts.length = 0
+      const ownerStyle = getComputedStyle(owner)
+      const { scrollport, scaleX, scaleY } = measureFrame(owner, ownerStyle)
+      // The frame's viewport is the content box of the `<iframe>`
+      const originX =
+        scrollport.left + (parseFloat(ownerStyle.paddingLeft) || 0) * scaleX
+      const originY =
+        scrollport.top + (parseFloat(ownerStyle.paddingTop) || 0) * scaleY
+      targetRect = {
+        top: originY + box.top * scaleY,
+        right: originX + box.right * scaleX,
+        bottom: originY + box.bottom * scaleY,
+        left: originX + box.left * scaleX,
+      }
+      doc = owner.ownerDocument
+      win = ownerWindow
+      scrollingElement = getScrollingElement(doc)
+      ;({ scrollX, scrollY } = win)
+      // The `<iframe>` is a box in the parent document, whose containing block chain starts at it
+      position = ownerStyle.position
+      cursor = getParentElement(owner)
+      continue
     }
     cursor = getParentElement(frame)
   }

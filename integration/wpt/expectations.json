@@ -92,15 +92,6 @@
       "Element.scrollIntoView doesn't scroll a position:fixed element outside of the layout viewport": "PASS"
     }
   },
-  "css/cssom-view/scrollIntoView-fixed.html": {
-    "status": "OK",
-    "subtests": {
-      "[Box A] scrollIntoView from unscrollable position:fixed": "PASS",
-      "[Box B] scrollIntoView from unscrollable position:fixed in iframe": "FAIL",
-      "[Box C] scrollIntoView from scrollable position:fixed": "PASS",
-      "[Box D] scrollIntoView from scrollable position:fixed in iframe": "FAIL"
-    }
-  },
   "css/cssom-view/scrollIntoView-horizontal-partially-visible.html": {
     "status": "OK",
     "subtests": {
@@ -133,15 +124,6 @@
       "scrollIntoView({\"block\":\"end\",\"inline\":\"start\"})": "PASS",
       "scrollIntoView({\"block\":\"end\",\"inline\":\"center\"})": "PASS",
       "scrollIntoView({\"block\":\"end\",\"inline\":\"end\"})": "PASS"
-    }
-  },
-  "css/cssom-view/scrollIntoView-iframes.html": {
-    "status": "OK",
-    "subtests": {
-      "scrollIntoView in same-origin iframe can scroll in inner window": "PASS",
-      "scrollIntoView in same-origin iframe can scroll in parent window": "FAIL",
-      "scrollIntoView in cross-origin iframe can scroll in inner window": "PASS",
-      "scrollIntoView in cross-origin iframe can't scroll in parent window": "PASS"
     }
   },
   "css/cssom-view/scrollIntoView-inline-image.html": {
