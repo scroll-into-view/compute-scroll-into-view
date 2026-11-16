@@ -62,8 +62,6 @@ jobs:
   browserstack:
     needs: check
     runs-on: ubuntu-latest
-    env:
-      BROWSERSTACK: true
     steps:
       - name: Check for the BrowserStack secrets
         env:
@@ -92,7 +90,11 @@ jobs:
         with:
           local-testing: start
           local-identifier: random
+      # Set only on this step: job-level BROWSERSTACK would make prepare (vp config) load
+      # vite.config.ts and throw before setup-env exports the credentials
       - run: vp test
+        env:
+          BROWSERSTACK: true
       - if: always() && steps.tunnel.outcome == 'success'
         uses: browserstack/github-actions/setup-local@e1ceb209003b8bf050dac07c9038347259fed39c # v1.1.0
         with:
