@@ -400,6 +400,20 @@ interface Scale {
   y: number
 }
 
+// A computed `object-position` coordinate is a length, a percentage of the free space, or a `calc()` of both
+const resolvePosition = (value: string, free: number) => {
+  const calc = /^calc\((-?[\d.e]+)% ([+-]) ([\d.e]+)px\)$/.exec(value)
+  if (calc) {
+    const length = parseFloat(calc[3])
+    return (
+      (free * parseFloat(calc[1])) / 100 + (calc[2] === '-' ? -length : length)
+    )
+  }
+  return value.endsWith('%')
+    ? (free * parseFloat(value)) / 100
+    : parseFloat(value)
+}
+
 // The scrollport of a scroll container, and how much transforms scale it
 const measureFrame = (frame: Element, frameStyle: CSSStyleDeclaration) => {
   const rect = frame.getBoundingClientRect()
@@ -721,11 +735,33 @@ export const compute = (
       shifts = { x: [], y: [] }
       const ownerStyle = getComputedStyle(owner)
       const { scrollport, scale } = measureFrame(owner, ownerStyle)
-      // The frame's viewport is the content box of the `<iframe>`
+      const paddingLeft = parseFloat(ownerStyle.paddingLeft) || 0
+      const paddingTop = parseFloat(ownerStyle.paddingTop) || 0
+      // The frame's viewport fills the content box of the `<iframe>`, unless `object-fit` sizes it like a replaced
+      // element with a natural aspect ratio (an SVG document in an `<object>`), and `object-position` places it
+      const freeX =
+        owner.clientWidth -
+        paddingLeft -
+        parseFloat(ownerStyle.paddingRight) -
+        win.innerWidth
+      const freeY =
+        owner.clientHeight -
+        paddingTop -
+        parseFloat(ownerStyle.paddingBottom) -
+        win.innerHeight
+      const fitted = Math.abs(freeX) >= 1 || Math.abs(freeY) >= 1
+      // The computed value is two coordinates, separated by the space that isn't in a `calc()`
+      const [positionX, positionY] =
+        ownerStyle.objectPosition.split(/ (?![^(]*\))/)
       const origin = {
         x:
-          scrollport.left + (parseFloat(ownerStyle.paddingLeft) || 0) * scale.x,
-        y: scrollport.top + (parseFloat(ownerStyle.paddingTop) || 0) * scale.y,
+          scrollport.left +
+          (paddingLeft + (fitted ? resolvePosition(positionX, freeX) : 0)) *
+            scale.x,
+        y:
+          scrollport.top +
+          (paddingTop + (fitted ? resolvePosition(positionY, freeY) : 0)) *
+            scale.y,
       }
       targetBox = mapSides(
         (side, _start, axis) => origin[axis] + box[side] * scale[axis]
