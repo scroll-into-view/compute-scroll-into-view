@@ -59,16 +59,21 @@ export interface SelectionMiddleware extends Middleware {
 }
 
 /**
- * The options for a `Range` or `Selection` target, where `middleware` has to include `selection()`. Without it the
- * type of `middleware` is a tuple with a `SelectionMiddleware` in it, so TypeScript's error names what is missing
+ * What `middleware` has to be for a `Range` or `Selection` target, next to `M` itself: anything with a
+ * `SelectionMiddleware` in it. Without one it's a tuple with a `SelectionMiddleware`, so TypeScript's error names what
+ * is missing
  */
+export type RequireSelection<M extends readonly Middleware[]> = [
+  Extract<M[number], SelectionMiddleware>,
+] extends [never]
+  ? readonly [SelectionMiddleware]
+  : unknown
+
+/** The options for a `Range` or `Selection` target, where `middleware` has to include `selection()` */
 export interface SelectionTargetOptions<
   M extends readonly Middleware[],
 > extends Omit<Options, 'middleware'> {
-  middleware: M &
-    ([Extract<M[number], SelectionMiddleware>] extends [never]
-      ? readonly [SelectionMiddleware]
-      : unknown)
+  middleware: M & RequireSelection<M>
 }
 
 export interface ScrollAction {
