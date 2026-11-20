@@ -110,6 +110,8 @@ The CommonJS build (`dist/index.cjs`) is removed. On Node.js 20.19+ and 22.12+, 
 
 ## compute(target, options)
 
+`target` is an `Element`, or a [`Range`](https://developer.mozilla.org/en-US/docs/Web/API/Range) or [`Selection`](https://developer.mozilla.org/en-US/docs/Web/API/Selection) to scroll text into view. For a `Range` or `Selection` the box around the selected text is aligned, in the scroll containers of the element around its focus end (the end of a `Range`), which also supplies the `scroll-margin`, writing mode and snap alignment. A `Selection` without ranges returns no actions. Add [`selection()`](#selectionselection-options) to align the focus end, where the caret is, instead of the whole selection.
+
 ## options
 
 Type: `Object`, optional
@@ -203,30 +205,29 @@ This follows the convention [adopted by Firefox](https://hg.mozilla.org/integrat
 
 ### selection(selection, options)
 
-Scrolls a text selection into view instead of the target element, like editors keep the caret in view. `selection` is a [`Selection`](https://developer.mozilla.org/en-US/docs/Web/API/Selection) or a [`Range`](https://developer.mozilla.org/en-US/docs/Web/API/Range) in the target's document, and defaults to the document's own selection (`document.getSelection()`). `options.align` is what to align:
+Scrolls a text selection into view instead of the target element, like editors keep the caret in view. `selection` is a [`Selection`](https://developer.mozilla.org/en-US/docs/Web/API/Selection) or a [`Range`](https://developer.mozilla.org/en-US/docs/Web/API/Range) in the target's document. It defaults to the target of `compute` when that's a `Range` or `Selection`, and otherwise to the document's own selection (`document.getSelection()`). `options.align` is what to align:
 
 - `'focus'` (default): the end of the selection where the caret is. A collapsed caret has no box of its own in every browser, so it's measured as the character or node next to it, which also covers empty lines (`<p><br></p>`) and carets next to images. A `Range` has no direction, so its focus is its end. Pass the `Selection` for a backward one.
 - `'bounds'`: the box around the whole selection, [`range.getBoundingClientRect()`](https://developer.mozilla.org/en-US/docs/Web/API/Range/getBoundingClientRect). With `block: 'nearest'`, a selection taller than the scroll container is aligned to its start.
 
-`compute` still walks the target's ancestors, so pass an element inside the editor, such as the parent element of the focus node. Passing the editor itself does not scroll it, as elements don't scroll themselves into view. The scroll containers' `scroll-padding` keeps the caret away from their edges, and the target's `scroll-margin` still grows the box. Put it before `onlyIfNeeded()`, which then checks the selection instead of the element. When there is nothing to measure, the target is aligned as usual. A caret inside a same-origin iframe is mapped into the parent document with the scrolling inside the frame.
+`compute` walks the ancestors of its target, so pass the `Range` or `Selection` itself, or an element inside the editor. Passing the editor itself does not scroll it, as elements don't scroll themselves into view. The scroll containers' `scroll-padding` keeps the caret away from their edges, and the target's `scroll-margin` still grows the box. Put it before `onlyIfNeeded()`, which then checks the selection instead of the element. When there is nothing to measure, the target is aligned as usual. A caret inside a same-origin iframe is mapped into the parent document with the scrolling inside the frame.
 
 ```js
 import { compute } from 'compute-scroll-into-view'
 import { onlyIfNeeded, selection } from 'compute-scroll-into-view/middleware'
 
-// The caret's parent element is inside the editor, so the editor is one of the scroll containers
-const { focusNode } = document.getSelection()
-const actions = compute(focusNode.parentElement, {
+// Keeps the caret of the document's selection in view
+const actions = compute(document.getSelection(), {
   block: 'nearest',
   inline: 'nearest',
   middleware: [selection(), onlyIfNeeded()],
 })
 
 // A range built by the editor, aligning the whole selection
-compute(range.startContainer.parentElement, {
+compute(range, {
   block: 'nearest',
   inline: 'nearest',
-  middleware: [selection(range, { align: 'bounds' })],
+  middleware: [onlyIfNeeded()],
 })
 ```
 
@@ -241,7 +242,10 @@ interface Middleware {
 }
 
 interface MiddlewareState {
+  /** The target element, or for a `Range` or `Selection` target the element around its focus end */
   readonly target: Element
+  /** The `Range` or `Selection` passed to `compute`, or `null` for an element */
+  readonly selection: Range | Selection | null
   /** The ancestor of the target that is considered */
   readonly container: Element
   /** Whether `container` is the scrolling element of the document, which scrolls the viewport. It's the last one */

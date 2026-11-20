@@ -13,6 +13,7 @@ import {
   getTargetBox,
   isScrollable,
   mapSides,
+  measureSelection,
 } from './shared.js'
 
 /**
@@ -76,8 +77,13 @@ export interface Rects {
 }
 
 export interface MiddlewareState {
-  /** The element that is scrolled into view */
+  /**
+   * The element that is scrolled into view. For a `Range` or `Selection` target, the element around its focus end,
+   * where the ancestor walk starts
+   */
   readonly target: Element
+  /** The `Range` or `Selection` that is the target of `compute`, or `null` for an element */
+  readonly selection: Range | Selection | null
   /** The ancestor of the target that is considered */
   readonly container: Element
   /** Whether `container` is the scrolling element of the document, which scrolls the viewport. It's the last one */
@@ -116,6 +122,19 @@ export interface Middleware {
 // @TODO better shadowdom test, 11 = document fragment
 const isElement = (el: any): el is Element =>
   typeof el === 'object' && el != null && el.nodeType === 1
+
+// Checks the properties rather than `instanceof`, which would miss ranges and selections from other frames
+const isRangeOrSelection = (target: any): target is Range | Selection =>
+  typeof target === 'object' &&
+  target != null &&
+  ('endContainer' in target || 'rangeCount' in target)
+
+// The element around the focus end, where a caret is. A `Range` has no direction, so its focus is its end
+const getFocusElement = (selected: Range | Selection): Element | null => {
+  const focus =
+    'rangeCount' in selected ? selected.focusNode : selected.endContainer
+  return !focus ? null : isElement(focus) ? focus : getParentElement(focus)
+}
 
 /**
  * Find out which edge to align against when logical scroll position is "nearest"
@@ -461,8 +480,13 @@ const isContainingBlock = (style: CSSStyleDeclaration, fixed: boolean) => {
   )
 }
 
+/**
+ * The scroll actions that scroll `target` into view. A `Range` or `Selection` target aligns the box around it, and
+ * scrolls the ancestors of the element around its focus end, where a caret is. Add `selection()` from
+ * `compute-scroll-into-view/middleware` to align its focus end instead
+ */
 export const compute = (
-  target: Element,
+  input: Element | Range | Selection,
   options: Options = {}
 ): ScrollAction[] => {
   if (typeof document === 'undefined') {
@@ -478,7 +502,11 @@ export const compute = (
   } = options
   const resolvedOptions = { block, inline, container }
 
+  const selected = !isElement(input) && isRangeOrSelection(input) ? input : null
+  const target = selected ? getFocusElement(selected) : input
   if (!isElement(target)) {
+    // A selection without ranges has nothing to scroll to
+    if (selected) return []
     throw new TypeError('Invalid target')
   }
 
@@ -504,7 +532,9 @@ export const compute = (
   }
 
   const targetRect = target.getBoundingClientRect()
-  let targetBox = mapSides((side) => targetRect[side])
+  let targetBox =
+    (selected && measureSelection(selected, 'bounds')) ||
+    mapSides((side) => targetRect[side])
   const scrollMargin = mapSides(
     (side) =>
       parseFloat(targetStyle.getPropertyValue(`scroll-margin-${side}`)) || 0
@@ -577,6 +607,7 @@ export const compute = (
     for (let index = 0; index < count; index++) {
       const result = middleware[index].fn({
         target,
+        selection: selected,
         container: frame,
         viewport,
         scrollable,

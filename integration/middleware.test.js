@@ -343,9 +343,9 @@ const editor = `
 // `block` and `middleware`, or `null` when it isn't. The viewport isn't scrolled, as the editor is in view. `caretAt`
 // is a collapsed range at `offset` in the text
 const editorHelpers = `({
-  scrollEditor: (block, middleware) => {
+  scrollEditor: (block, middleware, target = document.querySelector('#text')) => {
     const action = window
-      .computeScrollIntoView(document.querySelector('#text'), {
+      .computeScrollIntoView(target, {
         block,
         inline: 'nearest',
         middleware,
@@ -614,6 +614,81 @@ describe('selection', () => {
     )
     expect(actual.element).toBe(0)
     expect(actual.none).toBe(actual.element)
+  })
+
+  test('a Range target aligns its bounds, and selection() without an argument its focus', async () => {
+    const actual = await page.evaluate(
+      (html, helpers) => {
+        document.body.innerHTML = html
+        const { scrollEditor } = window.eval(helpers)
+        const text = document.querySelector('#text').firstChild
+        // Lines 3 through 9, like the multi-line selection above
+        const range = document.createRange()
+        range.setStart(text, 20 * 2)
+        range.setEnd(text, 20 * 9)
+        // The document's selection is somewhere else, so selection() has to use the target
+        document
+          .getSelection()
+          .selectAllChildren(document.querySelector('#empty'))
+        const result = {
+          bounds: scrollEditor('nearest', [], range),
+          focus: scrollEditor('nearest', [window.selection()], range),
+          element: scrollEditor('nearest', [window.selection(range)]),
+          state: null,
+        }
+        window.computeScrollIntoView(range, {
+          middleware: [
+            {
+              name: 'spy',
+              fn: (state) => {
+                result.state ??= {
+                  target: state.target.id,
+                  selection: state.selection === range,
+                }
+                return {}
+              },
+            },
+          ],
+        })
+        document.getSelection().removeAllRanges()
+        return result
+      },
+      editor,
+      editorHelpers
+    )
+    // The bounds are taller than the editor, so 'nearest' aligns their start edge, at 40px
+    expect(actual.bounds).toBeCloseTo(40, -1)
+    // The focus is the end of line 9, whose bottom edge is at 180px
+    expect(actual.focus).toBeCloseTo(80, -1)
+    // The same as the element around the focus with selection(range)
+    expect(actual.focus).toBe(actual.element)
+    expect(actual.state).toEqual({ target: 'text', selection: true })
+  })
+
+  test("a Selection target walks from its focus, and an empty one doesn't scroll", async () => {
+    const actual = await page.evaluate(
+      (html, helpers) => {
+        document.body.innerHTML = html
+        const { scrollEditor } = window.eval(helpers)
+        const text = document.querySelector('#text').firstChild
+        const selected = document.getSelection()
+        // Backward, from the end of line 9 back to the start of line 3
+        selected.setBaseAndExtent(text, 20 * 9, text, 20 * 2)
+        const result = {
+          bounds: scrollEditor('nearest', [], selected),
+          focus: scrollEditor('nearest', [window.selection()], selected),
+        }
+        selected.removeAllRanges()
+        result.empty = window.computeScrollIntoView(selected).length
+        return result
+      },
+      editor,
+      editorHelpers
+    )
+    expect(actual.bounds).toBeCloseTo(40, -1)
+    // The focus of a backward selection is its start, on line 3, which is in view
+    expect(actual.focus).toBe(0)
+    expect(actual.empty).toBe(0)
   })
 
   test("a caret in an iframe is what the parent document aligns, when the frame can't scroll it", async () => {

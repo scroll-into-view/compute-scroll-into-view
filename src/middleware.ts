@@ -4,6 +4,7 @@ import {
   getRegion,
   getTargetBox,
   isScrollable,
+  measureSelection,
 } from './shared.js'
 
 const isVisible = (region: SideObject, box: SideObject): boolean =>
@@ -80,122 +81,32 @@ export interface SelectionOptions {
   align?: 'focus' | 'bounds'
 }
 
-const isText = (node: Node): node is Text => node.nodeType === 3
-const isElementNode = (node: Node): node is Element => node.nodeType === 1
-
-// A box that is all zeros is what browsers return when there is nothing to measure
-const toBox = (rect: DOMRect | undefined): SideObject | null =>
-  rect && (rect.width || rect.height || rect.top || rect.left)
-    ? { top: rect.top, right: rect.right, bottom: rect.bottom, left: rect.left }
-    : null
-
-const unionBoxes = (boxes: SideObject[]): SideObject | null =>
-  boxes.length
-    ? boxes.reduce((union, box) => ({
-        top: Math.min(union.top, box.top),
-        right: Math.max(union.right, box.right),
-        bottom: Math.max(union.bottom, box.bottom),
-        left: Math.min(union.left, box.left),
-      }))
-    : null
-
-// A collapsed range has no box of its own in every browser, so a caret is measured as the box of the character or
-// node next to it. That box is as tall as the line, and its edge nearest the caret is where the caret is, in any
-// writing mode and direction. A caret looks at the one after it, like browsers place it after a soft wrap, and the
-// focus of a selection at the selected one. At the ends, the one on the other side is measured. A neighboring
-// element, like a `<strong>` that wraps over several lines, is entered at the edge nearest the caret, down to the
-// character there. Elements without children, like `<img>` and `<br>`, are the box themselves
-const measureCaret = (
-  node: Node,
-  offset: number,
-  before: boolean
-): SideObject | null => {
-  const length = isText(node) ? node.length : node.childNodes.length
-  if (!length) {
-    // An empty block, or a `<br>`, is the line the caret is on
-    return isElementNode(node) ? toBox(node.getBoundingClientRect()) : null
-  }
-  const index = before ? Math.max(offset - 1, 0) : Math.min(offset, length - 1)
-  const isBefore = index < offset
-  if (isText(node)) {
-    const range = node.ownerDocument.createRange()
-    range.setStart(node, index)
-    range.setEnd(node, index + 1)
-    const rects = range.getClientRects()
-    return toBox(isBefore ? rects[rects.length - 1] : rects[0])
-  }
-  const child = node.childNodes[index]
-  if (!isText(child) && !isElementNode(child)) return null
-  const childLength = isText(child) ? child.length : child.childNodes.length
-  return measureCaret(child, isBefore ? childLength : 0, isBefore)
-}
-
-const measureRange = (range: Range): SideObject | null =>
-  range.collapsed
-    ? measureCaret(range.endContainer, range.endOffset, false)
-    : toBox(range.getBoundingClientRect())
-
-const isSelection = (selected: Selection | Range): selected is Selection =>
-  'rangeCount' in selected
-
-const measureSelection = (
-  selected: Selection | Range,
-  align: SelectionOptions['align']
-): SideObject | null => {
-  if (!isSelection(selected)) {
-    return align === 'bounds'
-      ? measureRange(selected)
-      : measureCaret(
-          selected.endContainer,
-          selected.endOffset,
-          !selected.collapsed
-        )
-  }
-  if (!selected.rangeCount) return null
-  if (align === 'bounds') {
-    // Firefox has more than one range for a selection across table cells, or with ctrl-select. The ranges are not
-    // contiguous, so the box around the selection is the union of their boxes, not a span over what's between them
-    const boxes: SideObject[] = []
-    for (let index = 0; index < selected.rangeCount; index++) {
-      const box = measureRange(selected.getRangeAt(index))
-      if (box) boxes.push(box)
-    }
-    return unionBoxes(boxes)
-  }
-  // The focus is the end of a forward selection, and the start of a backward one
-  const range = selected.getRangeAt(selected.rangeCount - 1)
-  const { focusNode, focusOffset } = selected
-  if (!focusNode) return null
-  const forward =
-    !range.collapsed &&
-    focusNode === range.endContainer &&
-    focusOffset === range.endOffset
-  return measureCaret(focusNode, focusOffset, forward)
-}
-
 /**
  * Aligns a text selection instead of the target element's border box, like editors scroll the caret into view. The
- * selection is a `Selection` or a `Range` in the target's document, and defaults to the document's selection. The
- * focus end of the selection is aligned, where the caret is: a collapsed caret is measured as the character or node
- * next to it, so empty lines and carets without a box of their own work too. `align: 'bounds'` aligns the box around
- * the whole selection instead. A `Range` has no direction, so its focus is its end.
+ * selection is a `Selection` or a `Range` in the target's document. It defaults to the `Range` or `Selection` that is
+ * the target of `compute`, and otherwise to the document's selection. The focus end of the selection is aligned, where
+ * the caret is: a collapsed caret is measured as the character or node next to it, so empty lines and carets without a
+ * box of their own work too. `align: 'bounds'` aligns the box around the whole selection instead. A `Range` has no
+ * direction, so its focus is its end.
  *
- * The ancestor walk is still the target's, so pass an element inside the scroll container that should scroll, such
- * as the parent element of the focus node, not the scroll container itself. The target's `scroll-margin` still grows
- * the box, and the scroll containers' `scroll-padding` keeps the caret away from their edges. Put it before
- * `onlyIfNeeded()`, which then checks the selection. When the selection has nothing to measure, the target's border
- * box is aligned instead.
+ * The ancestor walk is still the target's. With an element target, pass an element inside the scroll container that
+ * should scroll, such as the parent element of the focus node, not the scroll container itself. The target's
+ * `scroll-margin` still grows the box, and the scroll containers' `scroll-padding` keeps the caret away from their
+ * edges. Put it before `onlyIfNeeded()`, which then checks the selection. When the selection has nothing to measure,
+ * the target's box is aligned instead.
  */
 export const selection = (
   selected?: Selection | Range | null,
   options: SelectionOptions = {}
 ): Middleware => ({
   name: 'selection',
-  fn: ({ target, container }) => {
+  fn: (state) => {
+    const { target, container } = state
     // The boxes are in the target's viewport. After the walk crosses into a parent document, compute has mapped the
     // box into it already
     if (container.ownerDocument !== target.ownerDocument) return {}
-    const current = selected ?? target.ownerDocument.getSelection()
+    const current =
+      selected ?? state.selection ?? target.ownerDocument.getSelection()
     const box = current && measureSelection(current, options.align)
     return box ? { rects: { target: box } } : {}
   },
