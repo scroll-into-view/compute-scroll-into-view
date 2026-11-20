@@ -13,6 +13,7 @@ import {
   getTargetBox,
   isScrollable,
   mapSides,
+  measureSelection,
 } from './shared.js'
 
 /**
@@ -44,10 +45,36 @@ export interface Options {
    * innermost first, up to the viewport. Without middleware `compute` follows the spec.
    * @default []
    */
-  middleware?: Middleware[]
+  middleware?: readonly Middleware[]
 }
 
 export type ComputeOptions = Options
+
+/**
+ * What `selection()` from `compute-scroll-into-view/middleware` returns. It's a `Middleware` named `'selection'`, which
+ * is how the types tell it apart: a `Range` or `Selection` target needs one in `middleware`
+ */
+export interface SelectionMiddleware extends Middleware {
+  name: 'selection'
+}
+
+/**
+ * What `middleware` has to be for a `Range` or `Selection` target, next to `M` itself: anything with a
+ * `SelectionMiddleware` in it. Without one it's a tuple with a `SelectionMiddleware`, so TypeScript's error names what
+ * is missing
+ */
+export type RequireSelection<M extends readonly Middleware[]> = [
+  Extract<M[number], SelectionMiddleware>,
+] extends [never]
+  ? readonly [SelectionMiddleware]
+  : unknown
+
+/** The options for a `Range` or `Selection` target, where `middleware` has to include `selection()` */
+export interface SelectionTargetOptions<
+  M extends readonly Middleware[],
+> extends Omit<Options, 'middleware'> {
+  middleware: M & RequireSelection<M>
+}
 
 export interface ScrollAction {
   el: Element
@@ -76,8 +103,13 @@ export interface Rects {
 }
 
 export interface MiddlewareState {
-  /** The element that is scrolled into view */
+  /**
+   * The element that is scrolled into view. For a `Range` or `Selection` target, the element around its focus end,
+   * where the ancestor walk starts
+   */
   readonly target: Element
+  /** The `Range` or `Selection` that is the target of `compute`, or `null` for an element */
+  readonly selection: Range | Selection | null
   /** The ancestor of the target that is considered */
   readonly container: Element
   /** Whether `container` is the scrolling element of the document, which scrolls the viewport. It's the last one */
@@ -116,6 +148,19 @@ export interface Middleware {
 // @TODO better shadowdom test, 11 = document fragment
 const isElement = (el: any): el is Element =>
   typeof el === 'object' && el != null && el.nodeType === 1
+
+// Checks the properties rather than `instanceof`, which would miss ranges and selections from other frames
+const isRangeOrSelection = (target: any): target is Range | Selection =>
+  typeof target === 'object' &&
+  target != null &&
+  ('endContainer' in target || 'rangeCount' in target)
+
+// The element around the focus end, where a caret is. A `Range` has no direction, so its focus is its end
+const getFocusElement = (selected: Range | Selection): Element | null => {
+  const focus =
+    'rangeCount' in selected ? selected.focusNode : selected.endContainer
+  return !focus ? null : isElement(focus) ? focus : getParentElement(focus)
+}
 
 /**
  * Find out which edge to align against when logical scroll position is "nearest"
@@ -461,10 +506,21 @@ const isContainingBlock = (style: CSSStyleDeclaration, fixed: boolean) => {
   )
 }
 
-export const compute = (
-  target: Element,
+/**
+ * The scroll actions that scroll `target` into view. A `Range` or `Selection` target aligns the box around it, and
+ * scrolls the ancestors of the element around its focus end, where a caret is. Add `selection()` from
+ * `compute-scroll-into-view/middleware` to align its focus end instead. TypeScript only accepts a `Range` or
+ * `Selection` target with `selection()` in `options.middleware`, with or without it is fine for an element
+ */
+export function compute(target: Element, options?: Options): ScrollAction[]
+export function compute<const M extends readonly Middleware[]>(
+  target: Range | Selection,
+  options: SelectionTargetOptions<M>
+): ScrollAction[]
+export function compute(
+  input: Element | Range | Selection,
   options: Options = {}
-): ScrollAction[] => {
+): ScrollAction[] {
   if (typeof document === 'undefined') {
     // If there's no DOM we assume it's not in a browser environment
     return []
@@ -478,7 +534,11 @@ export const compute = (
   } = options
   const resolvedOptions = { block, inline, container }
 
+  const selected = !isElement(input) && isRangeOrSelection(input) ? input : null
+  const target = selected ? getFocusElement(selected) : input
   if (!isElement(target)) {
+    // A selection without ranges has nothing to scroll to
+    if (selected) return []
     throw new TypeError('Invalid target')
   }
 
@@ -504,7 +564,9 @@ export const compute = (
   }
 
   const targetRect = target.getBoundingClientRect()
-  let targetBox = mapSides((side) => targetRect[side])
+  let targetBox =
+    (selected && measureSelection(selected, 'bounds')) ||
+    mapSides((side) => targetRect[side])
   const scrollMargin = mapSides(
     (side) =>
       parseFloat(targetStyle.getPropertyValue(`scroll-margin-${side}`)) || 0
@@ -577,6 +639,7 @@ export const compute = (
     for (let index = 0; index < count; index++) {
       const result = middleware[index].fn({
         target,
+        selection: selected,
         container: frame,
         viewport,
         scrollable,
