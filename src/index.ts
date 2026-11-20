@@ -482,7 +482,7 @@ const isContainingBlock = (style: CSSStyleDeclaration, fixed: boolean) => {
 
 /**
  * The scroll actions that scroll `target` into view. A `Range` or `Selection` target aligns the box around it, and
- * scrolls the ancestors of the element around its focus end, where a caret is. Add `selection()` from
+ * scrolls the element around its focus end, where a caret is, and that element's ancestors. Add `selection()` from
  * `compute-scroll-into-view/middleware` to align its focus end instead
  */
 export const compute = (
@@ -641,10 +641,14 @@ export const compute = (
   // Only the nearest scroll container has the target's snap positions
   let nearestContainer = true
   // Walk the ancestors for the scrolling boxes, as defined in the spec: https://drafts.csswg.org/cssom-view/#scrolling-box
-  // The viewport is an ancestor of every element, including the scrolling element and the root when it's the body
+  // The viewport is an ancestor of every element, including the scrolling element and the root when it's the body.
+  // A Range or Selection can resolve to a scroll container itself (text child, selectNode, selectNodeContents), which
+  // elements never do, so start there instead of its parent
   let cursor: Element | null = target.contains(scrollingElement)
     ? scrollingElement
-    : getParentElement(target)
+    : selected
+      ? target
+      : getParentElement(target)
   // The position of the last box in the containing block chain, which says which ancestor is its containing block
   let position = targetStyle.position
   while (isElement(cursor)) {
