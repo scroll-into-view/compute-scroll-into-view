@@ -45,10 +45,31 @@ export interface Options {
    * innermost first, up to the viewport. Without middleware `compute` follows the spec.
    * @default []
    */
-  middleware?: Middleware[]
+  middleware?: readonly Middleware[]
 }
 
 export type ComputeOptions = Options
+
+/**
+ * What `selection()` from `compute-scroll-into-view/middleware` returns. It's a `Middleware` named `'selection'`, which
+ * is how the types tell it apart: a `Range` or `Selection` target needs one in `middleware`
+ */
+export interface SelectionMiddleware extends Middleware {
+  name: 'selection'
+}
+
+/**
+ * The options for a `Range` or `Selection` target, where `middleware` has to include `selection()`. Without it the
+ * type of `middleware` is a tuple with a `SelectionMiddleware` in it, so TypeScript's error names what is missing
+ */
+export interface SelectionTargetOptions<
+  M extends readonly Middleware[],
+> extends Omit<Options, 'middleware'> {
+  middleware: M &
+    ([Extract<M[number], SelectionMiddleware>] extends [never]
+      ? readonly [SelectionMiddleware]
+      : unknown)
+}
 
 export interface ScrollAction {
   el: Element
@@ -483,12 +504,18 @@ const isContainingBlock = (style: CSSStyleDeclaration, fixed: boolean) => {
 /**
  * The scroll actions that scroll `target` into view. A `Range` or `Selection` target aligns the box around it, and
  * scrolls the ancestors of the element around its focus end, where a caret is. Add `selection()` from
- * `compute-scroll-into-view/middleware` to align its focus end instead
+ * `compute-scroll-into-view/middleware` to align its focus end instead. TypeScript only accepts a `Range` or
+ * `Selection` target with `selection()` in `options.middleware`, with or without it is fine for an element
  */
-export const compute = (
+export function compute(target: Element, options?: Options): ScrollAction[]
+export function compute<const M extends readonly Middleware[]>(
+  target: Range | Selection,
+  options: SelectionTargetOptions<M>
+): ScrollAction[]
+export function compute(
   input: Element | Range | Selection,
   options: Options = {}
-): ScrollAction[] => {
+): ScrollAction[] {
   if (typeof document === 'undefined') {
     // If there's no DOM we assume it's not in a browser environment
     return []

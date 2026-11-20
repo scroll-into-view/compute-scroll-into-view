@@ -1,4 +1,4 @@
-import type { Middleware, SideObject } from './index.js'
+import type { Middleware, SelectionMiddleware, SideObject } from './index.js'
 import {
   getParentElement,
   getRegion,
@@ -98,7 +98,7 @@ export interface SelectionOptions {
 export const selection = (
   selected?: Selection | Range | null,
   options: SelectionOptions = {}
-): Middleware => ({
+): SelectionMiddleware => ({
   name: 'selection',
   fn: (state) => {
     const { target, container } = state

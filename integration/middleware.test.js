@@ -632,6 +632,11 @@ describe('selection', () => {
           .selectAllChildren(document.querySelector('#empty'))
         const result = {
           bounds: scrollEditor('nearest', [], range),
+          boundsAlign: scrollEditor(
+            'nearest',
+            [window.selection(undefined, { align: 'bounds' })],
+            range
+          ),
           focus: scrollEditor('nearest', [window.selection()], range),
           element: scrollEditor('nearest', [window.selection(range)]),
           state: null,
@@ -658,6 +663,8 @@ describe('selection', () => {
     )
     // The bounds are taller than the editor, so 'nearest' aligns their start edge, at 40px
     expect(actual.bounds).toBeCloseTo(40, -1)
+    // Plain JavaScript can leave out selection(), TypeScript can't. Its bounds are what the Range aligns without it
+    expect(actual.boundsAlign).toBe(actual.bounds)
     // The focus is the end of line 9, whose bottom edge is at 180px
     expect(actual.focus).toBeCloseTo(80, -1)
     // The same as the element around the focus with selection(range)

@@ -110,7 +110,17 @@ The CommonJS build (`dist/index.cjs`) is removed. On Node.js 20.19+ and 22.12+, 
 
 ## compute(target, options)
 
-`target` is an `Element`, or a [`Range`](https://developer.mozilla.org/en-US/docs/Web/API/Range) or [`Selection`](https://developer.mozilla.org/en-US/docs/Web/API/Selection) to scroll text into view. For a `Range` or `Selection` the box around the selected text is aligned, in the scroll containers of the element around its focus end (the end of a `Range`), which also supplies the `scroll-margin`, writing mode and snap alignment. A `Selection` without ranges returns no actions. Add [`selection()`](#selectionselection-options) to align the focus end, where the caret is, instead of the whole selection.
+`target` is an `Element`, or a [`Range`](https://developer.mozilla.org/en-US/docs/Web/API/Range) or [`Selection`](https://developer.mozilla.org/en-US/docs/Web/API/Selection) to scroll text into view. For a `Range` or `Selection` the scroll containers of the element around its focus end (the end of a `Range`) are scrolled, and that element supplies the `scroll-margin`, writing mode and snap alignment. A `Selection` without ranges returns no actions.
+
+In TypeScript a `Range` or `Selection` target needs [`selection()`](#selectionselection-options) in `options.middleware`, and it's a type error without it. An element target is fine with or without it:
+
+```ts
+compute(range, { middleware: [selection()] }) // aligns the caret
+compute(range, { middleware: [selection(undefined, { align: 'bounds' })] }) // aligns the whole selection
+compute(range, { middleware: [onlyIfNeeded()] }) // Error: selection() is missing
+compute(range) // Error
+compute(element) // Fine
+```
 
 ## options
 
@@ -205,7 +215,7 @@ This follows the convention [adopted by Firefox](https://hg.mozilla.org/integrat
 
 ### selection(selection, options)
 
-Scrolls a text selection into view instead of the target element, like editors keep the caret in view. `selection` is a [`Selection`](https://developer.mozilla.org/en-US/docs/Web/API/Selection) or a [`Range`](https://developer.mozilla.org/en-US/docs/Web/API/Range) in the target's document. It defaults to the target of `compute` when that's a `Range` or `Selection`, and otherwise to the document's own selection (`document.getSelection()`). `options.align` is what to align:
+Scrolls a text selection into view instead of the target element, like editors keep the caret in view. `selection` is a [`Selection`](https://developer.mozilla.org/en-US/docs/Web/API/Selection) or a [`Range`](https://developer.mozilla.org/en-US/docs/Web/API/Range) in the target's document. A `Range` or `Selection` target of `compute` needs it in TypeScript, and it defaults to that target. For an element target it defaults to the document's own selection (`document.getSelection()`). `options.align` is what to align:
 
 - `'focus'` (default): the end of the selection where the caret is. A collapsed caret has no box of its own in every browser, so it's measured as the character or node next to it, which also covers empty lines (`<p><br></p>`) and carets next to images. A `Range` has no direction, so its focus is its end. Pass the `Selection` for a backward one.
 - `'bounds'`: the box around the whole selection, [`range.getBoundingClientRect()`](https://developer.mozilla.org/en-US/docs/Web/API/Range/getBoundingClientRect). With `block: 'nearest'`, a selection taller than the scroll container is aligned to its start.
@@ -227,7 +237,7 @@ const actions = compute(document.getSelection(), {
 compute(range, {
   block: 'nearest',
   inline: 'nearest',
-  middleware: [onlyIfNeeded()],
+  middleware: [selection(undefined, { align: 'bounds' }), onlyIfNeeded()],
 })
 ```
 

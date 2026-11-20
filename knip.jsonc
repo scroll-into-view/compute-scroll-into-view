@@ -7,6 +7,8 @@
     // Loaded by the integration/*.html fixtures with <script type="module">,
     // which Knip doesn't parse
     "integration/utils.js",
+    // Type tests, which `vp check` runs with its `@ts-expect-error` comments
+    "integration/types.ts",
     // Run with vpx, see integration/wpt/README.md
     "scripts/*.ts",
   ],
